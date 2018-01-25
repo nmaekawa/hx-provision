@@ -1,0 +1,39 @@
+---
+
+# python3 all the things!
+ansible_python_interpreter: /usr/bin/python3
+
+# assumes either aws or vagrant, then derive remote_user(assumes ubuntu)
+use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
+my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
+
+
+# for Stouts.users
+users_enabled: yes
+
+users_users:
+    - name: nmaekawa
+      groups: ['sudo']
+      authorized:
+          - https://github.com/nmaekawa.keys
+
+    - name: lduarte
+      groups: ['sudo']
+      authorized:
+          - https://github.com/lduarte1991.keys
+
+users_ssh_keys: "{{ users_users }}"
+
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+
+
+# for ANXS.apt
+apt_install_suggests: yes
+
+apt_default_packages:
+    - build-essential
+    - htop
+    - python-pip
+    - supervisor

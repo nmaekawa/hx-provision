@@ -1,0 +1,14 @@
+---
+
+    - src: git+https://github.com/jmcvetta/ansible-passwordless-sudo.git
+      version: "10897d6"
+      name: jmcvetta.passwordless_sudo
+
+    - src: git+https://github.com/Stouts/Stouts.users.git
+      version: "1.2.1"
+      name: Stouts.users
+
+    - src: git+https://github.com/nmaekawa/ansible-role-apt.git
+      version: "0.1.0"
+      name: nmaekawa.apt
+
