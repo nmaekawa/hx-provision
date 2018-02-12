@@ -22,18 +22,31 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #    end
 #  end
 
-  # image server node
-  config.vm.define "image" do |image|
-    image.vm.box = "bento/ubuntu-16.04"
-    image.vm.hostname = "image.vm"
-    image.vm.network "private_network", ip: "10.8.0.6"
+  # iipsrv image server node
+#  config.vm.define "iip" do |iip|
+#    iip.vm.box = "bento/ubuntu-16.04"
+#    iip.vm.hostname = "iip.vm"
+#    iip.vm.network "private_network", ip: "10.8.0.6"
+#
+#    iip.ssh.forward_agent = true
+#    iip.ssh.insert_key = false
+#
+#    iip.vm.provider "virtualbox" do |v|
+#        v.memory = "4096"
+#    end
+#  end
 
-    image.ssh.forward_agent = true
-    image.ssh.insert_key = false
+  # loris image server node
+  config.vm.define "loris" do |loris|
+    loris.vm.box = "bento/ubuntu-16.04"
+    loris.vm.hostname = "loris.vm"
+    loris.vm.network "private_network", ip: "10.8.0.7"
 
-    image.vm.provider "virtualbox" do |v|
+    loris.ssh.forward_agent = true
+    loris.ssh.insert_key = false
+
+    loris.vm.provider "virtualbox" do |v|
         v.memory = "4096"
     end
   end
-
 end
