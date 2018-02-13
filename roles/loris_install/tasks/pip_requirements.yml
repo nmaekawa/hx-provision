@@ -1,0 +1,25 @@
+---
+
+    - name: install requirements
+      become_user: "{{ app_user }}"
+      pip:
+        name: '{{ item.name }}'
+        version: '{{ item.version }}'
+        virtualenv: "{{ app_venv_path }}"
+        state: present
+      with_items:
+          - {"name": "Pillow",     "version": "4.3.0"}
+          - {"name": "Werkzeug",   "version": "0.12.2"}
+          - {"name": "gunicorn",   "version": "19.7.1"}
+          - {"name": "configobj",  "version": "5.0.0"}
+          - {"name": "requests",   "version": "2.11.0"}
+          - {"name": "responses",  "version": "0.3.0"}
+          - {"name": "mock",       "version": "2.0.0"}
+          - {"name": "boto",       "version": "2.40.0"}
+
+    - name: pip install app package
+      become_user: "{{ app_user }}"
+      shell: ". {{ app_venv_path }}/bin/activate && pip install -e ."
+      args:
+        chdir: "{{ app_source_path }}"
+

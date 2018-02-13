@@ -4,6 +4,56 @@
 use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
 my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 
+organization: hx
+org_rootdir: '/opt/{{ organization }}'
+
+app_name: loris
+app_rootdir: '/opt/{{ organization }}'
+app_user: '{{ app_name }}'
+app_group: '{{ app_name }}'
+
+app_install_path: '{{ app_rootdir }}/srv'
+app_source_path: '{{ app_rootdir }}/{{ app_name }}'
+app_config_path: '{{ app_rootdir }}/conf'
+app_log_path: '{{ app_rootdir }}/logs'
+app_bin_path: '{{ app_rootdir }}/bin'
+app_data_path: '{{ app_rootdir }}/data'
+
+
+# vars for loris configs
+loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
+loris_git_version: 'v2.2.0'
+loris_user: '{{ app_user }}'
+loris_group: '{{ app_group }}'
+loris_log_level: 'DEBUG' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+loris_tmp_dp: '{{ app_rootdir }}/tmp'
+loris_www_dp: '{{ app_rootdir }}/www'
+loris_cache_dp: '{{ app_rootdir }}/cache'
+#loris_s3_source_root: s3://bucket/key  # if defined, use s3 storage
+loris_s3_cache_root: '{{ app_data_path }}/cache_root'
+loris_fs_source_root: '{{ app_data_path }}/images'
+loris_log_path: '{{ app_log_path }}'
+loris_config_path: '{{ app_config_path }}'
+loris_config_filename: loris2.conf
+
+
+# for nmaekawa.apt
+apt_required_packages_iiif:
+    - 'libjpeg-turbo8-dev'
+    - 'libfreetype6-dev'
+    - 'zlib1g-dev'
+    - 'liblcms2-dev'
+    - 'liblcms2-utils'
+    - 'libtiff5-dev'
+    - 'libwebp-dev'
+
+# for python-virtualenv
+app_venv_path: '{{ org_rootdir }}/venvs/{{ app_name }}'
+app_venv_user: '{{ app_user }}'
+app_venv_group: '{{ app_group }}'
+
+
+
 
 # for Stouts.users
 users_enabled: yes
@@ -19,9 +69,14 @@ users_users:
       authorized:
           - https://github.com/lduarte1991.keys
 
+    - name: '{{ app_user }}'
+      authorized: []
+
+
 users_ssh_keys: '{{ users_users }}'
 
 users_to_install:
     - 'nmaekawa'
     - 'lduarte'
+    - '{{ app_user }}'
 

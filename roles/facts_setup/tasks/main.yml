@@ -1,0 +1,5 @@
+---
+    - name: add app user
+      set_fact:
+          user_users: '{{ users_users + [ app_user ] }}'
+

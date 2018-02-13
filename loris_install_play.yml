@@ -6,7 +6,7 @@
   become_user: root
   gather_facts: False
   vars_files:
-    - vars/iiif_vars.yml
+      - vars/iiif_vars.yml
 
   tasks:
   - name: install python2
@@ -18,13 +18,17 @@
   become: yes
   become_user: root
   vars_files:
-    - vars/iiif_vars.yml
-    - vars/loris_vars.yml
+      - vars/iiif_vars.yml
 
   roles:
-    - external/jmcvetta.passwordless_sudo
-    - external/nmaekawa.apt
-    - external/Stouts.users
-    - { role: external/nmaekawa.apt, apt_other_packages: '{{ apt_required_packages_iiif }}' }
-    - { role: external/atg.loris }
+      - external/jmcvetta.passwordless_sudo
+      - external/nmaekawa.apt
+      - external/Stouts.users
+      - { role: external/nmaekawa.apt,
+            apt_other_packages: '{{ apt_required_packages_iiif }}' }
+      - { role: external/nmaekawa.python_venv,
+            venv_path: '{{ app_venv_path }}',
+            venv_user: '{{ app_user }}',
+            venv_group: '{{ app_group }}' }
+      - loris_install
 
