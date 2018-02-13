@@ -2,7 +2,7 @@
     - include_tasks: create_dirs.yml
 
     - name: clone repo
-      become_user: '{{ app_user }}'
+      become_user: '{{ loris_user }}'
       git:
           repo: '{{ loris_git_repo }}'
           update: yes
@@ -10,6 +10,14 @@
           force: yes
           version: '{{ loris_git_version }}'
           dest: '{{ app_source_path }}'
+
+    - name: drop s3 resolver into loris src
+      copy:
+          src: files/s3resolver.py
+          backup: yes
+          dest: '{{ app_source_path }}/loris'
+          owner: '{{ loris_user }}'
+          group: '{{ loris_group }}'
 
     - name: drop hx-custom setup.py
       copy:
