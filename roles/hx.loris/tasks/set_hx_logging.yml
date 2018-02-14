@@ -1,0 +1,22 @@
+---
+
+    - name: log to console
+      replace:
+        path: '{{ loris_config_path }}/{{ loris_config_filename }}'
+        regexp: '( *)log_to = (.*)$'
+        replace: \1log_to = 'console'
+        backup: yes
+
+
+    - name: set loris log level
+      replace:
+        path: '{{ loris_config_path }}/{{ loris_config_filename }}'
+        regexp: '( *)log_level = (.*)$'
+        replace: \1log_level = '{{ loris_log_level }}'
+        backup: yes
+
+
+    - name: restart loris
+      service:
+          name: loris
+          state: restarted

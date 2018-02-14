@@ -9,13 +9,13 @@
           clone: yes
           force: yes
           version: '{{ loris_git_version }}'
-          dest: '{{ app_source_path }}'
+          dest: '{{ loris_source_path }}'
 
     - name: drop s3 resolver into loris src
       copy:
           src: files/s3resolver.py
           backup: yes
-          dest: '{{ app_source_path }}/loris'
+          dest: '{{ loris_source_path }}/loris'
           owner: '{{ loris_user }}'
           group: '{{ loris_group }}'
 
@@ -23,7 +23,7 @@
       copy:
           src: files/setup.py
           backup: yes
-          dest: '{{ app_source_path }}'
+          dest: '{{ loris_source_path }}'
           owner: '{{ loris_user }}'
           group: '{{ loris_group }}'
 

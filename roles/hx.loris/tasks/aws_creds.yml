@@ -1,0 +1,19 @@
+---
+
+    - name: ensure aws creds dir exists
+      file:
+          path: /home/{{ loris_user }}/.aws
+          owner: '{{ loris_user }}'
+          group: '{{ loris_group }}'
+          mode: 0750
+          state: directory
+
+    - name: add AWS CREDENTIALS!
+      copy:
+          src: ~/.aws/loris-credentials
+          dest: /home/{{ loris_user }}/.aws/credentials
+          owner: '{{ loris_user }}'
+          group: '{{ loris_group }}'
+          mode: 0600
+
+

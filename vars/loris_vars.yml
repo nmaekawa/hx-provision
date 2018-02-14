@@ -1,0 +1,91 @@
+---
+
+# assumes either aws or vagrant, then derive remote_user(assumes ubuntu)
+use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
+my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
+
+organization: hx
+org_rootdir: '/opt/{{ organization }}'
+loris_rootdir: '/opt/{{ organization }}'
+
+# these mimic loris default for setup.py
+# changes here don't actually change the actual install vars...
+loris_name: loris
+loris_user: '{{ loris_name }}'
+loris_group: '{{ loris_name }}'
+
+#loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
+#loris_git_version: 'v2.2.0'
+#loris_git_repo: 'https://github.com/harvard-atg/loris.git'
+#loris_git_version: '2.0.3'
+
+loris_source_path: '/opt/loris'
+
+loris_log_path: '/var/log/loris'
+loris_log_level: 'DEBUG' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+
+loris_site_path: '/srv'
+
+#loris_s3_source_root: s3://bucket/key  # if defined, use s3 storage
+#loris_s3_cache_root: '/usr/local/share/images/loris2'
+loris_fs_source_root: '/usr/local/share/images'
+loris_config_path: '/etc/loris2'
+loris_config_filename: loris2.conf
+
+
+
+gunicorn_socket: '/var/run/loris'
+
+
+# python packages to install
+loris_python_dependencies:
+    - {"name": "Pillow",     "version": "4.3.0"}
+    - {"name": "Werkzeug",   "version": "0.12.2"}
+    - {"name": "gunicorn",   "version": "19.7.1"}
+    - {"name": "configobj",  "version": "5.0.0"}
+    - {"name": "requests",   "version": "2.11.0"}
+    - {"name": "responses",  "version": "0.3.0"}
+    - {"name": "boto",       "version": "2.40.0"}
+
+
+
+# for nmaekawa.apt
+apt_required_packages_iiif:
+    - 'python-pip'
+    - 'python-dev'
+    - 'python-setuptools'
+    - 'libjpeg-turbo8-dev'
+    - 'libfreetype6-dev'
+    - 'zlib1g-dev'
+    - 'liblcms2-dev'
+    - 'liblcms2-utils'
+    - 'libtiff5-dev'
+    - 'libwebp-dev'
+    - "nginx"
+
+
+# for Stouts.users
+users_enabled: yes
+
+users_users:
+    - name: nmaekawa
+      groups: ['sudo']
+      authorized:
+          - https://github.com/nmaekawa.keys
+
+    - name: lduarte
+      groups: ['sudo']
+      authorized:
+          - https://github.com/lduarte1991.keys
+
+    - name: '{{ loris_user }}'
+      authorized: []
+
+
+users_ssh_keys: '{{ users_users }}'
+
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ loris_user }}'
+

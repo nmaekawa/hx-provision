@@ -1,0 +1,42 @@
+# first install for iiif backend services
+---
+- hosts: all
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/loris_vars.yml
+
+  tasks:
+  - name: install python2
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+
+- hosts: all
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/loris_vars.yml
+
+  roles:
+      - external/jmcvetta.passwordless_sudo
+      - external/nmaekawa.apt
+      - external/Stouts.users
+
+
+- hosts: all
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/loris_vars.yml
+
+  tasks:
+      - import_role:
+          name: external/atg.loris
+      - include_tasks: roles/hx.loris/tasks/aws_creds.yml
+      - include_tasks: roles/hx.loris/tasks/nginx_proxy_timeouts.yml
+      - include_tasks: roles/hx.loris/tasks/gunicorn_worker_timeout.yml
+      - include_tasks: roles/hx.loris/tasks/set_hx_logging.yml

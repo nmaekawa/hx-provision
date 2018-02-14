@@ -1,0 +1,16 @@
+---
+
+    - name: clone repository
+      git:
+        repo: '{{ loris_git_repo }}'
+        update: yes
+        clone: yes
+        force: yes
+        version: '{{ loris_git_version }}'
+        dest: '{{ loris_source_path }}'
+
+    - include_tasks: config_s3.yml
+      when: loris_s3_source_root is defined
+
+    - include_tasks: aws_creds.yml
+      when: ec2_tag_cluster == 'vagrant'

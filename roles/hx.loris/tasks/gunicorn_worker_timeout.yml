@@ -1,0 +1,9 @@
+---
+
+    - name: raise gunicorn worker timeout
+      replace:
+        path: '/srv/loris/gunicorn.py'
+        regexp: '( *)timeout = (.*)$'
+        replace: \1timeout = 300
+        backup: yes
+

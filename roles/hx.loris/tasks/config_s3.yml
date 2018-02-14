@@ -1,0 +1,41 @@
+---
+
+    - name: drop s3 resolver into loris src
+      copy:
+          src: ../files/s3resolver.py
+          backup: yes
+          dest: '{{ loris_source_path }}/loris'
+          owner: '{{ loris_user }}'
+          group: '{{ loris_group }}'
+
+    - name: config s3 resolver.impl
+      ini_file:
+          #path: '{{ loris_source_path }}/etc/loris2.conf'
+          path: '{{ loris_config_path }}/{{ loris_config_filename }}'
+          section: 'resolver'
+          option: 'impl'
+          value: 'loris_resolver.S3Resolver'
+          mode: 0644
+          backup: yes
+
+    - name: config s3 resolver.cache_root
+      ini_file:
+          #path: '{{ loris_source_path }}/etc/loris2.conf'
+          path: '{{ loris_config_path }}/{{ loris_config_filename }}'
+          section: 'resolver'
+          option: 'cache_root'
+          value: '{{ loris_s3_cache_root }}'
+          mode: 0644
+          backup: yes
+
+    - name: config s3 resolver.source_root
+      ini_file:
+          #path: '{{ loris_source_path }}/etc/loris2.conf'
+          path: '{{ loris_config_path }}/{{ loris_config_filename }}'
+          section: 'resolver'
+          option: 'source_root'
+          value: '{{ loris_s3_source_root }}'
+          mode: 0644
+          backup: yes
+
+    # TODO: config aws credentials
