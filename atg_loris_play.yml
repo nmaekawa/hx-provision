@@ -13,7 +13,7 @@
     raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
 
 
-- hosts: all
+- hosts: tag_loris
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -26,7 +26,7 @@
       - external/Stouts.users
 
 
-- hosts: all
+- hosts: tag_loris
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root

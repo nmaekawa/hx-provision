@@ -12,3 +12,6 @@
       version: "0.1.0"
       name: nmaekawa.apt
 
+    - src: git+https://github.com/geerlingguy/ansible-role-varnish.git
+      version: "2.2.0"
+      name: geerlingguy.varnish

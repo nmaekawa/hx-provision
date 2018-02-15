@@ -1,0 +1,24 @@
+---
+- hosts: tag_varnish
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/loris_vars.yml
+
+  tasks:
+  - name: install python2
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+
+- hosts: tag_varnish
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/loris_vars.yml
+
+  roles:
+      - external/geerlingguy.varnish
+

@@ -49,4 +49,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "4096"
     end
   end
+
+  # loris image server node
+  config.vm.define "varnish" do |varnish|
+    varnish.vm.box = "bento/ubuntu-16.04"
+    varnish.vm.hostname = "varnish.vm"
+    varnish.vm.network "private_network", ip: "10.8.0.8"
+
+    varnish.ssh.forward_agent = true
+    varnish.ssh.insert_key = false
+
+    varnish.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+    end
+  end
 end
