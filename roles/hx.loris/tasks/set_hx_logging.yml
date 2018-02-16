@@ -6,7 +6,7 @@
         regexp: '( *)log_to = (.*)$'
         replace: \1log_to = 'console'
         backup: yes
-
+      notify: restart loris
 
     - name: set loris log level
       replace:
@@ -14,9 +14,5 @@
         regexp: '( *)log_level = (.*)$'
         replace: \1log_level = '{{ loris_log_level }}'
         backup: yes
+      notify: restart loris
 
-
-    - name: restart loris
-      service:
-          name: loris
-          state: restarted

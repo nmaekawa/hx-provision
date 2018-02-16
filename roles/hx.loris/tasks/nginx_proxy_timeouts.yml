@@ -8,6 +8,7 @@
         state: present
         insertafter: '^(.*)default_type application\/octet-stream;'
         backup: yes
+      notify: restart nginx
 
     - name: raise nginx proxy_read_timeout
       lineinfile:
@@ -17,8 +18,5 @@
         state: present
         insertafter: '^(.*)default_type application\/octet-stream;'
         backup: yes
+      notify: restart nginx
 
-    - name: restart nginx
-      service:
-          name: nginx
-          state: restarted
