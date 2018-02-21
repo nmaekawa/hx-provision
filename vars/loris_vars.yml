@@ -4,9 +4,6 @@
 use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
 my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 
-organization: hx
-org_rootdir: '/opt/{{ organization }}'
-loris_rootdir: '/opt/{{ organization }}'
 
 # these mimic loris default for setup.py
 # changes here don't actually change the actual install vars...
@@ -14,27 +11,36 @@ loris_name: loris
 loris_user: '{{ loris_name }}'
 loris_group: '{{ loris_name }}'
 
-#loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
-#loris_git_version: 'v2.2.0'
-#loris_git_repo: 'https://github.com/harvard-atg/loris.git'
-#loris_git_version: '2.0.3'
-
-loris_source_path: '/opt/loris'
-
-loris_log_path: '/var/log/loris'
+loris_rootdir: '/opt/{{ loris_name }}'
+loris_source_path: '{{ loris_rootdir }}/loris'
+loris_log_path: '{{ loris_rootdir }}/log'
 loris_log_level: 'DEBUG' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+loris_www_path: '{{ loris_rootdir }}/www'
+loris_image_path: '{{ loris_rootdir }}/images'
+loris_config_path: '{{ loris_rootdir }}/conf'
+loris_config_filename: '{{ loris_name }}.conf'
+loris_cache_path: '{{ loris_rootdir }}/cache'
+loris_tmp_path: '{{ loris_rootdir }}/tmp'
+loris_bin_path: '{{ loris_rootdir }}/bin'
+# uncomment below if you want to use s3 as image storage
+#loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
-loris_site_path: '/srv'
+loris_socket_path: '{{ loris_rootdir }}/run'
+loris_socket_name: 'gunicorn_loris.sock'
+gunicorn_timeout_seconds: 300  # workers timeout
 
-#loris_s3_source_root: s3://bucket/key  # if defined, use s3 storage
-#loris_s3_cache_root: '/usr/local/share/images/loris2'
-loris_fs_source_root: '/usr/local/share/images'
-loris_config_path: '/etc/loris2'
-loris_config_filename: loris2.conf
-
-
-
-gunicorn_socket: '/var/run/loris'
+# easier to create dirs with this dict
+loris_dirs:
+    - '{{ loris_rootdir }}'
+    #- '{{ loris_source_path }}'  # git clone creates this!
+    - '{{ loris_log_path }}'
+    - '{{ loris_www_path }}'
+    - '{{ loris_image_path }}'
+    - '{{ loris_config_path }}'
+    - '{{ loris_cache_path }}'
+    - '{{ loris_tmp_path }}'
+    - '{{ loris_bin_path }}'
+    - '{{ loris_socket_path }}'
 
 
 # python packages to install
@@ -50,7 +56,7 @@ loris_python_dependencies:
 
 
 # for nmaekawa.apt
-apt_required_packages_iiif:
+apt_required_packages_loris:
     - 'python-pip'
     - 'python-dev'
     - 'python-setuptools'
@@ -61,7 +67,8 @@ apt_required_packages_iiif:
     - 'liblcms2-utils'
     - 'libtiff5-dev'
     - 'libwebp-dev'
-    - "nginx"
+    - 'nginx'
+    - 'supervisor'
 
 
 # for Stouts.users

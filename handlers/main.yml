@@ -1,0 +1,29 @@
+---
+
+- name: restart crontab
+  service:
+    name: cron
+    state: restarted
+
+- name: reload nginx
+  service:
+    name: nginx
+    state: reloaded
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+
+- name: restart loris
+  service:
+    name: loris
+    state: restarted
+    enabled: yes
+
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+    enabled: yes

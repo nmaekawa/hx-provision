@@ -1,0 +1,40 @@
+---
+
+    - name: clone repository
+      become_user: '{{ loris_user }}'
+      git:
+          repo: '{{ loris_git_repo }}'
+          update: yes
+          clone: yes
+          force: yes
+          version: '{{ loris_git_version }}'
+          dest: '{{ loris_source_path }}'
+
+
+    - name: drop simpler setup.py
+      copy:
+          src: ../files/setup.py
+          dest: '{{ loris_source_path }}/setup.py'
+          mode: 0644
+          backup: yes
+
+    - name: drop wsgi.py
+      template:
+          src: ../templates/wsgi.py.j2
+          dest: '{{ loris_source_path }}/loris/wsgi.py'
+          mode: 0644
+          backup: yes
+
+    - name: drop static content
+      copy:
+          src: ../files/loris-static/
+          dest: '{{ loris_www_path }}/'
+          owner: '{{ loris_user }}'
+          group: '{{ loris_group }}'
+
+    - name: pip install loris from source
+      pip:
+          name: '.'
+          chdir: '{{ loris_source_path }}'
+          editable: no
+          state: forcereinstall

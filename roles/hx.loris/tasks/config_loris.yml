@@ -1,0 +1,9 @@
+---
+
+    - name: drop loris config
+      template:
+          src: ../templates/loris.conf.j2
+          dest: '{{ loris_config_path }}/{{ loris_config_filename }}'
+          mode: 0644
+          backup: yes
+

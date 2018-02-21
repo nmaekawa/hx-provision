@@ -1,0 +1,7 @@
+[program:{{ loris_name }}]
+command = {{ loris_bin_path }}/gunicorn_start
+user = {{ loris_user }}
+stdout_logfile = {{ loris_log_path }}
+redirect_stderr = true
+autostart = true
+autorestart =true

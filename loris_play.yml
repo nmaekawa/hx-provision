@@ -1,4 +1,3 @@
-# first install for iiif backend services
 ---
 - hosts: all
   remote_user: "{{ my_remote_user }}"
@@ -22,7 +21,7 @@
 
   roles:
       - external/jmcvetta.passwordless_sudo
-      - external/nmaekawa.apt
+      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
       - external/Stouts.users
 
 
@@ -36,11 +35,32 @@
     loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
     loris_git_version: 'v2.2.0'
 
+  handlers:
+    - include: handlers/main.yml
 
   tasks:
-      - import_role:
-          name: external/atg.loris
+      - name: set webserver_dns
+        set_fact:
+            webserver_dns: "{{ ec2_public_dns_name | default('loris.vm') }}"
+
+      - name: create loris dirs
+        file:
+            path: '{{ item }}'
+            owner: '{{ loris_user }}'
+            group: '{{ loris_user }}'
+            state: directory
+        with_items: '{{ loris_dirs }}'
+
+  #      - import_role:
+  #        name: external/atg.loris
+  #
+      - include_tasks: roles/hx.loris/tasks/python_dependencies.yml
+      - include_tasks: roles/hx.loris/tasks/install_loris.yml
+      - include_tasks: roles/hx.loris/tasks/config_loris.yml
+      - include_tasks: roles/hx.loris/tasks/config_nginx.yml
+
       - include_tasks: roles/hx.loris/tasks/aws_creds.yml
-      - include_tasks: roles/hx.loris/tasks/nginx_proxy_timeouts.yml
-      - include_tasks: roles/hx.loris/tasks/gunicorn_worker_timeout.yml
-      - include_tasks: roles/hx.loris/tasks/set_hx_logging.yml
+        when: tag_cluster == 'vagrant' and ( loris_s3_bucket_prefix is defined )
+
+      - include_tasks: roles/hx.loris/tasks/setup_gunicorn.yml
+

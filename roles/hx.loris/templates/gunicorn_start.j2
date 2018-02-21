@@ -1,0 +1,29 @@
+#!/bin/sh
+
+NAME="{{ loris_name }}"
+SOCKFILE="{{ loris_socket_path }}/{{ loris_socket_name }}"
+USER="{{ loris_user }}"
+GROUP="{{ loris_group }}"
+NUM_WORKERS="3"
+
+# set to 0 for unlimited requests.
+# set to 1 to restart the process on each request (development)
+MAX_REQUESTS="0"
+
+echo "`date`: Starting $NAME as `whoami`"
+
+# create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+
+    #--bind unix:$SOCKFILE \
+# run under supervisor so do not use --daemon
+exec gunicorn \
+    --name $NAME \
+    --workers $NUM_WORKERS \
+    --max-requests $MAX_REQUESTS \
+    --timeout {{ gunicorn_timeout_seconds | default(30) }} \
+    --user $USER --group $GROUP \
+    --log-level debug \
+    --bind 127.0.0.1:9000 \
+    loris.wsgi:application

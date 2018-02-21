@@ -23,8 +23,8 @@
 #
 
 [loris.Loris]
-tmp_dp = '{{ loris_tmp_dp }}' # r--
-www_dp = '{{ loris_www_dp }}' # r-x
+tmp_dp = '{{ loris_tmp_path }}' # r--
+www_dp = '{{ loris_www_path }}' # r-x
 run_as_user = '{{ loris_user }}'
 run_as_group = '{{ loris_group }}'
 enable_caching = True
@@ -55,15 +55,15 @@ max_size = 5242880 # 5 MB
 max_backups = 5
 format = '%(asctime)s (%(name)s) [%(levelname)s]: %(message)s'
 
-{% if use_aws or (loris_s3_source_root is defined) %}
+{% if use_aws or (loris_s3_bucket_prefix is defined) %}
 [resolver]
 impl = 'loris_resolver.S3Resolver'
 cache_root = '{{ loris_s3_cache_root }}'
-source_root = '{{ loris_s3_source_root }}'
+source_root = '{{ loris_s3_bucket_prefix }}'
 {% else %}
 [resolver]
 impl = 'loris.resolver.SimpleFSResolver'
-src_img_root = '{{ loris_fs_source_root }}' # r--
+src_img_root = '{{ loris_image_path }}' # r--
 {% endif %}
 
 #Example of one version of SimpleHTTResolver config
@@ -106,12 +106,12 @@ src_img_root = '{{ loris_fs_source_root }}' # r--
 [img.ImageCache]
 # must be on the same volume as tmp_dp, for atomic move operations
 # will crash if on another volume
-cache_dp = '{{ loris_cache_dp }}' # rwx
+cache_dp = '{{ loris_cache_path }}' # rwx
 
 [img_info.InfoCache]
 # must be on the same volume as tmp_dp, for atomic move operations
 # will crash if on another volume
-cache_dp = '{{ loris_cache_dp }}' # rwx
+cache_dp = '{{ loris_cache_path }}' # rwx
 
 [transforms]
 dither_bitonal_images = False

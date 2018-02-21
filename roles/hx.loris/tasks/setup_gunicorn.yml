@@ -1,0 +1,33 @@
+---
+
+    - name: gunicorn | install gunicorn
+      pip:
+        name: gunicorn
+        state: present
+
+    - name: gunicorn | create gunicorn config
+      template:
+        src: ../templates/gunicorn_start.j2
+        dest: "{{ loris_bin_path }}/gunicorn_start"
+        owner: "{{ loris_user }}"
+        group: "{{ loris_group }}"
+        mode: 0755
+        backup: yes
+
+    - name: supervisor | ensure supervisor is running
+      service:
+        name: supervisor
+        state: started
+        enabled: yes
+
+    - name: supervisor | create supervisor config
+      template:
+        src: ../templates/supervisor_config.j2
+        dest: /etc/supervisor/conf.d/{{ loris_name }}.conf
+        backup: yes
+
+    - name: supervisor | reload supervisor config for {{ loris_name }}
+      supervisorctl:
+        name: "{{ loris_name }}"
+        state: present
+
