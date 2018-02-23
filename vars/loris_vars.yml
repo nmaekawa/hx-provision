@@ -11,9 +11,11 @@ loris_name: loris
 loris_user: '{{ loris_name }}'
 loris_group: '{{ loris_name }}'
 
+# these are default values, might be overwritten in facts_setup role
 loris_rootdir: '/opt/{{ loris_name }}'
 loris_source_path: '{{ loris_rootdir }}/loris'
 loris_log_path: '{{ loris_rootdir }}/log'
+loris_log_filename: '{{ loris_name }}.log'
 loris_log_level: 'DEBUG' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
 loris_www_path: '{{ loris_rootdir }}/www'
 loris_image_path: '{{ loris_rootdir }}/images'
@@ -25,8 +27,7 @@ loris_bin_path: '{{ loris_rootdir }}/bin'
 # uncomment below if you want to use s3 as image storage
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
-loris_socket_path: '{{ loris_rootdir }}/run'
-loris_socket_name: 'gunicorn_loris.sock'
+loris_port: 9090
 gunicorn_timeout_seconds: 300  # workers timeout
 
 # easier to create dirs with this dict
@@ -40,7 +41,6 @@ loris_dirs:
     - '{{ loris_cache_path }}'
     - '{{ loris_tmp_path }}'
     - '{{ loris_bin_path }}'
-    - '{{ loris_socket_path }}'
 
 
 # python packages to install

@@ -1,7 +1,6 @@
 
 server {
     listen 80 default_server;
-    server_name {{ webserver_dns }};
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
     root {{ loris_www_path }}/;
@@ -30,8 +29,7 @@ server {
         proxy_read_timeout {{ gunicorn_timeout_seconds }};
         proxy_connect_timeout {{ gunicorn_timeout_seconds }};
         proxy_intercept_errors on;
-        proxy_pass http://unix:{{ loris_socket_path }}/{{ loris_socket_name }};
-        #proxy_pass http://127.0.0.1:9000;
+        proxy_pass http://127.0.0.1:{{ loris_port }};
     }
 
     location = /robots.txt {

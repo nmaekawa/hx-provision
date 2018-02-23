@@ -1,5 +1,7 @@
 ---
-    - name: add app user
+    - name: set local image storage, if vagrant
       set_fact:
-          user_users: '{{ users_users + [ app_user ] }}'
+          loris_image_path: '/vagrant/images'
+      when: ec2_tag_cluster == 'vagrant'
+
 
