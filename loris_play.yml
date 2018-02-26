@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: tag_loris
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -8,8 +8,8 @@
       - vars/loris_vars.yml
 
   tasks:
-  - name: install python2
-    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      - name: install python2
+        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
 
 
 - hosts: tag_loris
@@ -38,28 +38,7 @@
   handlers:
     - include: handlers/main.yml
 
-  tasks:
-      - include_role:
-          name: facts_setup
-
-      - name: create loris dirs
-        file:
-            path: '{{ item }}'
-            owner: '{{ loris_user }}'
-            group: '{{ loris_user }}'
-            state: directory
-        with_items: '{{ loris_dirs }}'
-
-  #      - import_role:
-  #        name: external/atg.loris
-  #
-      - include_tasks: roles/hx.loris/tasks/python_dependencies.yml
-      - include_tasks: roles/hx.loris/tasks/install_loris.yml
-      - include_tasks: roles/hx.loris/tasks/config_loris.yml
-      - include_tasks: roles/hx.loris/tasks/config_nginx.yml
-
-      - include_tasks: roles/hx.loris/tasks/aws_creds.yml
-        when: ec2_tag_cluster == 'vagrant' and ( loris_s3_bucket_prefix is defined )
-
-      - include_tasks: roles/hx.loris/tasks/setup_gunicorn.yml
+  roles:
+      - facts_setup
+      - hx.loris
 

@@ -5,6 +5,9 @@ use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
 my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 
 
+# LORIS VARS
+# -------------------------------------------------------------
+
 # these mimic loris default for setup.py
 # changes here don't actually change the actual install vars...
 loris_name: loris
@@ -24,7 +27,7 @@ loris_config_filename: '{{ loris_name }}.conf'
 loris_cache_path: '{{ loris_rootdir }}/cache'
 loris_tmp_path: '{{ loris_rootdir }}/tmp'
 loris_bin_path: '{{ loris_rootdir }}/bin'
-# uncomment below if you want to use s3 as image storage
+# uncomment below if you want loris to use s3resolver
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
 loris_port: 9090
@@ -98,6 +101,7 @@ users_to_install:
 
 
 # VARNISH VARS
+# -------------------------------------------------------------
 varnish_default_backend_host: 10.8.0.7
 varnish_default_backend_port: 80
 

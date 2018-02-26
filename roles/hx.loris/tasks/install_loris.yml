@@ -10,7 +10,6 @@
           version: '{{ loris_git_version }}'
           dest: '{{ loris_source_path }}'
 
-
     - name: drop simpler setup.py
       copy:
           src: ../files/setup.py

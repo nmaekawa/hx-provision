@@ -1,16 +1,19 @@
 ---
+    - name: create loris dirs
+      file:
+          path: '{{ item }}'
+          owner: '{{ loris_user }}'
+          group: '{{ loris_user }}'
+          state: directory
+      with_items: '{{ loris_dirs }}'
 
-    - name: clone repository
-      git:
-        repo: '{{ loris_git_repo }}'
-        update: yes
-        clone: yes
-        force: yes
-        version: '{{ loris_git_version }}'
-        dest: '{{ loris_source_path }}'
+    - include_tasks: roles/hx.loris/tasks/python_dependencies.yml
+    - include_tasks: roles/hx.loris/tasks/install_loris.yml
+    - include_tasks: roles/hx.loris/tasks/config_loris.yml
+    - include_tasks: roles/hx.loris/tasks/config_nginx.yml
 
-    - include_tasks: config_s3.yml
-      when: loris_s3_source_root is defined
+    - include_tasks: roles/hx.loris/tasks/aws_creds.yml
+      when: ec2_tag_cluster == 'vagrant' and ( loris_s3_bucket_prefix is defined )
 
-    - include_tasks: aws_creds.yml
-      when: ec2_tag_cluster == 'vagrant'
+    - include_tasks: roles/hx.loris/tasks/setup_gunicorn.yml
+

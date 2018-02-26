@@ -10,7 +10,7 @@ server {
     }
 
     location  /harvard_logo.tif/full/full/0/default.jpg {
-        alias /harvard_logo.jpg;
+        alias {{ loris_www_path }}/harvard_logo.jpg;
     }
 
     location / {
