@@ -8,39 +8,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.landrush.enabled = true
   config.landrush.tld = "vm"
 
-  # metadata server node
-#  config.vm.define "meta" do |meta|
-#    meta.vm.box = "geerlingguy/ubuntu1404"
-#    meta.vm.hostname = "meta.vm"
-#    meta.vm.network "private_network", ip: "10.8.0.5"
-#
-#    meta.ssh.forward_agent = true
-#    meta.ssh.insert_key = false
-#
-#    meta.vm.provider "virtualbox" do |v|
-#        v.memory = "4096"
-#    end
-#  end
-
-  # iipsrv image server node
-#  config.vm.define "iip" do |iip|
-#    iip.vm.box = "bento/ubuntu-16.04"
-#    iip.vm.hostname = "iip.vm"
-#    iip.vm.network "private_network", ip: "10.8.0.6"
-#
-#    iip.ssh.forward_agent = true
-#    iip.ssh.insert_key = false
-#
-#    iip.vm.provider "virtualbox" do |v|
-#        v.memory = "4096"
-#    end
-#  end
-
   # loris image server node
   config.vm.define "loris" do |loris|
     loris.vm.box = "bento/ubuntu-16.04"
     loris.vm.hostname = "loris.vm"
-    loris.vm.network "private_network", ip: "10.8.0.7"
+    loris.vm.network "private_network", ip: "10.8.0.10"
 
     loris.ssh.forward_agent = true
     loris.ssh.insert_key = false
@@ -50,16 +22,30 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # loris image server node
-  config.vm.define "varnish" do |varnish|
-    varnish.vm.box = "bento/ubuntu-16.04"
-    varnish.vm.hostname = "varnish.vm"
-    varnish.vm.network "private_network", ip: "10.8.0.8"
+  # proxy node
+  config.vm.define "proxy" do |proxy|
+    proxy.vm.box = "bento/ubuntu-16.04"
+    proxy.vm.hostname = "proxy.vm"
+    proxy.vm.network "private_network", ip: "10.8.0.8"
 
-    varnish.ssh.forward_agent = true
-    varnish.ssh.insert_key = false
+    proxy.ssh.forward_agent = true
+    proxy.ssh.insert_key = false
 
-    varnish.vm.provider "virtualbox" do |v|
+    proxy.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
+    end
+  end
+
+  # ids image server node
+  config.vm.define "ids" do |ids|
+    ids.vm.box = "bento/ubuntu-16.04"
+    ids.vm.hostname = "ids.vm"
+    ids.vm.network "private_network", ip: "10.8.0.9"
+
+    ids.ssh.forward_agent = true
+    ids.ssh.insert_key = false
+
+    ids.vm.provider "virtualbox" do |v|
         v.memory = "4096"
     end
   end

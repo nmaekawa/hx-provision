@@ -1,0 +1,18 @@
+---
+
+    - name: drop nginx site config for {{ service_name }}
+      template:
+          src: ../templates/nginx_{{ service_name }}.j2
+          dest: /etc/nginx/sites-available/{{ service_name }}
+
+    - name: ensure default site is disabled
+      file:
+          path: /etc/nginx/sites-enabled/default
+          state: absent
+
+    - name: ensure {{ service_name }} site is enabled
+      file:
+          src: /etc/nginx/sites-available/{{ service_name }}
+          dest: /etc/nginx/sites-enabled/{{ service_name }}
+          state: link
+      notify: restart nginx

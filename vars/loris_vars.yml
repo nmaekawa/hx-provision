@@ -30,8 +30,10 @@ loris_bin_path: '{{ loris_rootdir }}/bin'
 # uncomment below if you want loris to use s3resolver
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
-loris_port: 9090
+loris_port: 9090  # for loris and nginx to talk
 gunicorn_timeout_seconds: 300  # workers timeout
+
+loris_varnish_backend_port: 9091  # for loris/nginx and varnish to talk
 
 # easier to create dirs with this dict
 loris_dirs:
@@ -102,8 +104,13 @@ users_to_install:
 
 # VARNISH VARS
 # -------------------------------------------------------------
-varnish_default_backend_host: 10.8.0.7
-varnish_default_backend_port: 80
+varnish_default_backend_host: 127.0.0.1
+varnish_default_backend_port: '{{ loris_varnish_backend_port }}'
+
+varnish_enabled_services:
+  - varnish
+  - varnishncsa
+    #- varnishlog
 
 # Optionally define additional backends.
 #varnish_backends:
@@ -113,5 +120,18 @@ varnish_default_backend_port: 80
 #   nodejs:
 #     host: 10.0.2.3
 #     port: 80
+
+
+# PROXY VARS
+# -------------------------------------------------------------
+
+ids_iiif_image_hostname: 'ids.libraries.harvard.edu'
+
+# for nmaekawa.apt
+apt_required_packages_proxy:
+    - 'nginx'
+
+
+
 
 

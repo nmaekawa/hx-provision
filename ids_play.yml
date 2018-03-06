@@ -1,5 +1,5 @@
 ---
-- hosts: tag_loris
+- hosts: tag_ids
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,7 +14,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: tag_loris
+- hosts: tag_ids
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -27,7 +27,7 @@
       - external/Stouts.users
 
 
-- hosts: tag_loris
+- hosts: tag_ids
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root

@@ -1,5 +1,5 @@
 ---
-- hosts: tag_loris
+- hosts: tag_proxy
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -13,8 +13,12 @@
         register: result
         changed_when: "result.stdout != ''"
 
+      - name: check that stdout is not empty
+        debug:
+            msg: 'result.stdout is empty? {{ result.stdout != "" }} : {{ result.stdout }} '
 
-- hosts: tag_loris
+
+- hosts: tag_proxy
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -23,24 +27,26 @@
 
   roles:
       - external/jmcvetta.passwordless_sudo
-      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
+      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_proxy }}" }
       - external/Stouts.users
 
 
-- hosts: tag_loris
+- hosts: tag_proxy
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
   vars_files:
       - vars/loris_vars.yml
-  vars:
-    loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
-    loris_git_version: 'v2.2.0'
 
   handlers:
     - include: handlers/main.yml
 
-  roles:
-      - facts_setup
-      - hx.loris
+  tasks:
+      - name: setup ec2 facts
+        include_role:
+            name: facts_setup
+
+      - include_tasks: roles/hx.loris/tasks/config_nginx_for_service.yml
+        vars:
+            service_name: 'proxy'
 

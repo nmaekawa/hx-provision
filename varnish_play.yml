@@ -8,8 +8,10 @@
       - vars/loris_vars.yml
 
   tasks:
-  - name: install python2
-    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      - name: install python2
+        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        register: result
+        changed_when: "result.stdout != ''"
 
 
 - hosts: tag_varnish

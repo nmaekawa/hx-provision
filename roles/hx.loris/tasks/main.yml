@@ -10,7 +10,9 @@
     - include_tasks: roles/hx.loris/tasks/python_dependencies.yml
     - include_tasks: roles/hx.loris/tasks/install_loris.yml
     - include_tasks: roles/hx.loris/tasks/config_loris.yml
-    - include_tasks: roles/hx.loris/tasks/config_nginx.yml
+    - include_tasks: roles/hx.loris/tasks/config_nginx_for_service.yml
+      vars:
+          service_name: 'loris'
 
     - include_tasks: roles/hx.loris/tasks/aws_creds.yml
       when: ec2_tag_cluster == 'vagrant' and ( loris_s3_bucket_prefix is defined )
