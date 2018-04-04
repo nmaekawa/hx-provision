@@ -19,3 +19,10 @@
 
     - include_tasks: roles/hx.loris/tasks/setup_gunicorn.yml
 
+    - name: restart service
+      supervisorctl:
+          name: '{{ service_name }}'
+          state: restarted
+
+
+

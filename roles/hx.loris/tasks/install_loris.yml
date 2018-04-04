@@ -35,5 +35,5 @@
       pip:
           name: '.'
           chdir: '{{ service_install_dir }}'
-          editable: no
+          editable: '{{ ec2_tag_cluster == "vagrant" }}'
           state: forcereinstall
