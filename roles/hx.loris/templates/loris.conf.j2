@@ -63,11 +63,7 @@ source_root = '{{ loris_s3_bucket_prefix }}'
 {% else %}
 [resolver]
 impl = 'loris.resolver.SimpleFSResolver'
-    {% if ec2_tag_cluster == 'vagrant' %}
-src_img_root = '/vagrant/images' # r--
-    {% else %}
 src_img_root = '{{ service_images_dir }}' # r--
-    {% endif %}
 {% endif %}
 
 #Example of one version of SimpleHTTResolver config

@@ -37,11 +37,15 @@ service_images_dir: '{{ service_data_dir }}/images'
 # uncomment below if you want loris to use s3resolver
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
+# uncomment below if you want to transfer a tar.gz with sample images
+local_image_sample_path_tar_gz: '/Volumes/hx-images/iiif_images_tif.tar.gz'
+
+
 var_service_gunicorn_port: "{{ service_name | upper }}_GUNICORN_PORT"
 var_service_gunicorn_host: "{{ service_name | upper }}_GUNICORN_HOST"
 service_gunicorn_port: "{{ lookup('env', var_service_gunicorn_port) | default('9090', true) }}"
 service_gunicorn_host: "{{ lookup('env', var_service_gunicorn_host) | default('127.0.0.1', true) }}"
-gunicorn_timeout_seconds: 300  # workers timeout
+gunicorn_timeout_seconds: 300  # workers timeout - used in nginx cfg
 
 service_varnish_backend_port: 9091  # for loris/nginx and varnish to talk
 
@@ -55,7 +59,7 @@ service_dirs_to_create:
     - '{{ service_data_dir }}'
     - '{{ service_tmp_dir }}'
     - '{{ service_cache_dir }}'
-    - '{{ service_images_dir }}e'
+    - '{{ service_images_dir }}'
 
 
 # python packages to install

@@ -1,0 +1,16 @@
+---
+    - name: transfer sample images tar.gz
+      copy:
+          src: '{{ local_image_sample_path_tar_gz }}'
+          dest: '{{ service_images_dir }}'
+          owner: '{{ service_user }}'
+          group: '{{ service_group }}'
+
+    - name: unarchive sample images tar.gz
+      unarchive:
+          src: '{{ service_images_dir }}/{{ local_image_sample_path_tar_gz | basename }}'
+          dest: '{{ service_images_dir }}'
+          owner: '{{ service_user }}'
+          group: '{{ service_group }}'
+          remote_src: yes
+
