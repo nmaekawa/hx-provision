@@ -1,6 +1,6 @@
 
 server {
-    listen {{ loris_varnish_backend_port }};
+    listen {{ service_varnish_backend_port }};
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
     root {{ service_static_dir }}/;
@@ -29,7 +29,7 @@ server {
         proxy_read_timeout {{ gunicorn_timeout_seconds }};
         proxy_connect_timeout {{ gunicorn_timeout_seconds }};
         proxy_intercept_errors on;
-        proxy_pass http://127.0.0.1:{{ loris_port }};
+        proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
     }
 
     location = /robots.txt {
