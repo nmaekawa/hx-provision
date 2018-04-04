@@ -23,10 +23,10 @@
 #
 
 [loris.Loris]
-tmp_dp = '{{ loris_tmp_path }}' # r--
-www_dp = '{{ loris_www_path }}' # r-x
-run_as_user = '{{ loris_user }}'
-run_as_group = '{{ loris_group }}'
+tmp_dp = '{{ service_tmp_dir }}/tmp' # r--
+www_dp = '{{ service_static_dir }}' # r-x
+run_as_user = '{{ service_user }}'
+run_as_group = '{{ service_group }}'
 enable_caching = True
 redirect_canonical_image_request = False
 redirect_id_slash_to_info = True
@@ -49,8 +49,8 @@ max_size_above_full = 200
 
 [logging]
 log_to = 'console'    # 'console'|'file'
-log_level = '{{ loris_log_level }}' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
-log_dir = '{{ loris_log_path }}' # rw-
+log_level = '{{ service_log_level | default("DEBUG", true) }}' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+log_dir = '{{ service_log_dir }}' # rw-
 max_size = 5242880 # 5 MB
 max_backups = 5
 format = '%(asctime)s (%(name)s) [%(levelname)s]: %(message)s'
@@ -58,12 +58,16 @@ format = '%(asctime)s (%(name)s) [%(levelname)s]: %(message)s'
 {% if loris_s3_bucket_prefix is defined %}
 [resolver]
 impl = 'loris_resolver.S3Resolver'
-cache_root = '{{ loris_cache_path }}'
+cache_root = '{{ service_cache_dir }}'
 source_root = '{{ loris_s3_bucket_prefix }}'
 {% else %}
 [resolver]
 impl = 'loris.resolver.SimpleFSResolver'
-src_img_root = '{{ loris_image_path }}' # r--
+    {% if ec2_tag_cluster == 'vagrant' %}
+src_img_root = '/vagrant/images' # r--
+    {% else %}
+src_img_root = '{{ service_images_dir }}' # r--
+    {% endif %}
 {% endif %}
 
 #Example of one version of SimpleHTTResolver config
@@ -106,12 +110,12 @@ src_img_root = '{{ loris_image_path }}' # r--
 [img.ImageCache]
 # must be on the same volume as tmp_dp, for atomic move operations
 # will crash if on another volume
-cache_dp = '{{ loris_cache_path }}' # rwx
+cache_dp = '{{ service_cache_dir }}' # rwx
 
 [img_info.InfoCache]
 # must be on the same volume as tmp_dp, for atomic move operations
 # will crash if on another volume
-cache_dp = '{{ loris_cache_path }}' # rwx
+cache_dp = '{{ service_cache_dir }}' # rwx
 
 [transforms]
 dither_bitonal_images = False

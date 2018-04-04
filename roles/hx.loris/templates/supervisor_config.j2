@@ -1,7 +1,7 @@
-[program:{{ loris_name }}]
-command = {{ loris_bin_path }}/gunicorn_start
-user = {{ loris_user }}
-stdout_logfile = {{ loris_log_path }}/{{ loris_log_filename }}
+[program:{{ service_name }}]
+command = {{ service_bin_dir }}/gunicorn_start
+user = {{ service_user }}
+stdout_logfile = {{ service_log_path }}
 redirect_stderr = true
 autostart = true
 autorestart =true

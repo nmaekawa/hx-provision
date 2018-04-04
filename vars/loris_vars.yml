@@ -4,29 +4,36 @@
 use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
 my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 
+org_dns_domain: "harvardx.harvard.edu"
+
 
 # LORIS VARS
 # -------------------------------------------------------------
 
 # these mimic loris default for setup.py
 # changes here don't actually change the actual install vars...
-loris_name: loris
-loris_user: '{{ loris_name }}'
-loris_group: '{{ loris_name }}'
+service_name: "loris"
+service_user: '{{ service_name }}'
+service_group: '{{ service_name }}'
 
 # these are default values, might be overwritten in facts_setup role
-loris_rootdir: '/opt/{{ loris_name }}'
-loris_source_path: '{{ loris_rootdir }}/loris'
-loris_log_path: '{{ loris_rootdir }}/log'
-loris_log_filename: '{{ loris_name }}.log'
-loris_log_level: 'DEBUG' # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
-loris_www_path: '{{ loris_rootdir }}/www'
-loris_image_path: '{{ loris_rootdir }}/images'
-loris_config_path: '{{ loris_rootdir }}/conf'
-loris_config_filename: '{{ loris_name }}.conf'
-loris_cache_path: '{{ loris_rootdir }}/cache'
-loris_tmp_path: '{{ loris_rootdir }}/tmp'
-loris_bin_path: '{{ loris_rootdir }}/bin'
+service_rootdir: '/opt/{{ service_name }}'
+service_venv_dir: "{{ service_rootdir }}/venv"
+service_log_dir: "{{ service_rootdir }}/log"
+service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
+# uncomment, otherwise defaul is debug: 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+#service_log_level: "DEBUG"
+
+service_install_dir: '{{ service_rootdir }}/{{ service_name }}'
+service_static_dir: '{{ service_rootdir }}/www'
+service_config_dir: '{{ service_rootdir }}/conf'
+service_config_path: '{{ service_config_dir }}/{{ service_name }}.conf'
+service_bin_dir: '{{ service_rootdir }}/bin'
+service_data_dir: '{{ service_rootdir }}/data'
+service_tmp_dir: '{{ service_data_dir }}/tmp'
+service_cache_dir: '{{ service_data_dir }}/cache'
+service_images_dir: '{{ service_data_dir }}/images'
+
 # uncomment below if you want loris to use s3resolver
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
@@ -37,15 +44,15 @@ loris_varnish_backend_port: 9091  # for loris/nginx and varnish to talk
 
 # easier to create dirs with this dict
 loris_dirs:
-    - '{{ loris_rootdir }}'
-    #- '{{ loris_source_path }}'  # git clone creates this!
-    - '{{ loris_log_path }}'
-    - '{{ loris_www_path }}'
-    - '{{ loris_image_path }}'
-    - '{{ loris_config_path }}'
-    - '{{ loris_cache_path }}'
-    - '{{ loris_tmp_path }}'
-    - '{{ loris_bin_path }}'
+    - '{{ service_rootdir }}'
+    - '{{ service_bin_dir }}'
+    - '{{ service_log_dir }}'
+    - '{{ service_static_dir }}'
+    - '{{ service_config_dir }}'
+    - '{{ service_data_dir }}'
+    - '{{ service_tmp_dir }}'
+    - '{{ service_cache_dir }}'
+    - '{{ service_images_dir }}e'
 
 
 # python packages to install
@@ -90,7 +97,7 @@ users_users:
       authorized:
           - https://github.com/lduarte1991.keys
 
-    - name: '{{ loris_user }}'
+    - name: '{{ service_user }}'
       authorized: []
 
 
@@ -99,7 +106,7 @@ users_ssh_keys: '{{ users_users }}'
 users_to_install:
     - 'nmaekawa'
     - 'lduarte'
-    - '{{ loris_user }}'
+    - '{{ service_user }}'
 
 
 # VARNISH VARS

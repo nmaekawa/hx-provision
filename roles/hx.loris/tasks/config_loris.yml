@@ -1,9 +1,8 @@
 ---
-
-    - name: drop loris config
+    - name: drop service config
       template:
           src: ../templates/loris.conf.j2
-          dest: '{{ loris_config_path }}/{{ loris_config_filename }}'
+          dest: '{{ service_config_path }}'
           mode: 0644
           backup: yes
 

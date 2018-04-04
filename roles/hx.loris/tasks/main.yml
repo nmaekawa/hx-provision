@@ -2,8 +2,8 @@
     - name: create loris dirs
       file:
           path: '{{ item }}'
-          owner: '{{ loris_user }}'
-          group: '{{ loris_user }}'
+          owner: '{{ service_user }}'
+          group: '{{ service_group }}'
           state: directory
       with_items: '{{ loris_dirs }}'
 

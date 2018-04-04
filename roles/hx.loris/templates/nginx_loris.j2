@@ -3,14 +3,14 @@ server {
     listen {{ loris_varnish_backend_port }};
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
-    root {{ loris_www_path }}/;
+    root {{ service_static_dir }}/;
 
     location = / {
         index index.html;
     }
 
     location  /harvard_logo.tif/full/full/0/default.jpg {
-        alias {{ loris_www_path }}/harvard_logo.jpg;
+        alias {{ service_static_dir }}/harvard_logo.jpg;
     }
 
     location / {

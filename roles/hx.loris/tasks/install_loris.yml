@@ -1,39 +1,39 @@
 ---
 
     - name: clone repository
-      become_user: '{{ loris_user }}'
+      become_user: '{{ service_user }}'
       git:
           repo: '{{ loris_git_repo }}'
           update: yes
           clone: yes
           force: yes
           version: '{{ loris_git_version }}'
-          dest: '{{ loris_source_path }}'
+          dest: '{{ service_install_dir }}'
 
     - name: drop simpler setup.py
       copy:
           src: ../files/setup.py
-          dest: '{{ loris_source_path }}/setup.py'
+          dest: '{{ service_install_dir }}/setup.py'
           mode: 0644
           backup: yes
 
     - name: drop wsgi.py
       template:
           src: ../templates/wsgi.py.j2
-          dest: '{{ loris_source_path }}/loris/wsgi.py'
+          dest: '{{ service_install_dir }}/loris/wsgi.py'
           mode: 0644
           backup: yes
 
     - name: drop static content
       copy:
           src: ../files/loris-static/
-          dest: '{{ loris_www_path }}/'
-          owner: '{{ loris_user }}'
-          group: '{{ loris_group }}'
+          dest: '{{ service_static_dir }}/'
+          owner: '{{ service_user }}'
+          group: '{{ service_group }}'
 
     - name: pip install loris from source
       pip:
           name: '.'
-          chdir: '{{ loris_source_path }}'
+          chdir: '{{ service_install_dir }}'
           editable: no
           state: forcereinstall
