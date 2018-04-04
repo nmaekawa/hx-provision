@@ -63,7 +63,7 @@ service_dirs_to_create:
 
 
 # python packages to install
-loris_python_dependencies:
+service_python_dependencies:
     - {"name": "Pillow",     "version": "4.3.0"}
     - {"name": "Werkzeug",   "version": "0.12.2"}
     - {"name": "gunicorn",   "version": "19.7.1"}

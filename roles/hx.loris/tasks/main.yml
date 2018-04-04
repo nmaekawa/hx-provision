@@ -7,7 +7,8 @@
           state: directory
       with_items: '{{ service_dirs_to_create }}'
 
-    - include_tasks: roles/hx.loris/tasks/python_dependencies.yml
+      #- include_tasks: roles/hx.loris/tasks/python_dependencies.yml
+    - include_tasks: roles/hx.loris/tasks/venv.yml
     - include_tasks: roles/hx.loris/tasks/install_loris.yml
     - include_tasks: roles/hx.loris/tasks/config_loris.yml
     - include_tasks: roles/hx.loris/tasks/config_nginx_for_service.yml

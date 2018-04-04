@@ -3,7 +3,8 @@
 NAME="{{ service_name }}"
 USER="{{ service_user }}"
 GROUP="{{ service_group }}"
-PORT="{{ service_gunicorn_port }}"
+GUNICORN_HOST="{{ service_gunicorn_host }}"
+GUNICORN_PORT="{{ service_gunicorn_port }}"
 NUM_WORKERS="3"
 
 # set to 0 for unlimited requests.
@@ -11,6 +12,9 @@ NUM_WORKERS="3"
 MAX_REQUESTS="0"
 
 echo "`date`: Starting $NAME as `whoami`"
+
+# activate venv
+. {{ service_venv_dir }}/bin/activate
 
 # run under supervisor so do not use --daemon
 exec gunicorn \
@@ -20,5 +24,5 @@ exec gunicorn \
     --timeout {{ gunicorn_timeout_seconds | default(30) }} \
     --user $USER --group $GROUP \
     --log-level debug \
-    --bind 127.0.0.1:$PORT \
-    loris.wsgi:application
+    --bind $GUNICORN_HOST:$GUNICORN_PORT \
+    {{ service_name }}.wsgi:application

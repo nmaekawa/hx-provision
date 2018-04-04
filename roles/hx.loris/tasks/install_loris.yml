@@ -36,4 +36,5 @@
           name: '.'
           chdir: '{{ service_install_dir }}'
           editable: '{{ ec2_tag_cluster == "vagrant" }}'
+          virtualenv: "{{ service_venv_dir }}"
           state: forcereinstall

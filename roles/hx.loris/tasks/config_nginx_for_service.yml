@@ -16,3 +16,8 @@
           dest: /etc/nginx/sites-enabled/{{ service_name }}
           state: link
       notify: restart nginx
+
+    - name: restart nginx
+      service:
+          name: nginx
+          state: restarted
