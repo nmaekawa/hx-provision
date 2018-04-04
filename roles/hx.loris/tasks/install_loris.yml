@@ -11,6 +11,7 @@
           dest: '{{ service_install_dir }}'
 
     - name: drop simpler setup.py
+      become_user: '{{ service_user }}'
       copy:
           src: ../files/setup.py
           dest: '{{ service_install_dir }}/setup.py'
@@ -18,6 +19,7 @@
           backup: yes
 
     - name: drop wsgi.py
+      become_user: '{{ service_user }}'
       template:
           src: ../templates/wsgi.py.j2
           dest: '{{ service_install_dir }}/loris/wsgi.py'
@@ -25,6 +27,7 @@
           backup: yes
 
     - name: drop static content
+      become_user: '{{ service_user }}'
       copy:
           src: ../files/loris-static/
           dest: '{{ service_static_dir }}/'
@@ -32,6 +35,7 @@
           group: '{{ service_group }}'
 
     - name: pip install loris from source
+      become_user: '{{ service_user }}'
       pip:
           name: '.'
           chdir: '{{ service_install_dir }}'

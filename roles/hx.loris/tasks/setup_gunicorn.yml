@@ -1,8 +1,10 @@
 ---
 
     - name: gunicorn | install gunicorn
+      become_user: '{{ service_user }}'
       pip:
         name: gunicorn
+        virtualenv: '{{ service_venv_dir }}'
         state: present
 
     - name: gunicorn | create gunicorn config
