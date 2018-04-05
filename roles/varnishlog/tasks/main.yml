@@ -1,0 +1,16 @@
+---
+    - name: create varnishlog pid dir
+      file:
+          path: /run/varnishlog
+          owner: varnishlog
+          group: varnish
+          state: directory
+
+
+    # from https://github.com/varnishcache/pkg-varnish-cache/issues/31
+    - name: drop varnishlog.service
+      copy:
+          src: ../files/varnishlog.service
+          dest: /lib/systemd/system/varnishlog.service
+          owner: root
+          group: root

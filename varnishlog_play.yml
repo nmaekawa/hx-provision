@@ -1,0 +1,17 @@
+---
+- hosts: tag_loris
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/loris_vars.yml
+
+  tasks:
+      - import_role:
+          name: varnishlog
+      - import_role:
+          name: external/geerlingguy.varnish
+        vars:
+            varnish_enabled_services:
+                - varnishlog
+

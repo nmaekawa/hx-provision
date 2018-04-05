@@ -1,0 +1,20 @@
+[Unit]
+Description=Varnish Cache HTTP acceleration logging daemon
+After=varnish.service
+
+[Service]
+RuntimeDirectory=varnishlog
+Type=forking
+User=varnishlog
+Group=varnish
+ExecStart=/usr/bin/varnishlog -D -a -w /var/log/varnish/varnish.log -P /run/varnishlog/varnishlog.pid
+ExecReload=/bin/kill -HUP $MAINPID
+PrivateDevices=true
+PrivateNetwork=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+PIDFile=/run/varnishlog/varnishlog.pid
+
+[Install]
+WantedBy=multi-user.target
