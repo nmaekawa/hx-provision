@@ -67,6 +67,8 @@
       # have to repeat varnish install for varnishlog
       # first we create a proper systemd service file -- that requires
       # varnishlog user created in the previous varnish install...
+      # i think it's related to this:
+      # https://github.com/ansible/ansible/issues/22303
       - varnishlog
       - { role: external/geerlingguy.varnish, varnish_enabled_services: [ varnishlog ]}
 

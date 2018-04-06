@@ -121,6 +121,8 @@ users_to_install:
 varnish_default_backend_host: 127.0.0.1
 varnish_default_backend_port: '{{ service_varnish_backend_port }}'
 
+varnish_default_vcl_template_path: roles/varnishlog/templates/default.vcl.j2
+
 varnish_enabled_services:
   - varnish
   - varnishncsa
@@ -139,7 +141,7 @@ varnish_enabled_services:
 # PROXY VARS
 # -------------------------------------------------------------
 
-ids_iiif_image_hostname: 'ids.libraries.harvard.edu'
+ids_iiif_image_hostname: 'ids.lib.harvard.edu'
 
 # for nmaekawa.apt
 apt_required_packages_proxy:

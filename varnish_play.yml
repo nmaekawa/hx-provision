@@ -1,5 +1,5 @@
 ---
-- hosts: tag_varnish
+- hosts: tag_loris
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,7 +14,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: tag_varnish
+- hosts: tag_loris
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -24,3 +24,16 @@
   roles:
       - external/geerlingguy.varnish
 
+
+- hosts: tag_loris
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/loris_vars.yml
+
+  roles:
+      - varnishlog
+      - { role: external/geerlingguy.varnish, varnish_enabled_services: [ varnishlog ],
+                varnish_default_vcl_template_path: "roles/varnishlog/templates/default.vcl.j2"
+        }

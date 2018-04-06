@@ -29,18 +29,14 @@ server {
             deny all;
         }
 
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        resolver 8.8.8.8;  # google dns server
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-        proxy_read_timeout 90;
-        proxy_connect_timeout 90;
-        proxy_intercept_errors on;
+
         # this has to be reachable at nginx startup
         {% if ec2_tag_cluster == 'vagrant' %}
-        proxy_pass http://{{ ids_instance_private_dns }}:{{ loris_varnish_backend_port }};
+        proxy_pass $scheme://{{ ids_instance_private_dns }}:{{ loris_varnish_backend_port }};
         {% else %}
-        proxy_pass http://{{ ids_iiif_image_hostname }};
+        proxy_pass $scheme://{{ ids_iiif_image_hostname }};
         {% endif %}
     }
 
