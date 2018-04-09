@@ -3,7 +3,7 @@ server {
     listen 80;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
-    root /var/www;
+    root {{ proxy_static_dir }};
 
     location = / {
         index index.html;
@@ -29,7 +29,7 @@ server {
             deny all;
         }
 
-        resolver 8.8.8.8;  # google dns server
+        resolver {{ proxy_dns_resolver }};
         proxy_set_header X-Real-IP $remote_addr;
 
         # this has to be reachable at nginx startup

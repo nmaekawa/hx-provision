@@ -50,3 +50,16 @@
         vars:
             service_name: 'proxy'
 
+      - name: ensure proxy_static_dir exists
+        file:
+            path: '{{ proxy_static_dir }}'
+            state: directory
+
+      - name: drop error pages
+        copy:
+            src: roles/hx.loris/files/loris-static/
+            dest: '{{ proxy_static_dir }}/'
+
+
+
+

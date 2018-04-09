@@ -1,12 +1,24 @@
 ---
-    - name: set loris_instance_private_dns - for nginx proxy
+    - name: nginx proxy | set loris_instance_private_dns
       set_fact:
           loris_instance_private_dns: "{{ hostvars[ groups['tag_loris'][0] ]['ec2_private_dns_name'] }}"
       when: loris_instance_private_dns is not defined
 
 
-    - name: set ids_instance_private_dns - for nginx proxy
+    - name: nginx proxy | set ids_instance_private_dns
       set_fact:
           ids_instance_private_dns: "{{ hostvars[ groups['tag_ids'][0] ]['ec2_private_dns_name'] }}"
       when: ec2_tag_cluster == 'vagrant' and ids_instance_private_dns is not defined
+
+
+    - name: nginx proxy | get proxy_dns_resolver from instance
+      shell: "grep nameserver /etc/resolv.conf | awk '{print $2}'"
+      register: resolver_result
+      when: use_aws
+
+
+    - name: nginx proxy | set proxy_dns_resolver
+      set_fact:
+          proxy_dns_resolver: '{{ resolver_result.stdout }}'
+      when: use_aws
 

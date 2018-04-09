@@ -1,0 +1,12 @@
+vcl 4.0;
+
+# basic vc with longer ttl
+backend default {
+    .host = "{{ varnish_default_backend_host }}";
+    .port = "{{ varnish_default_backend_port }}";
+}
+
+sub vcl_backend_response {
+    unset beresp.http.set-cookie;
+    set beresp.ttl = 1h;
+}

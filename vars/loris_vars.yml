@@ -143,10 +143,13 @@ varnish_enabled_services:
 
 ids_iiif_image_hostname: 'ids.lib.harvard.edu'
 
+# to be overwritten when aws cluster
+proxy_dns_resolver: '8.8.8.8' # google resolver
+proxy_static_dir: '/var/www/html'
+
 # for nmaekawa.apt
 apt_required_packages_proxy:
     - 'nginx'
-
 
 
 
