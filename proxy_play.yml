@@ -50,8 +50,11 @@
         include_role:
             name: nginx
         vars:
-            service_name: 'proxy'
-            nginx_template_path: roles/nginx/templates/nginx_proxy.j2
+            enable_ssl: 'true'
+            service_name: 'images'  # for nginx proxy, service_name is part of ssl cert domain name
+            nginx_template_path: roles/nginx/templates/nginx_reverse_proxy.j2
+            ids_varnish_host: '127.0.0.1'
+            ids_varnish_port: '{{ proxy_varnish_listen_port }}'
 
       - name: ensure proxy_static_dir exists
         file:
@@ -62,5 +65,49 @@
         copy:
             src: roles/hx.loris/files/loris-static/
             dest: '{{ proxy_static_dir }}/'
+
+
+- hosts: tag_proxy
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/loris_vars.yml
+
+  tasks:
+      - name: install varnish
+        include_role:
+            name: external/geerlingguy.varnish
+        vars:
+            varnish_listen_port: "{{ proxy_varnish_listen_port }}"
+            varnish_default_backend_host: "{{ ids_iiif_image_hostname }}"
+            varnish_default_backend_port: 80
+
+
+      # have to repeat varnish install for varnishlog
+      # first we create a proper systemd service file -- that requires
+      # varnishlog user created in the previous varnish install...
+      # i think it's related to this:
+      # https://github.com/ansible/ansible/issues/22303
+      - name: hack to setup varnishlog
+        include_role:
+            name: varnishlog
+        vars:
+            varnish_listen_port: "{{ proxy_varnish_listen_port }}"
+            varnish_default_backend_host: "{{ ids_iiif_image_hostname }}"
+            varnish_default_backend_port: 80
+
+      - name: re-run role to enable varnishlog
+        include_role:
+            name: external/geerlingguy.varnish
+        vars:
+            varnish_listen_port: "{{ proxy_varnish_listen_port }}"
+            varnish_default_backend_host: "{{ ids_iiif_image_hostname }}"
+            varnish_default_backend_port: 80
+            varnish_enabled_services: [ varnishlog ]
+
+
+
+
 
 

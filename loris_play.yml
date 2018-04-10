@@ -53,6 +53,7 @@
         include_role:
             name: nginx
         vars:
+            enable_ssl: 'false'
             nginx_template_path: roles/nginx/templates/nginx_loris.j2
 
 

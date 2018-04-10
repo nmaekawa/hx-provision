@@ -1,24 +1,110 @@
 ---
 
-    - name: drop nginx site config for {{ service_name }}
-      template:
-          #src: ../templates/nginx_{{ service_name }}.j2
-          src: "{{ nginx_template_path }}"
-          dest: /etc/nginx/sites-available/{{ service_name }}
+    - name: install nginx
+      apt:
+        name: nginx
+        state: installed
 
+    - name: copy ssl cert dir to service host
+      copy:
+        src: "{{ item }}"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ item | basename }}"
+        mode: 0644
+      with_fileglob:
+        - "{{ local_certs_dir }}/*.crt"
+      when: enable_ssl == 'true'
+
+    - name: copy ssl private_key to service host
+      copy:
+        src: "{{ item }}"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ item | basename }}"
+        mode: 0600
+      with_fileglob:
+        - "{{ local_certs_dir }}/*.key"
+      when: enable_ssl == 'true'
+
+
+    # create sites-available
+    # with_ssl is internal to the template; enable_ssl defines if (web) service will use https
+    - include_tasks: drop_nginx_config.yml  with_ssl='true'
+      when: enable_ssl == 'true'
+    - include_tasks: drop_nginx_config.yml  with_ssl='false'
+
+    # disabled default site
     - name: ensure default site is disabled
       file:
-          path: /etc/nginx/sites-enabled/default
-          state: absent
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+
+    - name: compose the cert filename
+      set_fact:
+          cert_partial_filename: "{{ service_name }}_{{ org_dns_domain | replace('.', '_') }}"
+
+
+      #- name: replace server_name with webserver_dns in nginx config
+      #replace:
+      #  path: /etc/nginx/sites-available/ssl_{{ service_name }}
+      #  regexp: '^(\s+)server_name\s+.*$'
+      #  replace: '\1server_name    {{ webserver_dns }};'
+      #  backup: yes
+      #when: enable_ssl == 'true'
+
+
+      #- name: replace server_name with webserver_dns in nonssl nginx config
+      #replace:
+      #  path: /etc/nginx/sites-available/nonssl_{{ service_name }}
+      #  regexp: '^(\s+)server_name\s+.*$'
+      #  replace: '\1server_name {{ webserver_dns }};'
+      #  backup: yes
+
+
+    - name: link ssl cert to correct file for prod cluster
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ service_name }}.crt"
+        state: link
+      when: enable_ssl == 'true' and ec2_tag_cluster == 'prod'
+      notify: reload nginx
+
+
+    - name: link ssl key to correct file for prod cluster
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ service_name }}.key"
+        state: link
+      when: enable_ssl == 'true' and ec2_tag_cluster == 'prod'
+      notify: reload nginx
+
+
+    - name: link ssl cert to correct file
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/all_{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ service_name }}.crt"
+        state: link
+      when: enable_ssl == 'true' and ec2_tag_cluster != 'prod'
+      notify: reload nginx
+
+
+    - name: link ssl key to correct file
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/all_{{ cert_partial_filename }}.key"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ service_name }}.key"
+        state: link
+      when: enable_ssl == 'true' and ec2_tag_cluster != 'prod'
+      notify: reload nginx
+
 
     - name: ensure {{ service_name }} site is enabled
       file:
-          src: /etc/nginx/sites-available/{{ service_name }}
-          dest: /etc/nginx/sites-enabled/{{ service_name }}
-          state: link
-      notify: restart nginx
+        src: /etc/nginx/sites-available/{{ (enable_ssl == 'true') | ternary('ssl', 'nonssl') }}_{{ service_name }}
+        dest: /etc/nginx/sites-enabled/{{ service_name }}
+        state: link
+      notify: reload nginx
+
 
     - name: restart nginx
       service:
           name: nginx
           state: restarted
+

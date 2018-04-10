@@ -6,6 +6,12 @@ backend default {
     .port = "{{ varnish_default_backend_port }}";
 }
 
+{% if ec2_tag_proxy is defined %}
+sub vcl_backend_fetch {
+    set bereq.http.host = "{{ varnish_default_backend_host }}";
+}
+{% endif %}
+
 sub vcl_backend_response {
     unset beresp.http.set-cookie;
     set beresp.ttl = 1h;
