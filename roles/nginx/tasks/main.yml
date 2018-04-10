@@ -1,0 +1,5 @@
+---
+
+    - include_tasks: config_nginx_for_service.yml
+      vars:
+          with_ssl: false

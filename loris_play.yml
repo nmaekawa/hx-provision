@@ -40,9 +40,18 @@
   handlers:
     - include: handlers/main.yml
 
-  roles:
-      - facts_setup
-      - hx.loris
+  tasks:
+      - name: set facts
+        include_role:
+            name: facts_setup
+
+      - name: setup loris
+        include_role:
+            name: hx.loris
+
+      - name: setup proxy
+        include_role:
+            name: nginx
 
 
 - hosts: tag_loris

@@ -46,7 +46,9 @@
         include_role:
             name: facts_setup
 
-      - include_tasks: roles/hx.loris/tasks/config_nginx_for_service.yml
+      - name: setup proxy
+        include_role:
+            name: nginx
         vars:
             service_name: 'proxy'
 
@@ -59,7 +61,5 @@
         copy:
             src: roles/hx.loris/files/loris-static/
             dest: '{{ proxy_static_dir }}/'
-
-
 
 
