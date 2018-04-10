@@ -2,7 +2,8 @@
 
     - name: drop nginx site config for {{ service_name }}
       template:
-          src: ../templates/nginx_{{ service_name }}.j2
+          #src: ../templates/nginx_{{ service_name }}.j2
+          src: "{{ nginx_template_path }}"
           dest: /etc/nginx/sites-available/{{ service_name }}
 
     - name: ensure default site is disabled

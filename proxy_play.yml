@@ -51,6 +51,7 @@
             name: nginx
         vars:
             service_name: 'proxy'
+            nginx_template_path: roles/nginx/templates/nginx_proxy.j2
 
       - name: ensure proxy_static_dir exists
         file:
