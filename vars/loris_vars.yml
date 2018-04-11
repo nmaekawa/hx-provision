@@ -141,7 +141,7 @@ varnish_enabled_services:
 # PROXY VARS
 # -------------------------------------------------------------
 
-ids_iiif_image_hostname: 'ids.lib.harvard.edu'
+ids_iiif_image_hostname: '{{ (ec2_tag_cluster == "vagrant") | ternary("ids.vm", "ids.lib.harvard.edu") }}'
 
 # to be overwritten when aws cluster; used when forward proxying to librarise
 proxy_dns_resolver: '8.8.8.8' # google resolver

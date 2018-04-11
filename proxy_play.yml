@@ -50,7 +50,7 @@
         include_role:
             name: nginx
         vars:
-            enable_ssl: 'true'
+            enable_ssl: '{{ (ec2_tag_cluster == "vagrant") | ternary("false", "true") }}'
             service_name: 'images'  # for nginx proxy, service_name is part of ssl cert domain name
             nginx_template_path: roles/nginx/templates/nginx_reverse_proxy.j2
             ids_varnish_host: '127.0.0.1'
