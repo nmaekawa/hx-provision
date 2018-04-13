@@ -1,0 +1,27 @@
+---
+
+# assumes either aws or vagrant, then derive remote_user(assumes ubuntu)
+use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
+my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
+
+org_dns_domain: "harvardx.harvard.edu"
+
+
+# for Stouts.users
+users_developers:
+    - name: nmaekawa
+      groups: ['sudo']
+      authorized:
+          - https://github.com/nmaekawa.keys
+
+    - name: lduarte
+      groups: ['sudo']
+      authorized:
+          - https://github.com/lduarte1991.keys
+
+    - name: "{{ service_user }}"
+      authorized: []
+
+users_ssh_keys: '{{ users_users }}'
+
+

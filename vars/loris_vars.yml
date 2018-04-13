@@ -92,24 +92,6 @@ apt_required_packages_loris:
 
 # for Stouts.users
 users_enabled: yes
-
-users_users:
-    - name: nmaekawa
-      groups: ['sudo']
-      authorized:
-          - https://github.com/nmaekawa.keys
-
-    - name: lduarte
-      groups: ['sudo']
-      authorized:
-          - https://github.com/lduarte1991.keys
-
-    - name: '{{ service_user }}'
-      authorized: []
-
-
-users_ssh_keys: '{{ users_users }}'
-
 users_to_install:
     - 'nmaekawa'
     - 'lduarte'

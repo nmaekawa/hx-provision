@@ -1,0 +1,91 @@
+---
+- hosts: tag_manifest
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/common_vars.yml
+
+  tasks:
+      - name: install python2
+        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        register: result
+        changed_when: "result.stdout != ''"
+
+
+- hosts: tag_manifest
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/common_vars.yml
+      - vars/manifest_vars.yml
+
+  roles:
+      - external/jmcvetta.passwordless_sudo
+      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages }}" }
+      - external/Stouts.users
+
+
+- hosts: tag_manifest
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/common_vars.yml
+      - vars/manifest_vars.yml
+  vars:
+      service_name: 'oculus'
+      static_dir: '/var/www/html'
+      local_manifests_path_tar_gz: '/Volumes/hx-images/iiif_prod2devo_manifests.tar.gz'
+
+  handlers:
+    - include: handlers/main.yml
+
+  tasks:
+      - name: setup ec2 facts
+        include_role:
+            name: facts_setup
+
+        #- name: setup proxy
+        #include_role:
+        #    name: nginx
+        #vars:
+        #    enable_ssl: '{{ (ec2_tag_cluster == "vagrant") | ternary("false", "true") }}'
+        #    nginx_template_path: roles/nginx/templates/nginx_manifest.j2
+        #    local_certs_dir: '/Volumes/hximg_certs/oculus'
+
+
+      - name: ensure static_dir exists
+        file:
+            path: '{{ static_dir }}'
+            state: directory
+            owner: 'www-data'
+            group: 'www-data'
+
+      - name: transfer sample images tar.gz
+        copy:
+            src: '{{ local_manifests_path_tar_gz }}'
+            dest: '/tmp'
+            owner: 'www-data'
+            group: 'www-data'
+
+      - name: unarchive sample images tar.gz
+        unarchive:
+            src: '/tmp/{{ local_manifests_path_tar_gz | basename }}'
+            dest: '{{ static_dir }}'
+            owner: 'www-data'
+            group: 'www-data'
+            remote_src: yes
+
+      - name: drop error pages
+        copy:
+            src: roles/hx.loris/files/loris-static/
+            dest: '{{ static_dir }}/'
+
+
+
+
+
+
