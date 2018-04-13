@@ -1,8 +1,3 @@
-ansible-galaxy install --role-file requirements.yml --roles-path ./external
-
-
-
-
 
 # hximg-provision
 Ansible provisioning for images (mirador) backend service
