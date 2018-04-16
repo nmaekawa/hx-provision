@@ -32,7 +32,7 @@ server {
         limit_except GET {  # restrict requests to get/head
             deny all;
         }
-        rewrite ^(.*):(.*)$ $1/$2; # check if local version
+        rewrite ^(.+):(.+)$ $1/$2.json; # check if local version
     }
 
     location = /robots.txt {
