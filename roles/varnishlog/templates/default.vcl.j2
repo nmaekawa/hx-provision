@@ -6,13 +6,24 @@ backend default {
     .port = "{{ varnish_default_backend_port }}";
 }
 
-{% if ec2_tag_proxy is defined %}
-sub vcl_backend_fetch {
-    set bereq.http.host = "{{ varnish_default_backend_host }}";
+sub vcl_recv {
+    # only deal with GET/HEAD
+    if (req.method != "GET" && req.method != "HEAD") {
+        return(pipe);
+    }
+
+    # remove proxy header https://httpoxy.org/#mitigate-varnish
+    unset req.http.proxy;
+
+    # remove cookies otherwise it won't cache
+    unset req.http.cookie;
+
+    # set the host header
+    set req.http.host = "{{ varnish_default_backend_host }}";
 }
-{% endif %}
 
 sub vcl_backend_response {
     unset beresp.http.set-cookie;
-    set beresp.ttl = 1h;
+    set beresp.ttl = 7d;
+    set beresp.grace = 1d;
 }
