@@ -1,9 +1,14 @@
 vcl 4.0;
 
 # basic vc with longer ttl
-backend default {
-    .host = "{{ varnish_default_backend_host }}";
-    .port = "{{ varnish_default_backend_port }}";
+backend hx {
+    .host = "{{ varnish_backends['hx']['host'] }}";
+    .port = "{{ varnish_backends['hx']['port'] }}";
+}
+
+backend ids {
+    .host = "{{ varnish_backends['ids']['host'] }}";
+    .port = "{{ varnish_backends['ids']['port'] }}";
 }
 
 sub vcl_recv {
@@ -18,8 +23,14 @@ sub vcl_recv {
     # remove cookies otherwise it won't cache
     unset req.http.cookie;
 
-    # set the host header
-    set req.http.host = "{{ varnish_default_backend_host }}";
+    if (req.url ~ "^/ids/") {
+        # set the host header for libraries
+        set req.http.host = "{{ varnish_backends['ids']['host'] }}";
+        set req.backend_hint = ids;
+    } else {
+        set req.http.host = "{{ varnish_backends['hx']['host'] }}";
+        set req.backend_hint = hx;
+    }
 }
 
 sub vcl_backend_response {

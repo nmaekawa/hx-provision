@@ -108,16 +108,14 @@ varnish_default_vcl_template_path: roles/varnishlog/templates/default.vcl.j2
 varnish_enabled_services:
   - varnish
   - varnishncsa
-    #- varnishlog
 
-# Optionally define additional backends.
-#varnish_backends:
-#   loris:
-#     host: 10.8.0.7
-#     port: 80
-#   nodejs:
-#     host: 10.0.2.3
-#     port: 80
+varnish_backends:
+    hx:
+        host: '{{ varnish_default_backend_host }}'
+        port: '{{ varnish_default_backend_port }}'
+    ids:
+        host: '{{ lookup("env", "IDS_LIB_IMAGE_HOST") | default("ids.vm", true) }}'
+        port: '{{ lookup("env", "IDS_LIB_IMAGE_PORT") | default("80", true) }}'
 
 
 # PROXY VARS

@@ -14,3 +14,11 @@
           dest: /lib/systemd/system/varnishlog.service
           owner: root
           group: root
+
+
+    - name: start varnishlog service
+      systemd:
+          name: varnishlog
+          enabled: True
+          state: started
+
