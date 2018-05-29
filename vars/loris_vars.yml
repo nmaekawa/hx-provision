@@ -1,12 +1,5 @@
 ---
 
-# assumes either aws or vagrant, then derive remote_user(assumes ubuntu)
-use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
-my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
-
-org_dns_domain: "harvardx.harvard.edu"
-
-
 # LORIS VARS
 # -------------------------------------------------------------
 

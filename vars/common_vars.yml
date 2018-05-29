@@ -8,7 +8,7 @@ org_dns_domain: "harvardx.harvard.edu"
 
 
 # for Stouts.users
-users_developers:
+users_users:
     - name: nmaekawa
       groups: ['sudo']
       authorized:
