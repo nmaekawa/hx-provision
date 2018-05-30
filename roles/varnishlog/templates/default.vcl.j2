@@ -28,7 +28,9 @@ sub vcl_recv {
         set req.http.host = "{{ varnish_backends['ids']['host'] }}";
         set req.backend_hint = ids;
     } else {
+{% if (varnish_backends['hx']['host'] != '127.0.0.1' and varnish_backends['hx']['host'] != 'localhost') %}
         set req.http.host = "{{ varnish_backends['hx']['host'] }}";
+{% endif %}
         set req.backend_hint = hx;
     }
 }

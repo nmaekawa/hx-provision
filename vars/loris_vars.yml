@@ -1,5 +1,25 @@
 ---
 
+# CLUSTER-WIDE VARS
+# -------------------------------------------------------------
+
+# assuming all-in-one: proxy, hx-loris, and varnish (shared hx-ids)
+
+# how gunicorn exposes access to loris-hx
+hx_host: '127.0.0.1'
+hx_port: '9090'
+
+# how to access external ids image server
+# if configuring a vagrant cluster, ids is a mock
+ids_host: '{{ (ec2_tag_cluster == "vagrant") | ternary("ids.vm", "ids.lib.harvard.edu") }}'
+ids_port: '{{ (ec2_tag_cluster == "vagrant") | ternary("80", "443") }}'
+
+# how to access varnish
+# assuming one varnish for hx AND ids
+varnish_host: '127.0.0.1'
+varnish_port: '9898'
+
+
 # LORIS VARS
 # -------------------------------------------------------------
 
@@ -31,16 +51,13 @@ service_images_dir: '{{ service_data_dir }}/images'
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
 # uncomment below if you want to transfer a tar.gz with sample images
-local_image_sample_path_tar_gz: '/Volumes/hx-images/iiif_images_tif.tar.gz'
+local_image_sample_path_tar_gz: '/Volumes/hx-images/images_dev_jpg.tar.gz'
 
 
-var_service_gunicorn_port: "{{ service_name | upper }}_GUNICORN_PORT"
-var_service_gunicorn_host: "{{ service_name | upper }}_GUNICORN_HOST"
-service_gunicorn_port: "{{ lookup('env', var_service_gunicorn_port) | default('9090', true) }}"
-service_gunicorn_host: "{{ lookup('env', var_service_gunicorn_host) | default('127.0.0.1', true) }}"
+service_gunicorn_port: '{{ hx_port }}'
+service_gunicorn_host: '{{ hx_host }}'
 gunicorn_timeout_seconds: 300  # workers timeout - used in nginx cfg
 
-service_varnish_backend_port: 9091  # for loris/nginx and varnish to talk
 
 # easier to create dirs with this dict
 service_dirs_to_create:
@@ -93,8 +110,15 @@ users_to_install:
 
 # VARNISH VARS
 # -------------------------------------------------------------
-varnish_default_backend_host: 127.0.0.1
-varnish_default_backend_port: '{{ service_varnish_backend_port }}'
+
+varnish_listen_port: '{{ varnish_port }}'
+
+# assuming always configuring varnish backends hx and ids
+varnish_hx_backend_host: '{{ hx_host }}'
+varnish_hx_backend_port: '{{ hx_port }}'
+
+varnish_ids_backend_host: '{{ ids_host }}'
+varnish_ids_backend_port: '{{ ids_port }}'
 
 varnish_default_vcl_template_path: roles/varnishlog/templates/default.vcl.j2
 
@@ -104,27 +128,32 @@ varnish_enabled_services:
 
 varnish_backends:
     hx:
-        host: '{{ varnish_default_backend_host }}'
-        port: '{{ varnish_default_backend_port }}'
+        host: '{{ varnish_hx_backend_host }}'
+        port: '{{ varnish_hx_backend_port }}'
     ids:
-        host: '{{ lookup("env", "IDS_LIB_IMAGE_HOST") | default("ids.vm", true) }}'
-        port: '{{ lookup("env", "IDS_LIB_IMAGE_PORT") | default("80", true) }}'
+        host: '{{ varnish_ids_backend_host }}'
+        port: '{{ varnish_ids_backend_port }}'
 
 
 # PROXY VARS
 # -------------------------------------------------------------
 
-ids_iiif_image_hostname: '{{ (ec2_tag_cluster == "vagrant") | ternary("ids.vm", "ids.lib.harvard.edu") }}'
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
-# to be overwritten when aws cluster; used when forward proxying to librarise
-proxy_dns_resolver: '8.8.8.8' # google resolver
-# when caching libraries content with varnish
-proxy_varnish_listen_port: '9898'
+# to be overwritten when aws cluster; used when forward proxying to libraries
+#proxy_dns_resolver: '8.8.8.8' # google resolver
 
-proxy_static_dir: '/var/www/html'
+# assuming shared varnish instance for hx and ids
+ids_image_host: '{{ varnish_host }}'
+ids_image_port: '{{ varnish_port }}'
+hx_image_host: '{{ varnish_host }}'
+hx_image_port: '{{ varnish_port }}'
+
+#proxy_static_dir: '/var/www/html'
+proxy_static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-var_service_local_certs_dir: "{{ service_name | upper }}_LOCAL_CERTS_DIR"
 local_certs_dir: "{{ lookup('env', 'IMAGES_LOCAL_CERTS_DIR') | default('./vars', true) }}"
+cert_dns: 'images'  # this name must match pattern for ssl cert names
 
 # for nmaekawa.apt
 apt_required_packages_proxy:

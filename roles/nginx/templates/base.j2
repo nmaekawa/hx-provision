@@ -24,18 +24,16 @@ server {
     error_page 500 502 503 504 /50x.html;
     root {{ static_dir }};
 
+    {% block index_location %}
     location = / {
         index index.html;
     }
+    {% endblock %}
 
-    location ~ ^/manifests/ {
-        add_header 'Access-Control-Allow-Origin' '*';
-        limit_except GET {  # restrict requests to get/head
-            deny all;
-        }
-        rewrite ^(.+):(.+)$ $1/$2.json; # check if local version
-    }
+    {% block custom_location %}
+    {% endblock %}
 
+    {% block robots_location %}
     location = /robots.txt {
         allow all;
         log_not_found off;
@@ -45,10 +43,14 @@ server {
         log_not_found off;
         access_log off;
     }
+    {% endblock %}
+
+    {% block error_location %}
     location /404.html {
         internal;
     }
     location /50x.html {
         internal;
     }
+    {% endblock %}
 }

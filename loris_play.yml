@@ -1,5 +1,5 @@
 ---
-- hosts: tag_loris
+- hosts: '{{ target_hosts | default("tag_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,10 +14,14 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: tag_loris
+- hosts: '{{ target_hosts | default("tag_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
   vars_files:
       - vars/common_vars.yml
       - vars/loris_vars.yml
@@ -25,10 +29,10 @@
   roles:
       - external/jmcvetta.passwordless_sudo
       - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
-      - external/Stouts.users
+      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
 
 
-- hosts: tag_loris
+- hosts: '{{ target_hosts | default("tag_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -43,7 +47,7 @@
     - include: handlers/main.yml
 
   tasks:
-      - name: set facts
+      - name: setup facts
         include_role:
             name: facts_setup
 
@@ -51,15 +55,8 @@
         include_role:
             name: hx.loris
 
-      - name: setup proxy
-        include_role:
-            name: nginx
-        vars:
-            enable_ssl: 'false'
-            nginx_template_path: roles/nginx/templates/nginx_loris.j2
 
-
-- hosts: tag_loris
+- hosts: '{{ target_hosts | default("tag_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -75,6 +72,47 @@
       - name: enable varnishlog
         include_role:
             name: varnishlog
+
+#
+# to set up the manifest server as a static nginx in
+# the same instance as the proxy (and loris) do
+# include_static_manifest: 'true'
+#
+- hosts: '{{ target_hosts | default("tag_loris", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      include_static_manifest: 'false'
+      local_manifests_path_tar_gz: '/Volumes/hx-images/manifests_dev_jpg.tar.gz'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_vars.yml
+
+  tasks:
+      - name: setup proxy
+        include_role:
+            name: nginx
+        vars:
+            static_dir: '{{ service_static_dir }}'
+            nginx_template_path: roles/nginx/templates/nginx_reverse_proxy.j2
+
+      - name: transfer sample manifests tar.gz
+        copy:
+            src: '{{ local_manifests_path_tar_gz }}'
+            dest: '/tmp'
+            owner: 'www-data'
+            group: 'www-data'
+        when: (include_static_manifest is defined and include_static_manifest == 'true')
+
+      - name: unarchive sample manifests tar.gz
+        unarchive:
+            src: '/tmp/{{ local_manifests_path_tar_gz | basename }}'
+            dest: '{{ service_static_dir }}'
+            owner: 'www-data'
+            group: 'www-data'
+            remote_src: yes
+        when: (include_static_manifest is defined and include_static_manifest == 'true')
 
 
 

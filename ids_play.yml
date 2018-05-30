@@ -1,5 +1,5 @@
 ---
-- hosts: tag_ids
+- hosts: '{{ target_hosts | default("tag_ids", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,10 +14,14 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: tag_ids
+- hosts: '{{ target_hosts | default("tag_ids", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
   vars_files:
       - vars/common_vars.yml
       - vars/loris_vars.yml
@@ -25,10 +29,10 @@
   roles:
       - external/jmcvetta.passwordless_sudo
       - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
-      - external/Stouts.users
+      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
 
 
-- hosts: tag_ids
+- hosts: '{{ target_hosts | default("tag_ids", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -57,38 +61,8 @@
         include_role:
             name: nginx
         vars:
-            enable_ssl: 'false'
             nginx_template_path: roles/nginx/templates/nginx_loris.j2
 
-
-- hosts: tag_ids
-  remote_user: "{{ my_remote_user }}"
-  become: yes
-  become_user: root
-  vars_files:
-      - vars/common_vars.yml
-      - vars/loris_vars.yml
-
-  tasks:
-      - name: install varnish
-        include_role:
-            name: external/geerlingguy.varnish
-
-
-      # have to repeat varnish install for varnishlog
-      # first we create a proper systemd service file -- that requires
-      # varnishlog user created in the previous varnish install...
-      # i think it's related to this:
-      # https://github.com/ansible/ansible/issues/22303
-      - name: hack to setup varnishlog
-        include_role:
-            name: varnishlog
-
-      - name: re-run role to enable varnishlog
-        include_role:
-            name: external/geerlingguy.varnish
-        vars:
-            varnish_enabled_services: [ varnishlog ]
 
 
 

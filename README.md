@@ -1,6 +1,6 @@
 
 # hximg-provision
-Ansible provisioning for images (mirador) backend service
+Ansible provisioning for iiif backend service
 
 # disclaimer
 For demo purposes only! provided to show how to setup a hximg vagrant
@@ -20,17 +20,14 @@ You'll need:
 
 The vagrantfile in this repo will start 3 ubuntu xenial instances:
 
-- loris.vm, the hx image server
-- ids.vma, another loris image server to emulate the libraries server
-- proxy.vm, the front server
+- loris.vm, the hx iiif image server
+- ids.vma, another loris image server to mock the libraries server
+- manifest.vm, the iiif manifest server
 
-The idea is that, in aws production, loris.vm will be in a private subnet and
-proxy.vm will be in the public subnet, reverse-proxying for loris.vm.
-
-The hx image server (loris.vm) has a varnish cache setup in the same instance;
-and the proxy server has a varnish to cache results from the libraries.
-
-    <maybe a diagram goes here>
+The hx image server (loris.vm) has a varnish cache setup in the same instance,
+as well as an nginx for reverse proxy. The varnish cache uses the loris from
+loris.vm and ids.vm as backend. manifest.vm is a static html server for
+manifests.
 
 
     $> git clone https://github.com/nmaekawa/hximg-provision.git
@@ -48,7 +45,7 @@ when installing hxarc:
     $> ssh vagrant@loris.vm -i ~/.vagrant.d/insecure_private_key
     loris $> exit
     ...
-    $> ssh vagrant@proxy.vm -i ~/.vagrant.d/insecure_private_key
+    $> ssh vagrant@manifest.vm -i ~/.vagrant.d/insecure_private_key
     proxy $> exit
     ...
     $> ssh vagrant@ids.vm -i ~/.vagrant.d/insecure_private_key
@@ -58,7 +55,7 @@ when installing hxarc:
 # about sample images
 
 You will have to provide some images for this install to work. Say you have a
-bunch of jpg to use as sample. This will work with jpegs and non-tiled tiffs, 
+bunch of jpg to use as sample. This will work with jpegs and non-pyramidal tiffs,
 but the file extension has to be `.jgp` and `.tif` respectively (loris
 requirement). The provision playbooks expects the images to be a `.tar.gz`
 file, below is an example of gathering your sample images. Note that the
@@ -111,25 +108,26 @@ Run:
     (venv) $> ssh-add ~/.vagrant.d/insecure_private_key
     
     # there's a playbook for each instance
+    # provision the libraries mock -- this has to be first, otherwise varnish
+    # loris.vm will fail
+    (venv) $> ansible-playbook -i hosts/vagrant.ini ids_play.yml
+    
     # provision the images server
     (venv) $> ansible-playbook -i hosts/vagrant.ini loris_play.yml
     
-    # provision the proxy
-    (venv) $> ansible-playbook -i hosts/vagrant.ini proxy_play.yml
-    
-    # provision the libraries fake
-    (venv) $> ansible-playbook -i hosts/vagrant.ini ids_play.yml
+    # provision the manifest
+    (venv) $> ansible-playbook -i hosts/vagrant.ini manifest_play.yml
     
 
 if all goes well, you should be able to see images in your browser by hitting
 the url for hx images server:
 
-    http://proxy.vm/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
+    http://loris.vm/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
 
 
-or the fake libraries server, via varnish cache in the proxy instance:
+or the fake libraries server, via varnish cache:
 
-    http://proxy.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
+    http://loris.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
 
 
 ---eop

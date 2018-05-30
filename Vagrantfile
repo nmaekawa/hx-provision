@@ -22,20 +22,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # proxy node
-  config.vm.define "proxy" do |proxy|
-    proxy.vm.box = "bento/ubuntu-16.04"
-    proxy.vm.hostname = "proxy.vm"
-    proxy.vm.network "private_network", ip: "10.8.0.8"
-
-    proxy.ssh.forward_agent = true
-    proxy.ssh.insert_key = false
-
-    proxy.vm.provider "virtualbox" do |v|
-        v.memory = "1096"
-    end
-  end
-
   # ids image server node
   config.vm.define "ids" do |ids|
     ids.vm.box = "bento/ubuntu-16.04"
@@ -47,6 +33,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     ids.vm.provider "virtualbox" do |v|
         v.memory = "4096"
+    end
+  end
+
+  # manifest node
+  config.vm.define "manifest" do |manifest|
+    manifest.vm.box = "bento/ubuntu-16.04"
+    manifest.vm.hostname = "manifest.vm"
+    manifest.vm.network "private_network", ip: "10.8.0.11"
+
+    manifest.ssh.forward_agent = true
+    manifest.ssh.insert_key = false
+
+    manifest.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
     end
   end
 end

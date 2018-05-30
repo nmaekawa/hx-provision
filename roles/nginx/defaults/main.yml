@@ -1,0 +1,8 @@
+---
+
+with_ssl: 'false'
+static_dir: '/var/www/html'
+
+include_static_manifest: 'false'
+
+

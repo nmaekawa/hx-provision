@@ -8,7 +8,7 @@ org_dns_domain: "harvardx.harvard.edu"
 
 
 # for Stouts.users
-users_users:
+users_developers:
     - name: nmaekawa
       groups: ['sudo']
       authorized:
@@ -18,9 +18,6 @@ users_users:
       groups: ['sudo']
       authorized:
           - https://github.com/lduarte1991.keys
-
-    - name: "{{ service_user }}"
-      authorized: []
 
 users_ssh_keys: '{{ users_users }}'
 

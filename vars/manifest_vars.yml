@@ -3,10 +3,10 @@
 # PROXY VARS
 # -------------------------------------------------------------
 
-service_name: 'oculus'
-service_user: '{{ service_name }}'
-service_group: '{{ service_name }}'
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
+service_name: 'oculus'
+cert_dns: 'oculus'
 
 # for Stouts.users
 users_enabled: yes
@@ -14,11 +14,8 @@ users_to_install:
     - 'nmaekawa'
     - 'lduarte'
 
-
 proxy_static_dir: '/var/www/html'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-var_service_local_certs_dir: "{{ service_name | upper }}_LOCAL_CERTS_DIR"
-local_certs_dir: "{{ lookup('env', 'IMAGES_LOCAL_CERTS_DIR') | default('./vars', true) }}"
 
 # for nmaekawa.apt
 apt_required_packages:

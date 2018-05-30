@@ -1,5 +1,5 @@
 ---
-- hosts: tag_manifest
+- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,7 +14,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: tag_manifest
+- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -25,10 +25,10 @@
   roles:
       - external/jmcvetta.passwordless_sudo
       - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages }}" }
-      - external/Stouts.users
+      - { role: external/Stouts.users, users_users: '{{ users_developers }}' }
 
 
-- hosts: tag_manifest
+- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -38,7 +38,7 @@
   vars:
       service_name: 'oculus'
       static_dir: '/var/www/html'
-      local_manifests_path_tar_gz: '/Volumes/hx-images/iiif_prod2devo_manifests.tar.gz'
+      local_manifests_path_tar_gz: '/Volumes/hx-images/manifests_dev_jpg.tar.gz'
 
   handlers:
     - include: handlers/main.yml
@@ -48,13 +48,12 @@
         include_role:
             name: facts_setup
 
-        #- name: setup proxy
-        #include_role:
-        #    name: nginx
-        #vars:
-        #    enable_ssl: '{{ (ec2_tag_cluster == "vagrant") | ternary("false", "true") }}'
-        #    nginx_template_path: roles/nginx/templates/nginx_manifest.j2
-        #    local_certs_dir: '/Volumes/hximg_certs/oculus'
+      - name: setup proxy
+        include_role:
+            name: nginx
+        vars:
+            nginx_template_path: roles/nginx/templates/nginx_manifest.j2
+            local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs/oculus", true) }}'
 
 
       - name: ensure static_dir exists
