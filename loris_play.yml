@@ -96,6 +96,7 @@
         vars:
             static_dir: '{{ service_static_dir }}'
             nginx_template_path: roles/nginx/templates/nginx_reverse_proxy.j2
+            local_certs_dir: '{{ lookup("env", "IMAGES_LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs", true) }}'
 
       - name: transfer sample manifests tar.gz
         copy:

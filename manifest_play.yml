@@ -53,7 +53,7 @@
             name: nginx
         vars:
             nginx_template_path: roles/nginx/templates/nginx_manifest.j2
-            local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs/oculus", true) }}'
+            local_certs_dir: '{{ lookup("env", "MANIFEST_LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs/oculus", true) }}'
 
 
       - name: ensure static_dir exists
