@@ -1,0 +1,62 @@
+---
+- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxprezi_vars.yml
+
+  tasks:
+      - name: install python2
+        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        register: result
+        changed_when: "result.stdout != ''"
+
+
+- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxprezi_vars.yml
+
+  roles:
+      - external/jmcvetta.passwordless_sudo
+      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_hxprezi }}" }
+      - external/Stouts.users
+      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
+      - facts_setup
+
+
+- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxprezi_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
+
+  tasks:
+      - name: install webapp
+        include_role:
+            name: webapp_install
+        vars:
+            local_manifests_path_tar_gz: local_manifests_jpg_prod.tar.gz
+
+      - name: config nginx
+        include_role:
+            name: nginx
+        vars:
+            nginx_template_path: roles/nginx/templates/nginx_hxprezi.j2
+            local_certs_dir: '{{ lookup("env", "MANIFEST_LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs/oculus", true) }}'
+
+
+

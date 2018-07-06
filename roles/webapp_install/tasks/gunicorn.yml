@@ -1,0 +1,19 @@
+---
+
+      - name: gunicorn | install gunicorn in webapp venv
+        become_user: "{{ service_user }}"
+        pip:
+            virtualenv: "{{ service_venv_dir }}"
+            chdir: "{{ service_install_dir }}"
+            name: gunicorn
+            state: present
+
+      - name: gunicorn | create gunicorn config
+        become_user: "{{ service_user }}"
+        template:
+            src: gunicorn_start.j2
+            dest: "{{ service_venv_dir }}/bin/gunicorn_start"
+            owner: "{{ service_user }}"
+            group: "{{ service_group }}"
+            mode: 0755
+            backup: yes

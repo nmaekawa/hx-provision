@@ -3,7 +3,7 @@
     - name: install nginx
       apt:
         name: nginx
-        state: installed
+        state: present
 
     - name: copy ssl cert dir to service host
       copy:
@@ -79,7 +79,6 @@
         state: link
       when: enable_ssl and ec2_tag_cluster == 'prod'
       notify: reload nginx
-
 
     - name: link ssl cert to correct file
       file:

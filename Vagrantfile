@@ -40,7 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "manifest" do |manifest|
     manifest.vm.box = "bento/ubuntu-16.04"
     manifest.vm.hostname = "manifest.vm"
-    manifest.vm.network "private_network", ip: "10.8.0.11"
+    manifest.vm.network "private_network", ip: "10.8.0.12"
 
     manifest.ssh.forward_agent = true
     manifest.ssh.insert_key = false

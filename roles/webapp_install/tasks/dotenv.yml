@@ -1,0 +1,19 @@
+---
+      - name: dotenv | add dotenv_dir to .bashrc
+        become_user: "{{ service_user }}"
+        lineinfile:
+            path: /home/{{ service_user }}/.bashrc
+            line: "export {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }}"
+            backup: yes
+            state: present
+
+      - name: config | drop .env file
+        become_user: "{{ service_user }}"
+        template:
+          src: service_dotenv.j2
+          dest: "{{ service_dotenv_path }}"
+          owner: "{{ service_user }}"
+          group: "{{ service_group }}"
+          mode: 0744
+          backup: yes
+

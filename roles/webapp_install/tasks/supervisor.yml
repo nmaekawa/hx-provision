@@ -1,0 +1,19 @@
+---
+
+    - name: supervisor | ensure supervisor is running
+      service:
+        name: supervisor
+        state: started
+        enabled: yes
+
+    - name: supervisor | create supervisor config
+      template:
+        src: supervisor_config.j2
+        dest: /etc/supervisor/conf.d/{{ service_name }}.conf
+        backup: yes
+
+    - name: supervisor | reload supervisor config for {{ service_name }}
+      supervisorctl:
+        name: "{{ service_name }}"
+        state: present
+

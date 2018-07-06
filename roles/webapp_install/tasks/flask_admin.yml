@@ -1,0 +1,13 @@
+---
+    - name: flask upgrade
+      become_user: "{{ service_user }}"
+      shell: >
+          export {{ service_name | upper}}_DOTENV_PATH={{ service_dotenv_path }} &&
+          export FLASK_APP={{ service_name }}/wsgi.py &&
+          . {{ service_venv_dir }}/bin/activate &&
+          flask db upgrade
+      args:
+          chdir: "{{ service_install_dir }}"
+
+
+

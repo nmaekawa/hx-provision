@@ -1,0 +1,9 @@
+{% for variable_name, value in service_environment.items() %}
+{{ variable_name }}="{{ value }}"
+{% endfor %}
+
+{% if ec2_tag_cluster != "vagrant" %}
+{% for variable_name, value in service_environment_hostnames.items() %}
+{{ variable_name }}="{{ value }}"
+{% endfor %}
+{% endif %}

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "$(date +"%F %T") starting cleanup for {{ service_work_dir }}"
+ls -l {{ service_work_dir }}
+
+/usr/bin/find {{ service_work_dir }} \
+    -maxdepth 1 \
+    -mindepth 1 \
+    -type d \
+    -mmin +{{ subproc_grace_period_in_minutes | default(60) }} \
+    -exec rm -rf {} \;
+
+echo "$(date +"%F %T") cleanup DONE:"
+ls -l {{ service_work_dir }}

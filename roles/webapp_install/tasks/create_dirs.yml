@@ -1,0 +1,10 @@
+---
+      - name: dirs | ensure service dirs are present
+        file:
+            path: "{{ item }}"
+            owner: "{{ service_user }}"
+            group: "{{ service_group }}"
+            mode: 0755
+            state: directory
+        with_items: "{{ service_dirs_to_create }}"
+

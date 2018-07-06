@@ -1,0 +1,26 @@
+---
+      - name: venv | create service venv
+        include_role:
+            name: external/nmaekawa.virtualenv
+        vars:
+            venv_path: "{{ service_venv_dir }}"
+            venv_user: "{{ service_user }}"
+            venv_group: "{{ service_group }}"
+            venv_python_version: 3
+
+      - name: venv | pip install requirements
+        become_user: "{{ service_user }}"
+        pip:
+            chdir: "{{ service_install_dir }}"
+            virtualenv: "{{ service_venv_dir }}"
+            requirements: "{{ service_install_dir }}/requirements.txt"
+            state: present
+
+      - name: venv | pip install service
+        become_user: "{{ service_user }}"
+        pip:
+            chdir: "{{ service_install_dir }}"
+            virtualenv: "{{ service_venv_dir }}"
+            name: '.'
+            editable: yes
+

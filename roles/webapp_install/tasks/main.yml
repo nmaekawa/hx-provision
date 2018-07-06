@@ -1,0 +1,19 @@
+---
+# tasks file for webapp_install
+
+      - include_tasks: create_dirs.yml
+      - include_tasks: clone_repo.yml
+      - include_tasks: venv.yml
+      - include_tasks: dotenv.yml
+      - include_tasks: gunicorn.yml
+      - include_tasks: supervisor.yml
+        #- include_tasks: flask_admin.yml
+      - include_tasks: copy_manifests.yml
+        when: local_manifests_path_tar_gz is defined
+
+      - name: restart service
+        supervisorctl:
+            name: "{{ service_name }}"
+            state: restarted
+
+

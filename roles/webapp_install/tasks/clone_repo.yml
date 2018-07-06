@@ -1,0 +1,11 @@
+---
+    - name: git | clone repository
+      become_user: '{{ service_user }}'
+      git:
+          repo: '{{ service_git_repo }}'
+          update: yes
+          clone: yes
+          force: yes
+          version: '{{ service_git_revision }}'
+          dest: '{{ service_install_dir }}'
+

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+NAME="{{ service_name }}"
+SERVICE_INSTALL_DIR="{{ service_install_dir }}/{{ service_name }}"
+SOCKFILE="{{ service_venv_dir }}/run/gunicorn.sock"
+USER="{{ service_user }}"
+GROUP="{{ service_group }}"
+NUM_WORKERS="3"
+GUNICORN_PORT="{{ service_gunicorn_port }}"
+GUNICORN_HOST="{{ service_gunicorn_host }}"
+
+# set to 0 for unlimited requests.
+# set to 1 to restart the process on each request (development)
+MAX_REQUESTS="0"
+
+echo "`date`: Starting $NAME as `whoami`"
+
+# activate the virtual environment
+cd $SERVICE_INSTALL_DIR
+. {{ service_venv_dir }}/bin/activate
+
+# define dotenv location
+export {{ service_name | upper }}_DOTENV_PATH="{{ service_dotenv_path }}"
+
+# create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+
+# run under supervisor so do not use --daemon
+exec gunicorn \
+    --name $NAME \
+    --workers $NUM_WORKERS \
+    --max-requests $MAX_REQUESTS \
+    --timeout {{ gunicorn_timeout_seconds | default(30) }} \
+    --user $USER --group $GROUP \
+    --log-level debug \
+    --bind $GUNICORN_HOST:$GUNICORN_PORT \
+    {{ service_name }}.wsgi
