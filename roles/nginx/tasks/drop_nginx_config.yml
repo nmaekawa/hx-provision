@@ -3,11 +3,11 @@
         msg: "with_ssl is ({{ with_ssl }})"
 
     - debug:
-        msg: "FILE SHOULD BE /etc/nginx/sites-available/{{ (with_ssl) | ternary('ssl', 'nonssl') }}_{{ service_name }}"
+        msg: "FILE SHOULD BE /etc/nginx/sites-available/{{ (with_ssl == True) | ternary('ssl', 'nonssl') }}_{{ service_name }}"
 
-    - name: drop nginx site config for {{ service_name }}
+    - name: drop nginx site config for {{ service_name }} as {{ with_ssl }}
       template:
         src: "{{ nginx_template_path }}"
-        dest: "/etc/nginx/sites-available/{{ (with_ssl) | ternary('ssl', 'nonssl') }}_{{ service_name }}"
+        dest: "/etc/nginx/sites-available/{{ (with_ssl == True) | ternary('ssl', 'nonssl') }}_{{ service_name }}"
         backup: yes
 

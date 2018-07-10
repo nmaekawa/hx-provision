@@ -61,8 +61,9 @@
         include_role:
             name: nginx
         vars:
-            nginx_template_path: roles/nginx/templates/nginx_loris.j2
-
+            enable_ssl: False  # should always be False for mock ids
+            static_dir: '{{ service_static_dir }}'
+            nginx_template_path: roles/nginx/templates/nginx_ids.j2
 
 
 

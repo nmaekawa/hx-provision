@@ -23,12 +23,15 @@
         - "{{ local_certs_dir }}/*.key"
       when: enable_ssl
 
-
     # create sites-available
     # with_ssl is internal to the template; enable_ssl defines if (web) service will use https
-    - include_tasks: drop_nginx_config.yml  with_ssl=True
+    - include_tasks: drop_nginx_config.yml
+      vars:
+          with_ssl: True
       when: enable_ssl
-    - include_tasks: drop_nginx_config.yml  with_ssl=False
+    - include_tasks: drop_nginx_config.yml
+      vars:
+          with_ssl: False
 
     # disabled default site
     - name: ensure default site is disabled
@@ -61,7 +64,7 @@
 
     - name: debug
       debug:
-          var: enable_ssl
+          msg: "ENABLE_ssl is ({{ enable_ssl }})"
 
     - name: link ssl cert to correct file for prod cluster
       file:
