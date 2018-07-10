@@ -7,9 +7,6 @@
       - include_tasks: dotenv.yml
       - include_tasks: gunicorn.yml
       - include_tasks: supervisor.yml
-        #- include_tasks: flask_admin.yml
-      - include_tasks: copy_manifests.yml
-        when: local_manifests_path_tar_gz is defined
 
       - name: restart service
         supervisorctl:

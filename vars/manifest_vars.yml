@@ -2,6 +2,9 @@
 
 # PROXY VARS
 # -------------------------------------------------------------
+#
+# manifest as static webserver
+#
 
 enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 

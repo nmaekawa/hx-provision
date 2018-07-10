@@ -1,39 +1,53 @@
 ---
 
+# HXPREZI VARS
+# ----------------------------------------------------------------------------------
+
 # service vars
 service_name: "hxprezi"
 service_user: "{{ service_name }}"
 service_group: "{{ service_name }}"
+
 service_rootdir: "/opt/{{ service_name }}"
 service_venv_dir: "{{ service_rootdir }}/venv"
 service_log_dir: "{{ service_rootdir }}/log"
-service_config_dir: "{{ service_rootdir }}/conf"
+service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
 service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
-service_data_dir: "{{ service_rootdir }}/data"
-service_work_dir: "{{ service_data_dir }}/work"
-service_source_dir: "{{ service_data_dir }}/hx"
-service_cache_dir: "{{ service_data_dir }}/cache"
-service_db_dir: "{{ service_data_dir }}/db"
-service_bin_dir: "{{ service_rootdir }}/bin"
 service_static_dir: "{{ service_rootdir }}/www"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_data_dir: "{{ service_rootdir }}/data"
+service_cache_dir: "{{ service_data_dir }}/cache"
+
+# specific to hxprezi
+service_source_dir: "{{ service_data_dir }}/hx"
+service_db_dir: "{{ service_data_dir }}/db"
+
+service_gunicorn_port: "{{ lookup('env', 'HXPREZI_GUNICORN_PORT') | default('8234', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'HXPREZI_GUNICORN_HOST') | default('0.0.0.0', true) }}"
+gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
+
 service_git_repo: "https://github.com/nmaekawa/hxprezi.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
 service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
 
+# easier to create dirs with this dict
 service_dirs_to_create:
     - "{{ service_rootdir }}"
     - "{{ service_log_dir }}"
     - "{{ service_config_dir }}"
     - "{{ service_data_dir }}"
-    - "{{ service_work_dir }}"
     - "{{ service_source_dir }}"
     - "{{ service_cache_dir }}"
     - "{{ service_db_dir }}"
     - "{{ service_bin_dir }}"
     - "{{ service_static_dir }}"
 
+# specific to webapp_install role
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
-service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
 service_admin_user: "{{ lookup('env', 'HXPREZI_ADMIN_USER') | default('user', true) }}"
 service_admin_email: "{{ lookup('env', 'HXPREZI_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXPREZI_ADMIN_PASSWORD') | default('password', true) }}"
@@ -49,32 +63,21 @@ service_environment_hostnames:
   HXPREZI_IMAGES_HOSTNAME: '{{ service_dns_subdomain}}.images.{{ org_dns_domain }}'
   HXPREZI_MANIFESTS_HOSTNAME: '{{ service_dns_subdomain }}.oculus.{{ org_dns_domain }}'
 
-local_manifests_dir: 'data'
-
+# hxprezi doesn't need flask users yet
 service_flask_users: []
+
 # define a list of dict with users like below but do NOT commit!
 #    - username: "user"
 #      password: "password"
 #      email: "user@hx.edu"
 
 
-service_gunicorn_port: "{{ lookup('env', 'HXPREZI_GUNICORN_PORT') | default('8234', true) }}"
-service_gunicorn_host: "{{ lookup('env', 'HXPREZI_GUNICORN_HOST') | default('0.0.0.0', true) }}"
-
-
-# nginx vars
-nginx_access_log_path: "{{ service_log_dir }}/nginx_access.log"
-nginx_error_log_path: "{{ service_log_dir }}/nginx_error.log"
-nginx_ssl_dest_dir: "/etc/ssl/certs"
-nginx_static_dir: "{{ service_static_dir }}"
-nginx_media_dir: "{{ nginx_static_dir }}"
-
-cert_dns: 'oculus'
-var_service_local_certs_dir: "{{ service_name | upper }}_LOCAL_CERTS_DIR"
-local_certs_dir: "{{ lookup('env', var_service_local_certs_dir) | default('./vars', true) }}"
-enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
-service_upload_max_size: "500M"
-
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ service_user }}'
 
 # for nmaekawa.apt
 apt_required_packages_hxprezi:
@@ -84,21 +87,23 @@ apt_required_packages_hxprezi:
     - 'nginx'
     - 'supervisor'
     - 'sqlite3'
+    - 'nginx'
 
 
-# for Stouts.users
-users_enabled: yes
+# PROXY VARS
+# ----------------------------------------------------------------------------------
 
-users_users:
-    - name: '{{ service_user }}'
-      authorized: []
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
-users_ssh_keys: '{{ users_users }}'
+# att: service_static_dir and the actual static_dir for nginx config might be
+# different if proxy is to be in separate instance than the service(loris)
+# - you can change this in the playbook vars
+static_dir: '{{ service_static_dir }}'
+nginx_ssl_dest_dir: '/etc/ssl/certs'
+var_service_local_certs_dir: "{{ service_name | upper }}_LOCAL_CERTS_DIR"
+local_certs_dir: "{{ lookup('env', var_service_local_certs_dir) | default('/Volumes/hximg_certs', true) }}"
+cert_dns: 'oculus'  # this name must match pattern for ssl cert names
 
-users_to_install:
-    - 'nmaekawa'
-    - 'lduarte'
-    - '{{ service_user }}'
 
 
 
