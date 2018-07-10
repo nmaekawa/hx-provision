@@ -152,7 +152,7 @@ hx_image_port: '{{ varnish_port }}'
 #proxy_static_dir: '/var/www/html'
 proxy_static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-local_certs_dir: "{{ lookup('env', 'IMAGES_LOCAL_CERTS_DIR') | default('./vars', true) }}"
+local_certs_dir: "{{ lookup('env', 'IMAGES_LOCAL_CERTS_DIR') | default('/Volumes/hximg_certs', true) }}"
 cert_dns: 'images'  # this name must match pattern for ssl cert names
 
 # for nmaekawa.apt
