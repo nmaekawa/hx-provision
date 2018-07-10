@@ -1,6 +1,6 @@
 ---
 
-with_ssl: 'false'
+with_ssl: '{{ enable_ssl }}'
 static_dir: '/var/www/html'
 
 include_static_manifest: 'false'

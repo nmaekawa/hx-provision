@@ -1,7 +1,7 @@
 # config for reverse-proxy right before loris
 # does not assume a varnish cache in front of loris!
 
-{% if (with_ssl == 'true') %}
+{% if (with_ssl) %}
 server {
     listen  80;
     return  301  https://$host$request_uri;
@@ -10,8 +10,8 @@ server {
 
 
 server {
-{% if (with_ssl == 'true') %}
-    listen              80;
+{% if (with_ssl) %}
+    listen              443;
     ssl on;
     ssl_certificate     {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt;
     ssl_certificate_key {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key;

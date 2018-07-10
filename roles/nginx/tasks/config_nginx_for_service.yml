@@ -26,9 +26,9 @@
 
     # create sites-available
     # with_ssl is internal to the template; enable_ssl defines if (web) service will use https
-    - include_tasks: drop_nginx_config.yml  with_ssl='true'
+    - include_tasks: drop_nginx_config.yml  with_ssl=True
       when: enable_ssl
-    - include_tasks: drop_nginx_config.yml  with_ssl='false'
+    - include_tasks: drop_nginx_config.yml  with_ssl=False
 
     # disabled default site
     - name: ensure default site is disabled
