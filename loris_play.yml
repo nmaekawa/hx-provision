@@ -47,10 +47,6 @@
     - include: handlers/main.yml
 
   tasks:
-      - name: setup facts
-        include_role:
-            name: facts_setup
-
       - name: setup loris
         include_role:
             name: hx.loris

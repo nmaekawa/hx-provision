@@ -1,4 +1,7 @@
 ---
+#
+# use this when setting nginx as forward proxy
+#
     - name: nginx proxy | set loris_instance_private_dns
       set_fact:
           loris_instance_private_dns: "{{ hostvars[ groups['tag_loris'][0] ]['ec2_private_dns_name'] }}"

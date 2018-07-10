@@ -32,7 +32,6 @@
       - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_hxprezi }}" }
       - external/Stouts.users
       - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
-      - facts_setup
 
 
 - hosts: '{{ target_hosts | default("tag_manifest", true) }}'

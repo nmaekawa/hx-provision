@@ -44,10 +44,6 @@
     - include: handlers/main.yml
 
   tasks:
-      - name: setup ec2 facts
-        include_role:
-            name: facts_setup
-
       - name: setup proxy
         include_role:
             name: nginx

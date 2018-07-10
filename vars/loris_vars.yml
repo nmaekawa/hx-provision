@@ -29,7 +29,6 @@ service_name: "loris"
 service_user: '{{ service_name }}'
 service_group: '{{ service_name }}'
 
-# these are default values, might be overwritten in facts_setup role
 service_rootdir: '/opt/{{ service_name }}'
 service_venv_dir: "{{ service_rootdir }}/venv"
 service_log_dir: "{{ service_rootdir }}/log"
