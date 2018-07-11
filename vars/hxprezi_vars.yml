@@ -57,11 +57,13 @@ service_environment:
   HXPREZI_LOCAL_MANIFESTS_SOURCE_DIR: "{{ service_source_dir }}"
   HXPREZI_LOCAL_MANIFESTS_CACHE_DIR: "{{ service_cache_dir }}"
 
-# in dotenv template: does not define hostnames to fallback to defaults
-service_dns_subdomain: '{{ (ec2_tag_cluster == "prod") | ternary("live", ec2_tag_cluster) }}'
+# hostnames to be replaced in manifests references (used in dotenv files)
+service_dns_subdomain: '{{ ec2_tag_cluster is search("prod") | ternary("", ec2_tag_cluster) }}'
+service_images_dns_domain: '{{ ec2_tag_cluster is search("prod") | ternary("images", ".images") }}'
+service_manifests_dns_domain: '{{ ec2_tag_cluster is search("prod") | ternary("oculus", ".oculus") }}'
 service_environment_hostnames:
-  HXPREZI_IMAGES_HOSTNAME: '{{ service_dns_subdomain}}.images.{{ org_dns_domain }}'
-  HXPREZI_MANIFESTS_HOSTNAME: '{{ service_dns_subdomain }}.oculus.{{ org_dns_domain }}'
+  HXPREZI_IMAGES_HOSTNAME: '{{ service_dns_subdomain }}{{ service_images_dns_domain }}.{{ org_dns_domain }}'
+  HXPREZI_MANIFESTS_HOSTNAME: '{{ service_dns_subdomain }}{{ service_manifests_dns_domain }}.{{ org_dns_domain }}'
 
 # hxprezi doesn't need flask users yet
 service_flask_users: []
@@ -97,7 +99,7 @@ enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
 # att: service_static_dir and the actual static_dir for nginx config might be
 # different if proxy is to be in separate instance than the service(loris)
-# - you can change this in the playbook vars
+# - you can change this in the playbook, in **vars for include_role**
 static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
 var_service_local_certs_dir: "{{ service_name | upper }}_LOCAL_CERTS_DIR"
