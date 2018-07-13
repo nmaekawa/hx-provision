@@ -7,3 +7,7 @@
 {{ variable_name }}="{{ value }}"
 {% endfor %}
 {% endif %}
+
+{% if ec2_tag_cluster == "vagrant" %}
+HXPREZI_REPLACE_HTTPS="true"
+{% endif %}

@@ -60,7 +60,7 @@ when installing hxarc:
 You will have to provide some images for this install to work. Say you have a
 bunch of jpg to use as sample. This will work with jpegs and non-pyramidal tiffs,
 but the file extension has to be `.jgp` and `.tif` respectively (loris
-requirement). The provision playbooks expects the images to be a `.tar.gz`
+requirement). The provision playbooks expect the images to be a `.tar.gz`
 file, below is an example of gathering your sample images. Note that the
 subdirs for hx images and libraries images is relevant as the proxy will filter
 out requests that don't follow this pattern.
@@ -90,6 +90,33 @@ out requests that don't follow this pattern.
                 name: hx.loris
             vars:
                 local_image_sample_path_tar_gz: '/tmp/other_images.tar.gz'
+    ...
+
+
+# about sample manifests
+
+You will have to provide some manifests that point to above mentioned sample
+images as well. The provision playbooks expect the manifests to a `.tar.gz`
+file, below is an example of gathering sample manifests. Again, subdirs are
+relevant since hxprezi is rigid about the format of a manifest id, and quite
+coupled to HarvardX way to define manifests. Refer to the
+[hxprezi][https://github.com/nmaekawa/hxprezi] repo for details.
+
+    # say some manifests (that reference your sample images) are in /tmp/hx
+    $> ls /tmp/hx
+    cellx:123456.json
+    ...
+    $> cd /tmp
+    $> tar cvzf manifests.tar.gz ./hx
+
+    # then set the path for hx manifests in the playbook
+    $> vi hximg-provision/hxprezi_play.yml
+    ...
+        - hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+          remote_user: "{{ my_remote_user }}"
+          become: yes
+              vars:
+                 local_manifests_path_tar_gz: /tmp/manifests.tar.gz
     ...
 
 
@@ -134,6 +161,21 @@ the url for hx images server:
 or the fake libraries server, via varnish cache:
 
     http://images.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
+
+
+you can then go to
+
+    http://projectmirador.org/demo
+
+
+and replace an object with your local manifest
+
+    http://manifest.vm/manifests/<source>:<manifest_id>
+
+
+for the example above:
+
+    http://manifest.vm/manifests/cellx:123456
 
 
 ---eop
