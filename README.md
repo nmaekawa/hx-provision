@@ -21,7 +21,7 @@ You'll need:
 The vagrantfile in this repo will start 3 ubuntu xenial instances:
 
 - loris.vm, the hx iiif image server
-- ids.vma, another loris image server to mock the libraries server
+- ids.vm, another loris image server to mock the libraries server
 - manifest.vm, the iiif manifest server
 
 The hx image server (loris.vm) has a varnish cache setup in the same instance,

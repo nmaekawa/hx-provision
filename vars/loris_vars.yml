@@ -50,7 +50,7 @@ service_images_dir: '{{ service_data_dir }}/images'
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
 # uncomment below if you want to transfer a tar.gz with sample images
-local_image_sample_path_tar_gz: '/Volumes/hx-images/images_dev_jpg.tar.gz'
+local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_dev_jpg.tar.gz'
 
 
 service_gunicorn_port: '{{ hx_port }}'
@@ -153,7 +153,7 @@ hx_image_port: '{{ varnish_port }}'
 # - you can change this in the playbook, in **vars for include_role**
 static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-local_certs_dir: "{{ lookup('env', 'IMAGES_LOCAL_CERTS_DIR') | default('/Volumes/hximg_certs', true) }}"
+local_certs_dir: "{{ lookup('env', 'IMAGES_LOCAL_CERTS_DIR') | default('/Volumes/magic_numbers/certs/hximg/images', true) }}"
 cert_dns: 'images'  # this name must match pattern for ssl cert names
 
 # for nmaekawa.apt

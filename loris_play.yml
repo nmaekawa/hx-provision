@@ -69,47 +69,4 @@
         include_role:
             name: varnishlog
 
-#
-# to set up the manifest server as a static nginx in
-# the same instance as the proxy (and loris) do
-# include_static_manifest: 'true'
-#
-- hosts: '{{ target_hosts | default("tag_loris", true) }}'
-  remote_user: "{{ my_remote_user }}"
-  become: yes
-  become_user: root
-  vars:
-      include_static_manifest: 'false'
-      local_manifests_path_tar_gz: '/Volumes/hx-images/manifests_dev_jpg.tar.gz'
-  vars_files:
-      - vars/common_vars.yml
-      - vars/loris_vars.yml
-
-  tasks:
-      - name: setup proxy
-        include_role:
-            name: nginx
-        vars:
-            static_dir: '{{ service_static_dir }}'
-            nginx_template_path: roles/nginx/templates/nginx_reverse_proxy.j2
-            local_certs_dir: '{{ lookup("env", "IMAGES_LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs", true) }}'
-
-      - name: transfer sample manifests tar.gz
-        copy:
-            src: '{{ local_manifests_path_tar_gz }}'
-            dest: '/tmp'
-            owner: 'www-data'
-            group: 'www-data'
-        when: (include_static_manifest is defined and include_static_manifest == 'true')
-
-      - name: unarchive sample manifests tar.gz
-        unarchive:
-            src: '/tmp/{{ local_manifests_path_tar_gz | basename }}'
-            dest: '{{ service_static_dir }}'
-            owner: 'www-data'
-            group: 'www-data'
-            remote_src: yes
-        when: (include_static_manifest is defined and include_static_manifest == 'true')
-
-
 

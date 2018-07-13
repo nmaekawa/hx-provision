@@ -38,7 +38,7 @@
   vars:
       service_name: 'oculus'
       static_dir: '/var/www/html'
-      local_manifests_path_tar_gz: '/Volumes/hx-images/manifests_dev_jpg.tar.gz'
+      local_manifests_path_tar_gz: '/Volumes/Projects/Dev_Team/images/manifests_dev_jpg.tar.gz'
 
   handlers:
     - include: handlers/main.yml
@@ -49,7 +49,7 @@
             name: nginx
         vars:
             nginx_template_path: roles/nginx/templates/nginx_manifest.j2
-            local_certs_dir: '{{ lookup("env", "MANIFEST_LOCAL_CERTS_DIR") | default("/Volumes/hximg_certs/oculus", true) }}'
+            local_certs_dir: '{{ lookup("env", "MANIFEST_LOCAL_CERTS_DIR") | default("/Volumes/magic_numbers/certs/hximg/oculus", true) }}'
 
 
       - name: ensure static_dir exists
@@ -59,14 +59,14 @@
             owner: 'www-data'
             group: 'www-data'
 
-      - name: transfer sample images tar.gz
+      - name: transfer manifest tar.gz
         copy:
             src: '{{ local_manifests_path_tar_gz }}'
             dest: '/tmp'
             owner: 'www-data'
             group: 'www-data'
 
-      - name: unarchive sample images tar.gz
+      - name: unarchive manifest tar.gz
         unarchive:
             src: '/tmp/{{ local_manifests_path_tar_gz | basename }}'
             dest: '{{ static_dir }}'
