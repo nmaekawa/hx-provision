@@ -20,14 +20,17 @@ You'll need:
 
 The vagrantfile in this repo will start 3 ubuntu xenial instances:
 
-- loris.vm, the hx iiif image server
+- images.vm, the hx iiif loris image server
 - ids.vm, another loris image server to mock the libraries server
-- manifest.vm, the iiif manifest server
+- manifests.vm, the iiif manifest server
 
-The hx image server (loris.vm) has a varnish cache setup in the same instance,
+The hx image server (images.vm) has a varnish cache setup in the same instance,
 as well as an nginx for reverse proxy. The varnish cache uses the loris from
-loris.vm and ids.vm as backend. manifest.vm is a static html server for
-manifests.
+images.vm and ids.vm as backend. manifests.vm uses
+[hxprezi][https://github.com/nmaekawa/hxprezi] as iiif manifest
+server. (ATT: the manifest_play.yml provisions the manifest server as a static
+webserver and is kept for reference purposes and will be deprecated in the
+future)
 
 
     $> git clone https://github.com/nmaekawa/hximg-provision.git
@@ -36,16 +39,16 @@ manifests.
 
 
 This will only start the boxes and they don't have anything installed yet. You
-can change the tld and assigned local ips in the `Vagrantfile`.
+can change the assigned local ips in the `Vagrantfile`.
 
 Login into the boxes like below, so the ssh host key
 fingerprint is stored in `~/.ssh/known_hosts`. This helps with ansible-playbook
 when installing hxarc:
 
-    $> ssh vagrant@loris.vm -i ~/.vagrant.d/insecure_private_key
-    loris $> exit
+    $> ssh vagrant@images.vm -i ~/.vagrant.d/insecure_private_key
+    images $> exit
     ...
-    $> ssh vagrant@manifest.vm -i ~/.vagrant.d/insecure_private_key
+    $> ssh vagrant@manifests.vm -i ~/.vagrant.d/insecure_private_key
     proxy $> exit
     ...
     $> ssh vagrant@ids.vm -i ~/.vagrant.d/insecure_private_key
@@ -70,11 +73,14 @@ out requests that don't follow this pattern.
     # and to fake the libraries server, some other images are in /tmp/ids/iiif
     $> tar cvzf /tmp/other_images.tar.gz ./ids
 
-    # set the path in loris_vars.yml
-    $> vi hximg-provision/vars/loris_vars.yml
+    # set the path for hx images in the playbook
+    $> vi hximg-provision/loris_play.yml
     ...
-    local_image_sample_path_tar_gz: '/tmp/images.tar.gz'
-    ...
+        - name: setup loris
+            include_role:
+                name: hx.loris
+            vars:
+                local_image_sample_path_tar_gz: '/tmp/images.tar.gz'
     
     # set the path for fake libraries server in the playbook
     $> vi hximg-provision/ids_play.yml
@@ -109,25 +115,25 @@ Run:
     
     # there's a playbook for each instance
     # provision the libraries mock -- this has to be first, otherwise varnish
-    # loris.vm will fail
+    # images.vm will fail
     (venv) $> ansible-playbook -i hosts/vagrant.ini ids_play.yml
     
     # provision the images server
     (venv) $> ansible-playbook -i hosts/vagrant.ini loris_play.yml
     
     # provision the manifest
-    (venv) $> ansible-playbook -i hosts/vagrant.ini manifest_play.yml
+    (venv) $> ansible-playbook -i hosts/vagrant.ini hxprezi_play.yml
     
 
 if all goes well, you should be able to see images in your browser by hitting
 the url for hx images server:
 
-    http://loris.vm/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
+    http://images.vm/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
 
 
 or the fake libraries server, via varnish cache:
 
-    http://loris.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
+    http://images.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
 
 
 ---eop

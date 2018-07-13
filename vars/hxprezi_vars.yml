@@ -102,8 +102,6 @@ enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 # - you can change this in the playbook, in **vars for include_role**
 static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-var_service_local_certs_dir: "{{ service_name | upper }}_LOCAL_CERTS_DIR"
-local_certs_dir: "{{ lookup('env', var_service_local_certs_dir) | default('/Volumes/magic_numbers/certs/hximg/oculus', true) }}"
 cert_dns: 'oculus'  # this name must match pattern for ssl cert names
 
 

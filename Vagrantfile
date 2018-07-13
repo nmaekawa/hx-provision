@@ -9,15 +9,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.landrush.tld = "vm"
 
   # loris image server node
-  config.vm.define "loris" do |loris|
-    loris.vm.box = "bento/ubuntu-16.04"
-    loris.vm.hostname = "loris.vm"
-    loris.vm.network "private_network", ip: "10.8.0.10"
+  config.vm.define "images" do |images|
+    images.vm.box = "bento/ubuntu-16.04"
+    images.vm.hostname = "images.vm"
+    images.vm.network "private_network", ip: "10.8.0.10"
 
-    loris.ssh.forward_agent = true
-    loris.ssh.insert_key = false
+    images.ssh.forward_agent = true
+    images.ssh.insert_key = false
 
-    loris.vm.provider "virtualbox" do |v|
+    images.vm.provider "virtualbox" do |v|
         v.memory = "4096"
     end
   end
@@ -36,16 +36,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # manifest node
-  config.vm.define "manifest" do |manifest|
-    manifest.vm.box = "bento/ubuntu-16.04"
-    manifest.vm.hostname = "manifest.vm"
-    manifest.vm.network "private_network", ip: "10.8.0.12"
+  # manifests node
+  config.vm.define "manifests" do |manifests|
+    manifests.vm.box = "bento/ubuntu-16.04"
+    manifests.vm.hostname = "manifests.vm"
+    manifests.vm.network "private_network", ip: "10.8.0.14"
 
-    manifest.ssh.forward_agent = true
-    manifest.ssh.insert_key = false
+    manifests.ssh.forward_agent = true
+    manifests.ssh.insert_key = false
 
-    manifest.vm.provider "virtualbox" do |v|
+    manifests.vm.provider "virtualbox" do |v|
         v.memory = "1096"
     end
   end
