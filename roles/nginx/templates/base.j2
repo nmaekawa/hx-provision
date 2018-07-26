@@ -1,7 +1,7 @@
 
 {% if (with_ssl) %}
 server {
-    listen  80;
+    listen  {{ nginx_non_ssl_port | default(80) }};
     return  301  https://$host$request_uri;
 }
 {% endif %}
@@ -9,7 +9,7 @@ server {
 
 server {
 {% if (with_ssl) %}
-    listen              443;
+    listen              {{ nginx_ssl_port | default(443) }};
     ssl on;
     ssl_certificate     {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt;
     ssl_certificate_key {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key;

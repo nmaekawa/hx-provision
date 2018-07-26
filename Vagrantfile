@@ -49,4 +49,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "1096"
     end
   end
+
+  # mirador-lti node
+  config.vm.define "mirador" do |mirador|
+    mirador.vm.box = "bento/ubuntu-16.04"
+    mirador.vm.hostname = "mirador.vm"
+    mirador.vm.network "private_network", ip: "10.8.0.15"
+
+    mirador.ssh.forward_agent = true
+    mirador.ssh.insert_key = false
+
+    mirador.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
+    end
+  end
 end
