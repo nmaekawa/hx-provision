@@ -1,0 +1,13 @@
+---
+
+    - name: django admin user | create admin user
+      become_user: '{{ service_user }}'
+      environment:
+          HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
+      shell: >
+          . {{ service_venv_dir }}/bin/activate &&
+          python ./manage.py create_user --username {{ service_admin_user }} --password {{ service_admin_password }} --is_admin
+      args:
+          chdir: '{{ service_install_dir }}'
+
+

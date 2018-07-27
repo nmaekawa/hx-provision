@@ -8,6 +8,10 @@
 {% endfor %}
 {% endif %}
 
-{% if ec2_tag_cluster == "vagrant" %}
-HXPREZI_REPLACE_HTTPS="true"
+{% if webserver_dns is defined and ec2_tag_hxmirador is defined %}
+HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
 {% endif %}
+
+
+
+

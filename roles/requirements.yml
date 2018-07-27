@@ -20,3 +20,6 @@
       version: "0.1.0"
       name: nmaekawa.virtualenv
 
+    - src: git+https://github.com/geerlingguy/ansible-role-redis.git
+      version: "1.6.0"
+      name: geerlingguy.redis

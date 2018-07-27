@@ -11,7 +11,7 @@
         dest: "{{ nginx_ssl_dest_dir }}/{{ item | basename }}"
         mode: 0644
       with_fileglob:
-        - "{{ local_certs_dir }}/*.crt"
+        - "{{ local_certs_dir }}/{{ cert_dns }}/*.crt"
       when: enable_ssl
 
     - name: copy ssl private_key to service host
@@ -20,7 +20,7 @@
         dest: "{{ nginx_ssl_dest_dir }}/{{ item | basename }}"
         mode: 0600
       with_fileglob:
-        - "{{ local_certs_dir }}/*.key"
+        - "{{ local_certs_dir }}/{{ cert_dns }}/*.key"
       when: enable_ssl
 
     # create sites-available

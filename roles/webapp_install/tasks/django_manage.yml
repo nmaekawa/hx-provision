@@ -1,0 +1,21 @@
+---
+
+    - name: django_manage | apply migrations
+      become_user: '{{ service_user }}'
+      environment:
+          HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
+      django_manage:
+          command: migrate
+          app_path: '{{ service_install_dir }}'
+          virtualenv: '{{ service_venv_dir }}'
+
+
+    - name: django_manage | run collectstatic
+      become_user: '{{ service_user }}'
+      environment:
+          HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
+      django_manage:
+          command: collectstatic
+          app_path: '{{ service_install_dir }}'
+          virtualenv: '{{ service_venv_dir }}'
+      notify: restart webapp

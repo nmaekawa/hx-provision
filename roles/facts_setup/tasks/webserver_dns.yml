@@ -1,0 +1,28 @@
+---
+
+    #
+    # set `webserver_dns` to config nginx server name
+    # and django ALLOWED_HOSTS
+    #
+    - name: facts | set webserver_dns for prod
+      set_fact:
+          webserver_dns: '{{ cert_dns }}.{{ org_dns_domain }}'
+      when: enable_ssl and ec2_tag_cluster == 'prod'
+
+    - name: facts | set webserver_dns for non-prod
+      set_fact:
+          webserver_dns: '{{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_dns_domain }}'
+      when: enable_ssl and ec2_tag_cluster not in ['prod', 'vagrant']
+
+    - name: facts | set webserver_dns for non-ssl
+      set_fact:
+          webserver_dns: '{{ ec2_public_dns_name }}'
+      when: not enable_ssl and ec2_tag_cluster != 'prod'
+
+    - debug:
+        msg: 'webserver_dns is {{ webserver_dns }}'
+
+
+
+
+

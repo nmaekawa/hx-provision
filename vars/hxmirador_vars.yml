@@ -1,0 +1,89 @@
+---
+
+# HXMIRADOR VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "hxmirador"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+
+service_rootdir: "/opt/{{ service_name }}"
+service_venv_dir: "{{ service_rootdir }}/venv"
+service_log_dir: "{{ service_rootdir }}/log"
+service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
+service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
+service_static_dir: "{{ service_rootdir }}/www"
+service_django_static_dir: "{{ service_static_dir }}/static"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_data_dir: "{{ service_rootdir }}/data"
+
+# specific to hxmirador
+service_db_dir: "{{ service_data_dir }}/db"
+
+service_gunicorn_port: "{{ lookup('env', 'HXMIRADOR_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'HXMIRADOR_GUNICORN_HOST') | default('127.0.0.1', true) }}"
+gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
+
+service_git_repo: "https://github.com/nmaekawa/{{ service_name }}.git"
+var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
+service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+    - "{{ service_rootdir }}"
+    - "{{ service_log_dir }}"
+    - "{{ service_config_dir }}"
+    - "{{ service_data_dir }}"
+    - "{{ service_db_dir }}"
+    - "{{ service_bin_dir }}"
+    - "{{ service_static_dir }}"
+    - "{{ service_django_static_dir }}"
+
+# specific to webapp_install role
+service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
+# django admin user to be created
+service_admin_user: "{{ lookup('env', 'HXMIRADOR_ADMIN_USER') | default('user', true) }}"
+service_admin_email: "{{ lookup('env', 'HXMIRADOR_ADMIN_EMAIL') | default('user@user.com', true) }}"
+service_admin_password: "{{ lookup('env', 'HXMIRADOR_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: '{{ service_name }}.settings.dev'
+# env vars defined in service_dotenv_path file
+service_environment:
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXMIRADOR_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  DJANGO_SECRET_KEY: "{{ lookup('env', 'HXMIRADOR_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
+  HXMIRADOR_DB_PATH: "{{ service_db_dir }}/{{ service_name }}.db"
+  HXMIRADOR_STATIC_ROOT: "{{ service_django_static_dir }}"
+
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ service_user }}'
+
+# for nmaekawa.apt
+apt_required_packages_hxmirador:
+    - 'python-pip'
+    - 'python-dev'
+    - 'python-setuptools'
+    - 'nginx'
+    - 'supervisor'
+    - 'sqlite3'
+
+
+# PROXY VARS
+# ----------------------------------------------------------------------------------
+
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
+static_dir: '{{service_static_dir }}'
+nginx_ssl_dest_dir: '/etc/ssl/certs'
+cert_dns: 'oculus'  # this name must match pattern for ssl cert names
+
+
+
+

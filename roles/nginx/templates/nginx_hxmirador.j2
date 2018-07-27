@@ -1,0 +1,27 @@
+#
+# nginx to proxy loris and ids
+#
+# note that there might be a varnish in between, and the ports need to be
+# configured in vars/loris_vars.yml
+#
+
+{% extends "base.j2" %}
+
+
+{% block custom_location %}
+
+    location / {
+        try_files $uri @proxy_to_app;
+    }
+
+    location @proxy_to_app {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_read_timeout {{ gunicorn_timeout_seconds }};
+        proxy_connect_timeout {{ gunicorn_timeout_seconds }};
+        proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
+    }
+
+{% endblock %}
