@@ -6,7 +6,11 @@
 {% for variable_name, value in service_environment_hostnames.items() %}
 {{ variable_name }}="{{ value }}"
 {% endfor %}
+{% else %}
+# vagrant only!
+HXLTI_ENFORCE_SSL="false"
 {% endif %}
+
 
 {% if webserver_dns is defined and ec2_tag_hxmirador is defined %}
 HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
