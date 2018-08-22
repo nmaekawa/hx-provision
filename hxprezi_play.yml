@@ -1,5 +1,5 @@
 ---
-- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+- hosts: '{{ target_hosts | default("tag_manifests", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -15,7 +15,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+- hosts: '{{ target_hosts | default("tag_manifests", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -34,7 +34,7 @@
       - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
 
 
-- hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+- hosts: '{{ target_hosts | default("tag_manifests", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   vars:
