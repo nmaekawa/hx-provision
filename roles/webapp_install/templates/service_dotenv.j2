@@ -8,6 +8,7 @@
 {{ variable_name }}="{{ value }}"
 {% endfor %}
 {% endif %}
+{% endif %}
 
 {% if webserver_dns is defined and ec2_tag_mirador is defined %}
 HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"

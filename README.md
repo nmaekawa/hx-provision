@@ -18,19 +18,20 @@ You'll need:
 
 # start vagrant instances
 
-The vagrantfile in this repo will start 3 ubuntu xenial instances:
+The vagrantfile in this repo will start 4 ubuntu xenial instances:
 
 - images.vm, the hx iiif loris image server
 - ids.vm, another loris image server to mock the libraries server
 - manifests.vm, the iiif manifest server
+- mirador.vm, a mirador(iiif image viewer) lti provider
 
 The hx image server (images.vm) has a varnish cache setup in the same instance,
 as well as an nginx for reverse proxy. The varnish cache uses the loris from
 images.vm and ids.vm as backend. manifests.vm uses
 [hxprezi][https://github.com/nmaekawa/hxprezi] as iiif manifest
-server. (ATT: the manifest_play.yml provisions the manifest server as a static
-webserver and is kept for reference purposes and will be deprecated in the
-future)
+server. The mirador lti provider
+[hxmirador][https://github.com/nmaekawa/hxmirador] serves a
+[mirador][http://projectmirador.org/docs/] instance via lti protocol.
 
 
     $> git clone https://github.com/nmaekawa/hximg-provision.git
@@ -43,7 +44,7 @@ can change the assigned local ips in the `Vagrantfile`.
 
 Login into the boxes like below, so the ssh host key
 fingerprint is stored in `~/.ssh/known_hosts`. This helps with ansible-playbook
-when installing hxarc:
+when installing hximg:
 
     $> ssh vagrant@images.vm -i ~/.vagrant.d/insecure_private_key
     images $> exit
@@ -53,6 +54,9 @@ when installing hxarc:
     ...
     $> ssh vagrant@ids.vm -i ~/.vagrant.d/insecure_private_key
     ids $> exit
+    ...
+    $> ssh vagrant@mirador.vm -i ~/.vagrant.d/insecure_private_key
+    mirador $> exit
     ...
 
 # about sample images
@@ -96,7 +100,7 @@ out requests that don't follow this pattern.
 # about sample manifests
 
 You will have to provide some manifests that point to above mentioned sample
-images as well. The provision playbooks expect the manifests to a `.tar.gz`
+images as well. The provision playbooks expect the manifests to be a `.tar.gz`
 file, below is an example of gathering sample manifests. Again, subdirs are
 relevant since hxprezi is rigid about the format of a manifest id, and quite
 coupled to HarvardX way to define manifests. Refer to the
@@ -142,7 +146,7 @@ Run:
     
     # there's a playbook for each instance
     # provision the libraries mock -- this has to be first, otherwise varnish
-    # images.vm will fail
+    # in images.vm will fail
     (venv) $> ansible-playbook -i hosts/vagrant.ini ids_play.yml
     
     # provision the images server
@@ -151,6 +155,8 @@ Run:
     # provision the manifest
     (venv) $> ansible-playbook -i hosts/vagrant.ini hxprezi_play.yml
     
+    # provision the mirador lti provider
+    (venv) $> ansible-playbook -i hosts/vagrant.ini hxmirador_play.yml
 
 if all goes well, you should be able to see images in your browser by hitting
 the url for hx images server:
@@ -178,4 +184,16 @@ for the example above:
     http://manifest.vm/manifests/cellx:123456
 
 
+Note that this author did not find an easy way to integrate the mirador lti
+provider in a local environment (yet). You can try to use the edx devstack
+container as the lti consumer, but will need to tweak the networking configs in
+order to get the edx in docker talking to the mirador provider in vagrant. If
+you figure this out, let me know!
+
+
+
 ---eop
+
+
+
+
