@@ -82,7 +82,7 @@ apt_required_packages_hxmirador:
 enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 static_dir: '{{service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-cert_dns: 'oculus'  # this name must match pattern for ssl cert names
+cert_dns: 'mirador'  # this name must match pattern for ssl cert names
 
 
 

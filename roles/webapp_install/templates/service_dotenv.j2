@@ -3,19 +3,14 @@
 {% endfor %}
 
 {% if ec2_tag_cluster != "vagrant" %}
+{% if service_environment_hostnames is defined %}
 {% for variable_name, value in service_environment_hostnames.items() %}
 {{ variable_name }}="{{ value }}"
 {% endfor %}
-{% else %}
-# vagrant only!
-HXLTI_ENFORCE_SSL="false"
 {% endif %}
 
-
-{% if webserver_dns is defined and ec2_tag_hxmirador is defined %}
+{% if webserver_dns is defined and ec2_tag_mirador is defined %}
 HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
 {% endif %}
-
-
 
 
