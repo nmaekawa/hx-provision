@@ -38,7 +38,7 @@
   remote_user: "{{ my_remote_user }}"
   become: yes
   vars:
-      local_manifests_path_tar_gz: /Volumes/Projects/Dev_Team/images/local_manifests_jpg_prod_withcontext.tar.gz
+      local_manifests_path_tar_gz: /Volumes/Projects/Dev_Team/images/local_manifests_hxprezi_3_0_0.tar.gz
   vars_files:
       - vars/common_vars.yml
       - vars/hxprezi_vars.yml
