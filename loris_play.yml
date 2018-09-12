@@ -51,7 +51,7 @@
         include_role:
             name: hx.loris
         vars:
-            local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_dev_jpg.tar.gz'
+            local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_prod_20180824.tar.gz'
 
 
 - hosts: '{{ target_hosts | default("tag_images", true) }}'
