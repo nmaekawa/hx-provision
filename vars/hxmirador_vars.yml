@@ -11,7 +11,8 @@ service_group: "{{ service_name }}"
 service_rootdir: "/opt/{{ service_name }}"
 service_venv_dir: "{{ service_rootdir }}/venv"
 service_log_dir: "{{ service_rootdir }}/log"
-service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
+# sending app logs to syslog in supervisor
+#service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
 # uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
 # service_log_level: "DEBUG"
 

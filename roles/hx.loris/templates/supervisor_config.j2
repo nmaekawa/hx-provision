@@ -1,7 +1,7 @@
 [program:{{ service_name }}]
 command = {{ service_bin_dir }}/gunicorn_start
 user = {{ service_user }}
-stdout_logfile = {{ service_log_path }}
+stdout_logfile = syslog
 redirect_stderr = true
 autostart = true
 autorestart =true
