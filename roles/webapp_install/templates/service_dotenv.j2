@@ -10,7 +10,7 @@
 {% endif %}
 {% endif %}
 
-{% if webserver_dns is defined and ec2_tag_mirador is defined %}
+{% if webserver_dns is defined and service_name == 'hxmirador' %}
 HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
 {% endif %}
 

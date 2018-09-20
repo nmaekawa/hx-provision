@@ -3,3 +3,4 @@ roles/external
 images/*
 *.gz
 *.tar
+*.retry

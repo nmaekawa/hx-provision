@@ -18,7 +18,7 @@
     - include_tasks: roles/hx.loris/tasks/setup_gunicorn.yml
 
     - include_tasks: roles/hx.loris/tasks/copy_images.yml
-      when: "local_image_sample_path_tar_gz is defined"
+      when: ec2_tag_cluster == 'vagrant' and ( local_image_sample_path_tar_gz is defined )
 
     - name: restart service
       supervisorctl:

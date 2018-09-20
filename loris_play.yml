@@ -1,5 +1,5 @@
 ---
-- hosts: '{{ target_hosts | default("tag_images", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,7 +14,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: '{{ target_hosts | default("tag_images", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -32,7 +32,7 @@
       - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
 
 
-- hosts: '{{ target_hosts | default("tag_images", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -54,7 +54,7 @@
             local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_prod_20180824.tar.gz'
 
 
-- hosts: '{{ target_hosts | default("tag_images", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -72,7 +72,7 @@
             name: varnishlog
 
 
-- hosts: '{{ target_hosts | default("tag_images", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
