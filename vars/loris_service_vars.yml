@@ -1,0 +1,203 @@
+---
+
+# SERVICE-WIDE VARS
+# -------------------------------------------------------------
+
+# TODO assuming all-in-one: proxy, hx-loris, and varnish (shared hx-ids)
+#####
+
+# how gunicorn exposes access to loris-hx
+hx_host: '127.0.0.1'
+hx_port: '9090'
+
+# assumes inventory_hostname is public ip
+# assumes ok to get the first ec2 with tag_service loris if more than one with
+#     tag_service loris
+# assumes it's possible to have a local 
+hx_varnish_host: "{% for  host in hostvars %}\
+     {% if hostvars[host].ec2_tag_service == 'loris' %}\
+        {% if hostvars[host].ec2_ip_address == inventory_hostname %}\
+            127.0.0.1
+        {% else %}\
+            {{ hostvars[host].ec2_private_ip_address }}\
+        {% endif %}\
+     {% endif %}\
+ {% endfor %}"
+hx_varnish_port: '9898'
+
+# how to access external ids image server
+# if configuring a vagrant cluster, ids is a mock
+ids_host: '{{ (ec2_tag_cluster == "vagrant") | ternary("ids.vm", "ids.lib.harvard.edu") }}'
+ids_port: '{{ (ec2_tag_cluster == "vagrant") | ternary("80", "443") }}'
+
+# ids host, as exposed by dedicated varnish
+# implies that there is always a dedicated varnish for ids; not able to set the
+# same varnish instance for both hx and ids...
+ids_varnish_host: "{% for host in hostvars %}\
+        {% if hostvars[host].ec2_tag_service == 'ids_varnish' %}\
+            {{ hostvars[host].ec2_private_ip_address }}\
+        {% endif %}\
+    {% endfor %}"
+ids_varnish_port: '9898'
+
+# how to access varnish
+#varnish_host: '127.0.0.1'
+#varnish_port: '9898'
+
+
+# LORIS VARS
+# -------------------------------------------------------------
+
+# these mimic loris default for setup.py
+# changes here don't actually change the actual install vars...
+service_name: "loris"
+service_user: '{{ service_name }}'
+service_group: '{{ service_name }}'
+
+service_rootdir: '/opt/{{ service_name }}'
+service_venv_dir: "{{ service_rootdir }}/venv"
+service_log_dir: "{{ service_rootdir }}/log"
+# sending app logs to syslog in supervisor
+#service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
+# uncomment, otherwise defaul is debug: 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+#service_log_level: "DEBUG"
+
+service_install_dir: '{{ service_rootdir }}/{{ service_name }}'
+service_static_dir: '{{ service_rootdir }}/www'
+service_config_dir: '{{ service_rootdir }}/conf'
+service_config_path: '{{ service_config_dir }}/{{ service_name }}.conf'
+service_bin_dir: '{{ service_rootdir }}/bin'
+service_data_dir: '{{ service_rootdir }}/data'
+service_tmp_dir: '{{ service_data_dir }}/tmp'
+service_cache_dir: '{{ service_data_dir }}/cache'
+service_images_dir: '{{ service_data_dir }}/images'
+
+# uncomment below if you want loris to use s3resolver
+#loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
+
+service_gunicorn_port: '{{ hx_port }}'
+service_gunicorn_host: '{{ hx_host }}'
+gunicorn_timeout_seconds: 300  # workers timeout - used in nginx cfg
+
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+    - '{{ service_rootdir }}'
+    - '{{ service_bin_dir }}'
+    - '{{ service_log_dir }}'
+    - '{{ service_static_dir }}'
+    - '{{ service_config_dir }}'
+    - '{{ service_data_dir }}'
+    - '{{ service_tmp_dir }}'
+    - '{{ service_cache_dir }}'
+    - '{{ service_images_dir }}'
+
+
+# python packages to install
+service_python_dependencies:
+    - {"name": "Pillow",     "version": "4.3.0"}
+    - {"name": "Werkzeug",   "version": "0.12.2"}
+    - {"name": "gunicorn",   "version": "19.7.1"}
+    - {"name": "configobj",  "version": "5.0.0"}
+    - {"name": "requests",   "version": "2.11.0"}
+    - {"name": "responses",  "version": "0.3.0"}
+    - {"name": "boto",       "version": "2.40.0"}
+
+
+
+# for nmaekawa.apt
+apt_required_packages_loris:
+    - 'python-pip'
+    - 'python-dev'
+    - 'python-setuptools'
+    - 'libjpeg-turbo8-dev'
+    - 'libfreetype6-dev'
+    - 'zlib1g-dev'
+    - 'liblcms2-dev'
+    - 'liblcms2-utils'
+    - 'libtiff5-dev'
+    - 'libwebp-dev'
+    - 'nginx'
+    - 'supervisor'
+
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ service_user }}'
+
+
+# VARNISH VARS
+# -------------------------------------------------------------
+
+varnish_listen_port: '{{ varnish_port }}'
+
+# assuming always configuring varnish backends hx and ids
+varnish_hx_backend_host: '{{ hx_host }}'
+varnish_hx_backend_port: '{{ hx_port }}'
+
+varnish_ids_backend_host: '{{ ids_host }}'
+varnish_ids_backend_port: '{{ ids_port }}'
+
+varnish_default_vcl_template_path: roles/varnishlog/templates/default.vcl.j2
+
+varnish_enabled_services:
+  - varnish
+  - varnishncsa
+
+varnish_backends:
+    hx:
+        host: '{{ varnish_hx_backend_host }}'
+        port: '{{ varnish_hx_backend_port }}'
+    ids:
+        host: '{{ varnish_ids_backend_host }}'
+        port: '{{ varnish_ids_backend_port }}'
+
+
+varnish_instances:
+    hx:
+        frontend:  # how clients talk to varnish
+            host: '{{ hx_varnish_host }}'
+            port: '{{ hx_varnish_port }}'
+        backend:
+            host: '{{ hx_host }}'
+            port: '{{ hx_port }}'
+    ids:
+        frontend:
+            host: '{{ ids_varnish_host }}'
+            port: '{{ ids_varnish_port }}'
+        backend:
+            host: '{{ ids_host }}'
+            port: '{{ ids_port }}'
+
+
+# PROXY VARS
+# -------------------------------------------------------------
+
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
+
+# to be overwritten when aws cluster; used when forward proxying to libraries
+#proxy_dns_resolver: '8.8.8.8' # google resolver
+
+# for nginx, talk to image servers via varnish
+ids_image_host: '{{ varnish_instances.ids.frontend.host }}'
+ids_image_port: '{{ varnish_instances.ids.frontend.port }}'
+hx_image_host: '{{ varnish_instance.hx.frontend.host }}'
+hx_image_port: '{{ varnish_instance.hx.frontend.port }}'
+
+# att: service_static_dir and the actual static_dir for nginx config might be
+# different if proxy is to be in separate instance than the service(loris)
+# - you can change this in the playbook, in **vars for include_role**
+static_dir: '{{ service_static_dir }}'
+nginx_ssl_dest_dir: '/etc/ssl/certs'
+cert_dns: 'images'  # this name must match pattern for ssl cert names
+
+# for nmaekawa.apt
+apt_required_packages_proxy:
+    - 'nginx'
+
+
+
+

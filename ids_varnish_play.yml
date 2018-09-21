@@ -1,0 +1,52 @@
+---
+- hosts: '{{ target_hosts | default("tag_service_ids_varnish", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/common_vars.yml
+
+  tasks:
+      - name: install python2
+        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        register: result
+        changed_when: "result.stdout != ''"
+
+
+- hosts: '{{ target_hosts | default("tag_service_ids_varnish", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_vars.yml
+
+  roles:
+      - external/jmcvetta.passwordless_sudo
+      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
+      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
+
+
+- hosts: '{{ target_hosts | default("tag_service_ids_varnish", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_vars.yml
+
+  tasks:
+      - name: install varnish
+        include_role:
+            name: external/geerlingguy.varnish
+
+      - name: enable varnishlog
+        include_role:
+            name: varnishlog
+
+

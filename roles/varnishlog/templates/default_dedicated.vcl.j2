@@ -1,0 +1,29 @@
+vcl 4.0;
+
+# basic vc with longer ttl
+backend default {
+    .host = "{{ varnish_be.host }}";
+    .port = "{{ varnish_be.port }}";
+}
+
+sub vcl_recv {
+    # only deal with GET/HEAD
+    if (req.method != "GET" && req.method != "HEAD") {
+        return(pipe);
+    }
+
+    # remove proxy header https://httpoxy.org/#mitigate-varnish
+    unset req.http.proxy;
+
+    # remove cookies otherwise it won't cache
+    unset req.http.cookie;
+
+    # set the host header
+    set req.http.host = "{{ varnish_be.host }}";
+}
+
+sub vcl_backend_response {
+    unset beresp.http.set-cookie;
+    set beresp.ttl = 7d;
+    set beresp.grace = 1d;
+}

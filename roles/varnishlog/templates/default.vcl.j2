@@ -2,13 +2,13 @@ vcl 4.0;
 
 # basic vc with longer ttl
 backend hx {
-    .host = "{{ varnish_backends['hx']['host'] }}";
-    .port = "{{ varnish_backends['hx']['port'] }}";
+    .host = "{{ varnish_instances.hx.backend.host }}";
+    .port = "{{ varnish_instances.hx.backend.port }}";
 }
 
 backend ids {
-    .host = "{{ varnish_backends['ids']['host'] }}";
-    .port = "{{ varnish_backends['ids']['port'] }}";
+    .host = "{{ varnish_instances.ids.backend.host }}";
+    .port = "{{ varnish_instances.ids.backend.port }}";
 }
 
 sub vcl_recv {
@@ -25,11 +25,11 @@ sub vcl_recv {
 
     if (req.url ~ "^/ids/") {
         # set the host header for libraries
-        set req.http.host = "{{ varnish_backends['ids']['host'] }}";
+        set req.http.host = "{{ varnish_instances.ids.backend.host }}";
         set req.backend_hint = ids;
     } else {
-{% if (varnish_backends['hx']['host'] != '127.0.0.1' and varnish_backends['hx']['host'] != 'localhost') %}
-        set req.http.host = "{{ varnish_backends['hx']['host'] }}";
+{% if (varnish_instances.hx.backend.host != '127.0.0.1' and varnish_instances.hx.backend.host != 'localhost') %}
+        set req.http.host = "{{ varnish_instances.hx.backend.host }}";
 {% endif %}
         set req.backend_hint = hx;
     }
