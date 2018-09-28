@@ -1,0 +1,10 @@
+---
+
+- import_playbook: loris_dedicated_varnish_play.yml
+- import_playbook: ids_dedicated_varnish_play.yml
+- import_playbook: hxprezi_play.yml
+- import_playbook: hxmirador_play.yml
+- import_playbook: cloudwatch_play.yml
+
+
+
