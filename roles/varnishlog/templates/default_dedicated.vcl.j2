@@ -18,8 +18,10 @@ sub vcl_recv {
     # remove cookies otherwise it won't cache
     unset req.http.cookie;
 
+{% if (varnish_be.host != '127.0.0.1' and varnish_be.host != 'localhost') %}
     # set the host header
     set req.http.host = "{{ varnish_be.host }}";
+{% endif %}
 }
 
 sub vcl_backend_response {

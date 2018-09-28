@@ -63,7 +63,7 @@
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: cloudwatch
 
-      # install script for logs backup
+      # install script for syslog backup
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
@@ -73,8 +73,19 @@
             file_backup_prefix: '{{ service_name }}'
             files_to_backup:
                 - /var/log/syslog.1
+
+      # install script for nginx logs backup
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: root
+            s3_backup_bucket_name: 'backups-hx-edu'
+            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            file_backup_prefix: '{{ service_name }}'
+            files_to_backup:
                 - /var/log/nginx/access.log.1
                 - /var/log/nginx/error.log.1
+        when: "service_name != 'idsvarnish'"
 
       # install script for images server logs backup
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
@@ -86,7 +97,7 @@
             file_backup_prefix: '{{ service_name }}'
             files_to_backup:
                 - /var/log/varnish/varnishncsa.log
-        when: "service_name == 'loris'"
+        when: "service_name == 'loris' or service_name == 'idsvarnish'"
 
       # install script for images sync, if images instance
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml

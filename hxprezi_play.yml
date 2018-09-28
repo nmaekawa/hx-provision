@@ -63,6 +63,7 @@
             dest: '{{ service_data_dir }}'
             owner: '{{ service_user }}'
             group: '{{ service_group }}'
+        when: ec2_tag_cluster == 'vagrant' and ( local_image_sample_path_tar_gz is defined )
 
       - name: unarchive local manifests tar.gz
         unarchive:
@@ -71,5 +72,6 @@
             owner: '{{ service_user }}'
             group: '{{ service_group }}'
             remote_src: yes
+        when: ec2_tag_cluster == 'vagrant' and ( local_image_sample_path_tar_gz is defined )
 
 

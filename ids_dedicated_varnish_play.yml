@@ -1,5 +1,5 @@
 ---
-- hosts: '{{ target_hosts | default("tag_service_ids_varnish", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_idsvarnish", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -14,7 +14,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: '{{ target_hosts | default("tag_service_ids_varnish", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_idsvarnish", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -24,21 +24,25 @@
           authorized: []
   vars_files:
       - vars/common_vars.yml
-      - vars/loris_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
 
   roles:
       - external/jmcvetta.passwordless_sudo
-      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
-      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
+      - { role: external/nmaekawa.apt }
+      - { role: external/Stouts.users, users_users: '{{ users_developers }}' }
 
 
-- hosts: '{{ target_hosts | default("tag_service_ids_varnish", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_idsvarnish", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
+  vars:
+      varnish_be: '{{ varnish_instances.ids.backend }}'
+      varnish_listen_port: '{{ varnish_instances.ids.frontend.port }}'
+      varnish_default_vcl_template_path: 'roles/varnishlog/templates/default_dedicated.vcl.j2'
   vars_files:
       - vars/common_vars.yml
-      - vars/loris_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
 
   tasks:
       - name: install varnish

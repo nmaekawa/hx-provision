@@ -2,27 +2,26 @@
 
 # SERVICE-WIDE VARS
 # -------------------------------------------------------------
-
-# TODO assuming all-in-one: proxy, hx-loris, and varnish (shared hx-ids)
+#
+# assumes dedicated varnish for ids
 #####
 
-# how gunicorn exposes access to loris-hx
-hx_host: '127.0.0.1'
-hx_port: '9090'
 
 # assumes inventory_hostname is public ip
-# assumes ok to get the first ec2 with tag_service loris if more than one with
-#     tag_service loris
-# assumes it's possible to have a local 
-hx_varnish_host: "{% for  host in hostvars %}\
-     {% if hostvars[host].ec2_tag_service == 'loris' %}\
-        {% if hostvars[host].ec2_ip_address == inventory_hostname %}\
-            127.0.0.1
-        {% else %}\
-            {{ hostvars[host].ec2_private_ip_address }}\
-        {% endif %}\
-     {% endif %}\
- {% endfor %}"
+# assumes ok to get the first ec2 with tag_service loris if list of 'loris'
+hx_varnish_host: "{% if ec2_tag_cluster == 'vagrant' %}\
+        127.0.0.1\
+    {% else %}\
+        {% for  host in hostvars %}\
+            {% if hostvars[host].ec2_tag_service == 'loris' %}\
+                {% if hostvars[host].ec2_ip_address == inventory_hostname %}\
+                    127.0.0.1\
+                {% else %}\
+                    {{ hostvars[host].ec2_private_ip_address }}\
+                {% endif %}\
+            {% endif %}\
+        {% endfor %}\
+    {% endif %}"
 hx_varnish_port: '9898'
 
 # how to access external ids image server
@@ -33,16 +32,16 @@ ids_port: '{{ (ec2_tag_cluster == "vagrant") | ternary("80", "443") }}'
 # ids host, as exposed by dedicated varnish
 # implies that there is always a dedicated varnish for ids; not able to set the
 # same varnish instance for both hx and ids...
-ids_varnish_host: "{% for host in hostvars %}\
-        {% if hostvars[host].ec2_tag_service == 'ids_varnish' %}\
-            {{ hostvars[host].ec2_private_ip_address }}\
-        {% endif %}\
-    {% endfor %}"
-ids_varnish_port: '9898'
-
-# how to access varnish
-#varnish_host: '127.0.0.1'
-#varnish_port: '9898'
+ids_varnish_host: "{% if ec2_tag_cluster == 'vagrant' %}\
+        {{ inventory_hostname }}\
+    {% else %}\
+        {% for host in hostvars %}\
+            {% if hostvars[host].ec2_tag_service == 'idsvarnish' %}\
+                {{ hostvars[host].ec2_private_ip_address }}\
+            {% endif %}\
+        {% endfor %}\
+    {% endif %}"
+ids_varnish_port: '80'
 
 
 # LORIS VARS
@@ -75,6 +74,9 @@ service_images_dir: '{{ service_data_dir }}/images'
 # uncomment below if you want loris to use s3resolver
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
+# how gunicorn exposes access to loris-hx
+hx_host: '127.0.0.1'
+hx_port: '9090'
 service_gunicorn_port: '{{ hx_port }}'
 service_gunicorn_host: '{{ hx_host }}'
 gunicorn_timeout_seconds: 300  # workers timeout - used in nginx cfg
@@ -132,29 +134,9 @@ users_to_install:
 # VARNISH VARS
 # -------------------------------------------------------------
 
-varnish_listen_port: '{{ varnish_port }}'
-
-# assuming always configuring varnish backends hx and ids
-varnish_hx_backend_host: '{{ hx_host }}'
-varnish_hx_backend_port: '{{ hx_port }}'
-
-varnish_ids_backend_host: '{{ ids_host }}'
-varnish_ids_backend_port: '{{ ids_port }}'
-
-varnish_default_vcl_template_path: roles/varnishlog/templates/default.vcl.j2
-
 varnish_enabled_services:
-  - varnish
-  - varnishncsa
-
-varnish_backends:
-    hx:
-        host: '{{ varnish_hx_backend_host }}'
-        port: '{{ varnish_hx_backend_port }}'
-    ids:
-        host: '{{ varnish_ids_backend_host }}'
-        port: '{{ varnish_ids_backend_port }}'
-
+    - varnish
+    - varnishncsa
 
 varnish_instances:
     hx:
@@ -184,8 +166,8 @@ enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 # for nginx, talk to image servers via varnish
 ids_image_host: '{{ varnish_instances.ids.frontend.host }}'
 ids_image_port: '{{ varnish_instances.ids.frontend.port }}'
-hx_image_host: '{{ varnish_instance.hx.frontend.host }}'
-hx_image_port: '{{ varnish_instance.hx.frontend.port }}'
+hx_image_host: '{{ varnish_instances.hx.frontend.host }}'
+hx_image_port: '{{ varnish_instances.hx.frontend.port }}'
 
 # att: service_static_dir and the actual static_dir for nginx config might be
 # different if proxy is to be in separate instance than the service(loris)

@@ -44,9 +44,6 @@
     - include_tasks: handlers/main.yml
 
   tasks:
-      - name: setup webserver name
-        include_tasks: 'roles/facts_setup/tasks/webserver_dns.yml'
-
       - name: install webapp
         include_role:
             name: webapp_install

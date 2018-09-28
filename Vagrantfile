@@ -65,15 +65,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   # ids-varnish node
-  config.vm.define "idscache" do |mirador|
-    idscache.vm.box = "bento/ubuntu-16.04"
-    idscache.vm.hostname = "ids-cache.vm"
-    idscache.vm.network "private_network", ip: "10.8.0.16"
+  config.vm.define "idsvarnish" do |idsvarnish|
+    idsvarnish.vm.box = "bento/ubuntu-16.04"
+    idsvarnish.vm.hostname = "idsvarnish.vm"
+    idsvarnish.vm.network "private_network", ip: "10.8.0.16"
 
-    idscache.ssh.forward_agent = true
-    idscache.ssh.insert_key = false
+    idsvarnish.ssh.forward_agent = true
+    idsvarnish.ssh.insert_key = false
 
-    idscache.vm.provider "virtualbox" do |v|
+    idsvarnish.vm.provider "virtualbox" do |v|
         v.memory = "1096"
     end
   end
