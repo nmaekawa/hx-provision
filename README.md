@@ -18,20 +18,22 @@ You'll need:
 
 # start vagrant instances
 
-The vagrantfile in this repo will start 4 ubuntu xenial instances:
+The vagrantfile in this repo will start 5 ubuntu xenial instances:
 
 - images.vm, the hx iiif loris image server
 - ids.vm, another loris image server to mock the libraries server
 - manifests.vm, the iiif manifest server
 - mirador.vm, a mirador(iiif image viewer) lti provider
+- idsvarnish.vm, a dedicated varnish for ids images
 
 The hx image server (images.vm) has a varnish cache setup in the same instance,
 as well as an nginx for reverse proxy. The varnish cache uses the loris from
-images.vm and ids.vm as backend. manifests.vm uses
+images.vm as backend. manifests.vm uses
 [hxprezi][https://github.com/nmaekawa/hxprezi] as iiif manifest
 server. The mirador lti provider
 [hxmirador][https://github.com/nmaekawa/hxmirador] serves a
 [mirador][http://projectmirador.org/docs/] instance via lti protocol.
+idsvarnish.vm uses ids.vm as varnish backend.
 
 
     $> git clone https://github.com/nmaekawa/hximg-provision.git
@@ -56,6 +58,9 @@ when installing hximg:
     ids $> exit
     ...
     $> ssh vagrant@mirador.vm -i ~/.vagrant.d/insecure_private_key
+    mirador $> exit
+    ...
+    $> ssh vagrant@idsvarnish.vm -i ~/.vagrant.d/insecure_private_key
     mirador $> exit
     ...
 
@@ -150,7 +155,10 @@ Run:
     (venv) $> ansible-playbook -i hosts/vagrant.ini ids_play.yml
     
     # provision the images server
-    (venv) $> ansible-playbook -i hosts/vagrant.ini loris_play.yml
+    (venv) $> ansible-playbook -i hosts/vagrant.ini loris_dedicated_varnish_play.yml
+    
+    # provision the ids varnish server
+    (venv) $> ansible-playbook -i hosts/vagrant.ini ids_dedicated_varnish_play.yml
     
     # provision the manifest
     (venv) $> ansible-playbook -i hosts/vagrant.ini hxprezi_play.yml
@@ -166,7 +174,7 @@ the url for hx images server:
 
 or the fake libraries server, via varnish cache:
 
-    http://images.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
+    http://idsvarnish.vm/ids/iiif/<your_sample_image.jpg>/full/128,/0/default.jpg
 
 
 you can then go to
