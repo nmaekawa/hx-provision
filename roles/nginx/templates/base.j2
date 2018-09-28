@@ -2,7 +2,7 @@
 {% if (with_ssl) %}
 server {
     listen  {{ nginx_non_ssl_port | default(80) }};
-    {% if webserver_dns is defined %}
+    {% if webserver_dns is defined and webserver_dns != '' %}
     server_name  {{ webserver_dns }};
     {% endif %}
     return  301  https://$host$request_uri;
@@ -13,7 +13,7 @@ server {
 server {
 {% if (with_ssl) %}
     listen              {{ nginx_ssl_port | default(443) }};
-    {% if webserver_dns is defined %}
+    {% if webserver_dns is defined and webserver_dns != '' %}
     server_name         {{ webserver_dns }};
     {% endif %}
     ssl on;

@@ -26,14 +26,16 @@ users_ssh_keys: '{{ users_users }}'
 local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_numbers/certs/hximg", true) }}'
 
 
-# webserver dns uses vars defined in var-file specific to each service
-webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
+# webserver dns needed only for django apps
+webserver_dns: "{% if ec2_tag_service == 'hxmirador' %}\
+    {% if ec2_tag_cluster == 'prod' %}\
         {{ cert_dns }}.{{ org_dns_domain }}\
     {% elif ec2_tag_cluster == 'vagrant' %}\
         {{ inventory_hostname }}\
     {% else %}\
         {{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_dns_domain }}\
-    {% endif %}"
+    {% endif %}\
+{% endif %}"
 
 
 

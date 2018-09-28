@@ -45,23 +45,6 @@
           cert_partial_filename: "{{ cert_dns }}_{{ org_dns_domain | replace('.', '_') }}"
 
 
-      #- name: replace server_name with webserver_dns in nginx config
-      #replace:
-      #  path: /etc/nginx/sites-available/ssl_{{ cert_dns }}
-      #  regexp: '^(\s+)server_name\s+.*$'
-      #  replace: '\1server_name    {{ webserver_dns }};'
-      #  backup: yes
-      #when: enable_ssl
-
-
-      #- name: replace server_name with webserver_dns in nonssl nginx config
-      #replace:
-      #  path: /etc/nginx/sites-available/nonssl_{{ cert_dns }}
-      #  regexp: '^(\s+)server_name\s+.*$'
-      #  replace: '\1server_name {{ webserver_dns }};'
-      #  backup: yes
-
-
     - name: debug
       debug:
           msg: "ENABLE_ssl is ({{ enable_ssl }})"

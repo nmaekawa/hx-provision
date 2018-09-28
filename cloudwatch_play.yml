@@ -109,6 +109,15 @@
             target_s3_sync_dir: '/opt/loris/data/images'
         when: "service_name == 'loris'"
 
+      - name: run initial s3 sync for images
+        shell: >
+            /usr/bin/aws s3 sync
+            "s3://sources-hx-edu/images"
+            "/opt/loris/data/images"
+            2>&1 | logger -t "[s3 sync INITIAL]"
+        when: "service_name == 'loris'"
+
+
       # install script for manifests sync, if manifests instance
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml
         vars:
@@ -119,6 +128,13 @@
             target_s3_sync_dir: '/opt/hxprezi/data'
         when: "service_name == 'hxprezi'"
 
+      - name: run initial s3 sync for images
+        shell: >
+            /usr/bin/aws s3 sync
+            "s3://sources-hx-edu/manifests"
+            "/opt/hxprezi/data"
+            2>&1 | logger -t "[s3 sync INITIAL]"
+        when: "service_name == 'hxprezi'"
 
 
 
