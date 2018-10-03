@@ -33,6 +33,7 @@
       cluster: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory}}'
       cronjob_scripts_dir: '/usr/local/bin'
       cloudwatch_namespace: 'HX/CustomMetrics/{{ project_name }}'
+      is_varnish: '{{ service_name | regex_search("varnish") }}'
   vars_files:
       - vars/common_vars.yml
 
@@ -85,9 +86,9 @@
             files_to_backup:
                 - /var/log/nginx/access.log.1
                 - /var/log/nginx/error.log.1
-        when: "service_name != 'idsvarnish'"
+        when: "service_name == 'reverseproxy'"
 
-      # install script for images server logs backup
+      # install script for varnish logs backup
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
@@ -97,7 +98,7 @@
             file_backup_prefix: '{{ service_name }}'
             files_to_backup:
                 - /var/log/varnish/varnishncsa.log
-        when: "service_name == 'loris' or service_name == 'idsvarnish'"
+        when: "is_varnish is defined and is_varnish == 'varnish'"
 
       # install script for images sync, if images instance
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml

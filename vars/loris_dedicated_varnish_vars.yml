@@ -13,16 +13,12 @@ hx_varnish_host: "{% if ec2_tag_cluster == 'vagrant' %}\
         127.0.0.1\
     {% else %}\
         {% for  host in hostvars %}\
-            {% if hostvars[host].ec2_tag_service == 'loris' %}\
-                {% if hostvars[host].ec2_ip_address == inventory_hostname %}\
-                    127.0.0.1\
-                {% else %}\
-                    {{ hostvars[host].ec2_private_ip_address }}\
-                {% endif %}\
+            {% if hostvars[host].ec2_tag_service == 'hxvarnish' %}\
+                {{ hostvars[host].ec2_private_ip_address }}\
             {% endif %}\
         {% endfor %}\
     {% endif %}"
-hx_varnish_port: '9898'
+hx_varnish_port: '80'
 
 # how to access external ids image server
 # if configuring a vagrant cluster, ids is a mock
@@ -75,7 +71,15 @@ service_images_dir: '{{ service_data_dir }}/images'
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
 # how gunicorn exposes access to loris-hx
-hx_host: '127.0.0.1'
+hx_host: "{% if ec2_tag_cluster == 'vagrant' %}\
+        127.0.0.1\
+    {% else %}\
+        {% for  host in hostvars %}\
+            {% if hostvars[host].ec2_tag_service == 'loris' %}\
+                {{ hostvars[host].ec2_private_ip_address }}\
+            {% endif %}\
+        {% endfor %}\
+    {% endif %}"
 hx_port: '9090'
 service_gunicorn_port: '{{ hx_port }}'
 service_gunicorn_host: '{{ hx_host }}'
@@ -145,6 +149,7 @@ varnish_instances:
             port: '{{ hx_varnish_port }}'
         backend:
             host: '{{ hx_host }}'
+            host_header: '{{ webserver_dns }}'
             port: '{{ hx_port }}'
     ids:
         frontend:
@@ -152,6 +157,7 @@ varnish_instances:
             port: '{{ ids_varnish_port }}'
         backend:
             host: '{{ ids_host }}'
+            host_header: '{{ ids_host }}'
             port: '{{ ids_port }}'
 
 

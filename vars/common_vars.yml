@@ -26,8 +26,8 @@ users_ssh_keys: '{{ users_users }}'
 local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_numbers/certs/hximg", true) }}'
 
 
-# webserver dns needed only for django apps
-webserver_dns: "{% if ec2_tag_service == 'hxmirador' %}\
+# webserver dns needed only for django apps and hx varnish
+webserver_dns: "{% if ec2_tag_service == 'hxmirador' or ec2_tag_service == 'hxvarnish' %}\
     {% if ec2_tag_cluster == 'prod' %}\
         {{ cert_dns }}.{{ org_dns_domain }}\
     {% elif ec2_tag_cluster == 'vagrant' %}\

@@ -20,7 +20,7 @@ sub vcl_recv {
 
 {% if (varnish_be.host != '127.0.0.1' and varnish_be.host != 'localhost') %}
     # set the host header
-    set req.http.host = "{{ varnish_be.host }}";
+    set req.http.host = "{{ varnish_be.host_header }}";
 {% endif %}
 }
 

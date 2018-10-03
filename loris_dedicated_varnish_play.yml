@@ -1,5 +1,5 @@
 ---
-- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+- hosts: '{{ target_hosts | default("all", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -18,7 +18,7 @@
         changed_when: "result.stdout != ''"
 
 
-- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+- hosts: '{{ target_hosts | default("all", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -32,7 +32,7 @@
 
   roles:
       - external/jmcvetta.passwordless_sudo
-      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_loris }}" }
+      - { role: external/nmaekawa.apt }
       - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
 
 
@@ -51,6 +51,11 @@
     - include: handlers/main.yml
 
   tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+            apt_other_packages: '{{ apt_required_packages_loris }}'
+
       - name: setup loris
         include_role:
             name: hx.loris
@@ -58,14 +63,23 @@
             local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_prod_20180824.tar.gz'
 
 
-- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+- hosts: '{{ target_hosts | default("all", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
   vars:
-      varnish_be: '{{ varnish_instances.hx.backend }}'
-      varnish_listen_port: '{{ varnish_instances.hx.frontend.port }}'
+      is_varnish: '{{ hostvars[inventory_hostname].ec2_tag_service | regex_search("varnish") }}'
       varnish_default_vcl_template_path: 'roles/varnishlog/templates/default_dedicated.vcl.j2'
+      varnish_be: "{% if hostvars[inventory_hostname].ec2_tag_service == 'idsvarnish' %}\
+                        {{ varnish_instances.ids.backend }}\
+                   {% elif hostvars[inventory_hostname].ec2_tag_service == 'hxvarnish' %}\
+                            {{ varnish_instances.hx.backend }}\
+                   {% endif %}"
+      varnish_listen_port: "{% if hostvars[inventory_hostname].ec2_tag_service == 'idsvarnish' %}\
+                        {{ varnish_instances.ids.frontend.port }}\
+                   {% elif hostvars[inventory_hostname].ec2_tag_service == 'hxvarnish' %}\
+                        {{ varnish_instances.hx.frontend.port }}\
+                   {% endif %}"
   vars_files:
       - vars/common_vars.yml
       - vars/loris_dedicated_varnish_vars.yml
@@ -74,13 +88,15 @@
       - name: install varnish
         include_role:
             name: external/geerlingguy.varnish
+        when: is_varnish is defined and is_varnish == 'varnish'
 
       - name: enable varnishlog
         include_role:
             name: varnishlog
+        when: is_varnish is defined and is_varnish == 'varnish'
 
 
-- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_reverseproxy", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
