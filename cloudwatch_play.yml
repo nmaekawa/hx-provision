@@ -100,6 +100,19 @@
                 - /var/log/varnish/varnishncsa.log
         when: "is_varnish is defined and is_varnish == 'varnish'"
 
+      # install script for hxmirador sqlite backup
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: root
+            s3_backup_bucket_name: 'backups-hx-edu'
+            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            file_backup_prefix: '{{ service_name }}'
+            files_to_backup:
+                - '{{ service_db_path }}'
+        when: "service_name == 'hxmirador'"
+
+
       # install script for images sync, if images instance
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml
         vars:

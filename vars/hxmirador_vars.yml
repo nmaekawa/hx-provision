@@ -25,6 +25,7 @@ service_data_dir: "{{ service_rootdir }}/data"
 
 # specific to hxmirador
 service_db_dir: "{{ service_data_dir }}/db"
+service_db_path: "{{ service_db_dir }}/{{ service_name }}_sqlite3.db"
 
 service_gunicorn_port: "{{ lookup('env', 'HXMIRADOR_GUNICORN_PORT') | default('8236', true) }}"
 service_gunicorn_host: "{{ lookup('env', 'HXMIRADOR_GUNICORN_HOST') | default('127.0.0.1', true) }}"
@@ -56,7 +57,7 @@ service_default_django_settings: '{{ service_name }}.settings.dev'
 service_environment:
   DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXMIRADOR_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
   DJANGO_SECRET_KEY: "{{ lookup('env', 'HXMIRADOR_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
-  HXMIRADOR_DB_PATH: "{{ service_db_dir }}/{{ service_name }}.db"
+  HXMIRADOR_DB_PATH: "{{ service_db_path }}"
   HXMIRADOR_STATIC_ROOT: "{{ service_django_static_dir }}"
 
 
