@@ -5,6 +5,8 @@ Ansible provisioning for iiif backend service
 ## as of 03oct18, hximg config for vagrant is **broken** due to tweaks in
 production setup.
 
+# todo: update the following deprecated docs...
+
 # disclaimer
 For demo purposes only! provided to show how to setup a hximg vagrant
 installation and support to this repo is OUT-OF-SCOPE at this time.
