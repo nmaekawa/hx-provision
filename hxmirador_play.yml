@@ -78,4 +78,86 @@
             name: external/geerlingguy.redis
 
 
+- hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      cluster: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory}}'
+      cronjob_scripts_dir: '/usr/local/bin'
+      cloudwatch_namespace: 'HX/CustomMetrics/{{ project_name }}'
+      is_varnish: '{{ service_name | regex_search("varnish") }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxmirador_vars.yml
+
+  tasks:
+
+      - debug:
+          msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster={{ cluster }}; namespace={{ cloudwatch_namespace }}"
+
+      # associate proper instance profile for permissions
+      - import_tasks: roles/external/nmaekawa.iam.instance-profile/tasks/associate_iam_instance_profile.yml
+        vars:
+            instance_profile_name: "hx_{{ project_name }}-{{ cluster }}_instance_profile"
+            instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
+        when: "use_aws"
+
+      - import_role:
+          name: external/Stouts.users
+        vars:
+            users_enabled: yes
+            users_users:
+                - name: cloudwatch
+                  authorized: []
+            users_to_install:
+                - cloudwatch
+        when: "use_aws"
+
+      - import_role:
+          name: external/nmaekawa.cloudwatch
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: cloudwatch
+        when: "use_aws"
+
+      # install script for syslog backup
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: root
+            s3_backup_bucket_name: 'backups-hx-edu'
+            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            file_backup_prefix: '{{ service_name }}'
+            files_to_backup:
+                - /var/log/syslog.1
+        when: "use_aws"
+
+      # install script for nginx logs backup
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: root
+            s3_backup_bucket_name: 'backups-hx-edu'
+            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            file_backup_prefix: '{{ service_name }}'
+            files_to_backup:
+                - /var/log/nginx/access.log.1
+                - /var/log/nginx/error.log.1
+        when: "use_aws"
+
+
+      # install script for hxmirador sqlite backup
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: root
+            s3_backup_bucket_name: 'backups-hx-edu'
+            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            file_backup_prefix: '{{ service_name }}'
+            files_to_backup:
+                - '{{ service_db_path }}'
+        when: "use_aws"
+
 

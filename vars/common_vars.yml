@@ -38,4 +38,5 @@ webserver_dns: "{% if ec2_tag_service == 'hxmirador' or ec2_tag_service == 'hxva
 {% endif %}"
 
 
-
+# cloudwatch stuff
+cloudwatch_namespace_prefix: 'HX/CustomMetrics'
