@@ -116,7 +116,7 @@
             name: nginx
         vars:
             static_dir: '{{ service_static_dir }}'
-            nginx_template_path: roles/nginx/templates/nginx_reverse_proxy.j2
+            nginx_template_path: roles/nginx/templates/nginx_loris.j2
 
 
 - hosts: '{{ target_hosts | default("all", true) }}'

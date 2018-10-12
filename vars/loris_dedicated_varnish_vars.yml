@@ -23,7 +23,8 @@ hx_varnish_port: '80'
 # how to access external ids image server
 # if configuring a vagrant cluster, ids is a mock
 ids_host: '{{ (ec2_tag_cluster == "vagrant") | ternary("ids.vm", "ids.lib.harvard.edu") }}'
-ids_port: '{{ (ec2_tag_cluster == "vagrant") | ternary("80", "443") }}'
+# this is to config varnish, who does not talk ssl
+ids_port: '80'
 
 # ids host, as exposed by dedicated varnish
 # implies that there is always a dedicated varnish for ids; not able to set the

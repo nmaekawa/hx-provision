@@ -38,7 +38,9 @@ redirect_id_slash_to_info = True
 # size restriction.
 max_size_above_full = 200
 
-#proxy_path=''
+# override the default path to info.json file
+proxy_path='{{ enable_ssl | ternary("https", "http") }}://{{ webserver_dns }}/'
+
 # cors_regex = ''
 # NOTE: If supplied, cors_regex is passed to re.search():
 #    https://docs.python.org/2/library/re.html#re.search
