@@ -128,7 +128,7 @@
       service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
       cluster: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory}}'
       cronjob_scripts_dir: '/usr/local/bin'
-      cloudwatch_namespace: 'HX/CustomMetrics/{{ project_name }}'
+      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
       is_varnish: '{{ service_name | regex_search("varnish") }}'
   vars_files:
       - vars/common_vars.yml
@@ -218,7 +218,6 @@
             "/opt/loris/data/images"
             2>&1 | logger -t "[s3 sync INITIAL]"
         when: "use_aws and service_name == 'loris'"
-
 
 
 

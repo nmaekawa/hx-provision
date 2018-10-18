@@ -86,7 +86,7 @@
       project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
       cluster: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory}}'
       cronjob_scripts_dir: '/usr/local/bin'
-      cloudwatch_namespace: 'HX/CustomMetrics/{{ project_name }}'
+      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
       is_varnish: '{{ service_name | regex_search("varnish") }}'
   vars_files:
       - vars/common_vars.yml
@@ -159,5 +159,4 @@
             files_to_backup:
                 - '{{ service_db_path }}'
         when: "use_aws"
-
 

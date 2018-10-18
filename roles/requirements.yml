@@ -23,3 +23,8 @@
     - src: git+https://github.com/geerlingguy/ansible-role-redis.git
       version: "1.6.0"
       name: geerlingguy.redis
+
+    - src: git+https://github.com/Weihrauch/ansible-cloudwatch-monitoring.git
+      version: "5affd36"
+      name: weihrauch.ansible-cloudwatch-scripts
+

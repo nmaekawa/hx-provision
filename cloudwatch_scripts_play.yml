@@ -1,0 +1,32 @@
+---
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+      service_cw_install_dir: '/opt/aws-scripts-mon/'
+
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
+
+  tasks:
+
+      - import_role:
+          name: external/weihrauch.cloudwatch-monitoring
+        vars:
+            cw_install_dir: '{{ service_cw_install_dir }}'
+            cw_options: "--mem-util --mem-used --mem-avail"
+            cw_cron_minute: "*/2"
+        when: "use_aws"
+
+      - name: change metric namespace
+        replace:
+            path: '{{ service_cw_install_dir }}/mon-put-instance-data.pl'
+            regexp: "(.*input_ref->{'Namespace'} =).*"
+            replace: '\1 "{{ cloudwatch_namespace }}";'
+            backup: yes
+        when: "use_aws"
+
