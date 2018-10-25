@@ -4,6 +4,7 @@ vcl 4.0;
 backend default {
     .host = "{{ varnish_be.host }}";
     .port = "{{ varnish_be.port }}";
+    .first_byte_timeout = 300s;
 }
 
 sub vcl_recv {

@@ -208,16 +208,25 @@
             cronjob_owner: "{{ service_name }}"
             s3_sync_bucket_name: 'sources-hx-edu'
             s3_sync_prefix: 'images'
-            target_s3_sync_dir: '/opt/loris/data/images'
+            target_s3_sync_dir: '{{ service_images_dir }}'
         when: "use_aws and service_name == 'loris'"
 
       - name: run initial s3 sync for images
         shell: >
             /usr/bin/aws s3 sync
             "s3://sources-hx-edu/images"
-            "/opt/loris/data/images"
+            "{{ service_images_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
         when: "use_aws and service_name == 'loris'"
+
+      - name: run initial s3 sync for loris cache
+        shell: >
+            /usr/bin/aws s3 sync
+            "s3://sources-hx-edu/loris-cache"
+            "{{ service_images_cache }}"
+            2>&1 | logger -t "[s3 sync INITIAL]"
+        when: "use_aws and service_name == 'loris'"
+
 
 
 

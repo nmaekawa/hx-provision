@@ -26,5 +26,5 @@
 
     - src: git+https://github.com/Weihrauch/ansible-cloudwatch-monitoring.git
       version: "5affd36"
-      name: weihrauch.ansible-cloudwatch-scripts
+      name: weihrauch.cloudwatch-monitoring
 
