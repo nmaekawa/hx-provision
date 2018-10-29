@@ -132,11 +132,12 @@
       is_varnish: '{{ service_name | regex_search("varnish") }}'
   vars_files:
       - vars/common_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
 
   tasks:
 
       - debug:
-          msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster={{ cluster }}; namespace={{ cloudwatch_namespace }}"
+          msg: "project_name={{ project_name }}; service_name={{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}; cluster={{ cluster }}; namespace={{ cloudwatch_namespace }}"
 
       # associate proper instance profile for permissions
       - import_tasks: roles/external/nmaekawa.iam.instance-profile/tasks/associate_iam_instance_profile.yml
@@ -170,7 +171,7 @@
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}'
+            file_backup_prefix: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
             files_to_backup:
                 - /var/log/syslog.1
         when: "use_aws"
@@ -182,11 +183,11 @@
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}'
+            file_backup_prefix: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
             files_to_backup:
                 - /var/log/nginx/access.log.1
                 - /var/log/nginx/error.log.1
-        when: "use_aws and service_name == 'reverseproxy'"
+        when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'reverseproxy'"
 
       # install script for varnish logs backup
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
@@ -195,7 +196,7 @@
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}'
+            file_backup_prefix: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
             files_to_backup:
                 - /var/log/varnish/varnishncsa.log
         when: "use_aws and is_varnish is defined and is_varnish == 'varnish'"
@@ -205,27 +206,31 @@
       - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: "{{ service_name }}"
+            cronjob_owner: "{{ service_user }}"
             s3_sync_bucket_name: 'sources-hx-edu'
             s3_sync_prefix: 'images'
             target_s3_sync_dir: '{{ service_images_dir }}'
-        when: "use_aws and service_name == 'loris'"
+        when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
 
       - name: run initial s3 sync for images
+        become: yes
+        become_user: '{{ service_user }}'
         shell: >
             /usr/bin/aws s3 sync
             "s3://sources-hx-edu/images"
             "{{ service_images_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
-        when: "use_aws and service_name == 'loris'"
+        when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
 
       - name: run initial s3 sync for loris cache
+        become: yes
+        become_user: '{{ service_user }}'
         shell: >
             /usr/bin/aws s3 sync
             "s3://sources-hx-edu/loris-cache"
-            "{{ service_images_cache }}"
+            "{{ service_cache_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
-        when: "use_aws and service_name == 'loris'"
+        when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
 
 
 
