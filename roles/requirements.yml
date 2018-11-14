@@ -32,3 +32,7 @@
       version: "3.0.0"
       name: nmaekawa.cloudwatch
 
+    - src: git+https://github.com/nmaekawa/ansible-role-iam-instance-profile.git
+      version: "1.0.0"
+      name: nmaekawa.iam-instance-profile
+

@@ -98,7 +98,7 @@
           msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster={{ cluster }}; namespace={{ cloudwatch_namespace }}"
 
       # associate proper instance profile for permissions
-      - import_tasks: roles/external/nmaekawa.iam.instance-profile/tasks/associate_iam_instance_profile.yml
+      - import_tasks: roles/external/nmaekawa.iam-instance-profile/tasks/associate_iam_instance_profile.yml
         vars:
             instance_profile_name: "hx_{{ project_name }}-{{ cluster }}_instance_profile"
             instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
