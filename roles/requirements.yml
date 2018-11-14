@@ -28,3 +28,7 @@
       version: "5affd36"
       name: weihrauch.cloudwatch-monitoring
 
+    - src: git+https://github.com/nmaekawa/ansible-role-cloudwatch.git
+      version: "3.0.0"
+      name: nmaekawa.cloudwatch
+
