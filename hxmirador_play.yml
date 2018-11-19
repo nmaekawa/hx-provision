@@ -84,7 +84,7 @@
   become_user: root
   vars:
       project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
-      cluster: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory}}'
+      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
       cronjob_scripts_dir: '/usr/local/bin'
       cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
       is_varnish: '{{ service_name | regex_search("varnish") }}'
@@ -95,14 +95,17 @@
   tasks:
 
       - debug:
-          msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster={{ cluster }}; namespace={{ cloudwatch_namespace }}"
+          msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
 
+      #
+      # 19nov18 naomi: skipping since this is done via cloudformation
+      # -------------------------------------------------------------
       # associate proper instance profile for permissions
-      - import_tasks: roles/external/nmaekawa.iam-instance-profile/tasks/associate_iam_instance_profile.yml
-        vars:
-            instance_profile_name: "hx_{{ project_name }}-{{ cluster }}_instance_profile"
-            instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
-        when: "use_aws"
+      #- import_tasks: roles/external/nmaekawa.iam-instance-profile/tasks/associate_iam_instance_profile.yml
+      #  vars:
+      #      instance_profile_name: "hx_{{ project_name }}-{{ cluster_env }}_instance_profile"
+      #      instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
+      #  when: "use_aws"
 
       - import_role:
           name: external/Stouts.users
@@ -128,7 +131,7 @@
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
-            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
             file_backup_prefix: '{{ service_name }}'
             files_to_backup:
                 - /var/log/syslog.1
@@ -140,7 +143,7 @@
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
-            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
             file_backup_prefix: '{{ service_name }}'
             files_to_backup:
                 - /var/log/nginx/access.log.1
@@ -154,7 +157,7 @@
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
-            s3_backup_prefix: '{{ cluster }}/{{ project_name }}'
+            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
             file_backup_prefix: '{{ service_name }}'
             files_to_backup:
                 - '{{ service_db_path }}'
