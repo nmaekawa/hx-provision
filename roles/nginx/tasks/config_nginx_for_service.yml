@@ -5,22 +5,22 @@
         name: nginx
         state: present
 
+    - name: compose the cert filename
+      set_fact:
+          cert_partial_filename: "{{ (ec2_tag_cluster == 'prod') | ternary('', 'all_') }}{{ cert_dns }}_{{ org_dns_domain | replace('.', '_') }}"
+
     - name: copy ssl cert dir to service host
       copy:
-        src: "{{ item }}"
-        dest: "{{ nginx_ssl_dest_dir }}/{{ item | basename }}"
+        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
         mode: 0644
-      with_fileglob:
-        - "{{ local_certs_dir }}/{{ cert_dns }}/*.crt"
       when: enable_ssl
 
     - name: copy ssl private_key to service host
       copy:
-        src: "{{ item }}"
-        dest: "{{ nginx_ssl_dest_dir }}/{{ item | basename }}"
+        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}.key"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key"
         mode: 0600
-      with_fileglob:
-        - "{{ local_certs_dir }}/{{ cert_dns }}/*.key"
       when: enable_ssl
 
     # create sites-available
@@ -29,6 +29,7 @@
       vars:
           with_ssl: True
       when: enable_ssl
+
     - include_tasks: drop_nginx_config.yml
       vars:
           with_ssl: False
@@ -39,48 +40,21 @@
         path: /etc/nginx/sites-enabled/default
         state: absent
 
-
-    - name: compose the cert filename
-      set_fact:
-          cert_partial_filename: "{{ cert_dns }}_{{ org_dns_domain | replace('.', '_') }}"
-
-
-    - name: debug
-      debug:
-          msg: "ENABLE_ssl is ({{ enable_ssl }})"
-
-    - name: link ssl cert to correct file for prod cluster
+    - name: link ssl CERT to correct file
       file:
         src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
         dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt"
         state: link
-      when: enable_ssl and ec2_tag_cluster == 'prod'
+      when: enable_ssl
       notify: reload nginx
 
 
-    - name: link ssl key to correct file for prod cluster
+    - name: link ssl KEY to correct file
       file:
         src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key"
         dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key"
         state: link
-      when: enable_ssl and ec2_tag_cluster == 'prod'
-      notify: reload nginx
-
-    - name: link ssl cert to correct file
-      file:
-        src: "{{ nginx_ssl_dest_dir }}/all_{{ cert_partial_filename }}_bundle.crt"
-        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt"
-        state: link
-      when: enable_ssl and ec2_tag_cluster != 'prod'
-      notify: reload nginx
-
-
-    - name: link ssl key to correct file
-      file:
-        src: "{{ nginx_ssl_dest_dir }}/all_{{ cert_partial_filename }}.key"
-        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key"
-        state: link
-      when: enable_ssl and ec2_tag_cluster != 'prod'
+      when: enable_ssl
       notify: reload nginx
 
 
