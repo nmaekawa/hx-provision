@@ -132,7 +132,7 @@
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}'
+            file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
                 - /var/log/syslog.1
         when: "use_aws"
@@ -144,7 +144,7 @@
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}'
+            file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
                 - /var/log/nginx/access.log.1
                 - /var/log/nginx/error.log.1
@@ -158,7 +158,7 @@
             cronjob_owner: root
             s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}'
+            file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
                 - '{{ service_db_path }}'
         when: "use_aws"
