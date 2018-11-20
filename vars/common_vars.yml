@@ -4,8 +4,15 @@
 use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
 my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 
-org_dns_domain: "harvardx.harvard.edu"
-
+# BEWARE that devo_domain should not be published to the world!
+# used in testing ONLY
+prod_domain: "{{ lookup('env', 'HX_PROD_DNS') | default('harvardx.harvard.edu', true) }}"
+devo_domain: "{{ lookup('env', 'HX_DEVO_DNS') | default('harvardx.harvard.edu', true) }}"
+org_dns_domain: "{% if ec2_tag_cluster in ['prod', 'demo'] %}\
+                 {{ prod_domain }}\
+            {% else %}\
+                 {{ devo_domain }}\
+            {% endif %}"
 
 # for Stouts.users
 users_developers:
