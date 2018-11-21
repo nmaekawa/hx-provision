@@ -5,6 +5,7 @@
 - import_playbook: hxmirador_play.yml
 - import_playbook: cloudwatch_scripts_play.yml
   when: ec2_tag_cluster == 'prod'
-
+- import_playbook: route53_play.yml
+  when: use_aws
 
 

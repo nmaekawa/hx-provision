@@ -1,0 +1,68 @@
+---
+- hosts: tag_service_hxprezi
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: '{{ lookup("env", "USER") }}'
+  vars:
+      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
+      cluster_name: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxprezi_vars.yml
+
+  tasks:
+      - name: add a A Record in route53 for {{ service_name }}
+        route53:
+            state: present
+            zone: '{{ org_dns_domain }}'
+            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_dns_domain }}'
+            type: A
+            ttl: 300
+            value: '{{ inventory_hostname }}'
+        delegate_to: localhost
+
+
+- hosts: tag_service_hxmirador
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: '{{ lookup("env", "USER") }}'
+  vars:
+      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
+      cluster_name: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxmirador_vars.yml
+
+  tasks:
+      - name: add a A Record in route53 for {{ service_name }}
+        route53:
+            state: present
+            zone: '{{ org_dns_domain }}'
+            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_dns_domain }}'
+            type: A
+            ttl: 300
+            value: '{{ inventory_hostname }}'
+        delegate_to: localhost
+
+
+- hosts: tag_service_reverseproxy
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: '{{ lookup("env", "USER") }}'
+  vars:
+      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
+      cluster_name: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
+
+  tasks:
+      - name: add a A Record in route53 for {{ service_name }}
+        route53:
+            state: present
+            zone: '{{ org_dns_domain }}'
+            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_dns_domain }}'
+            type: A
+            ttl: 300
+            value: '{{ inventory_hostname }}'
+        delegate_to: localhost
