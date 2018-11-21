@@ -130,7 +130,6 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
-            s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
             file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
@@ -142,7 +141,6 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
-            s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
             file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
@@ -156,7 +154,6 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
-            s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
             file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:

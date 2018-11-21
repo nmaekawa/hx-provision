@@ -24,7 +24,7 @@
   become_user: root
   vars:
       local_user:
-          name: '{{ service_name }}'
+          name: '{{ service_user }}'
           authorized: []
   vars_files:
       - vars/common_vars.yml
@@ -125,11 +125,11 @@
   become_user: root
   vars:
       project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
-      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
       cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
       cronjob_scripts_dir: '/usr/local/bin'
       cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
-      is_varnish: '{{ service_name | regex_search("varnish") }}'
+      is_varnish: '{{ service_role | regex_search("varnish") }}'
   vars_files:
       - vars/common_vars.yml
       - vars/loris_dedicated_varnish_vars.yml
@@ -137,7 +137,7 @@
   tasks:
 
       - debug:
-          msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
+          msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
 
       #
       # 19nov18 naomi: skipping since this is done via cloudformation
@@ -172,9 +172,8 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
-            s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
+            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
                 - /var/log/syslog.1
         when: "use_aws"
@@ -184,9 +183,8 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
-            s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
+            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
                 - /var/log/nginx/access.log.1
                 - /var/log/nginx/error.log.1
@@ -197,9 +195,8 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: root
-            s3_backup_bucket_name: 'backups-hx-edu'
             s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_name }}_{{ ansible_ec2_instance_id }}'
+            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
             files_to_backup:
                 - /var/log/varnish/varnishncsa.log.1
         when: "use_aws and is_varnish is defined and is_varnish == 'varnish'"
@@ -210,7 +207,7 @@
         vars:
             script_install_dir: '{{ cronjob_scripts_dir }}'
             cronjob_owner: "{{ service_user }}"
-            s3_sync_bucket_name: 'sources-hx-edu'
+            s3_sync_bucket_name: '{{ s3_source_bucket_name }}'
             s3_sync_prefix: 'images'
             target_s3_sync_dir: '{{ service_images_dir }}'
         when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
@@ -220,7 +217,7 @@
         become_user: '{{ service_user }}'
         shell: >
             /usr/bin/aws s3 sync
-            "s3://sources-hx-edu/images"
+            "s3://{{ s3_source_bucket_name }}/images"
             "{{ service_images_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
         when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
@@ -230,7 +227,7 @@
         become_user: '{{ service_user }}'
         shell: >
             /usr/bin/aws s3 sync
-            "s3://sources-hx-edu/loris-cache"
+            "s3://{{ s3_source_bucket_name }}/loris-cache"
             "{{ service_cache_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
         when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
