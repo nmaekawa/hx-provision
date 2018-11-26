@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.landrush.enabled = true
   config.landrush.tld = "vm"
 
-  # loris image server node
+  # reverse proxy node
   config.vm.define "images" do |images|
     images.vm.box = "bento/ubuntu-16.04"
     images.vm.hostname = "images.vm"
@@ -18,6 +18,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     images.ssh.insert_key = false
 
     images.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+    end
+  end
+
+  # loris image server node
+  config.vm.define "loris" do |loris|
+    loris.vm.box = "bento/ubuntu-16.04"
+    loris.vm.hostname = "loris.vm"
+    loris.vm.network "private_network", ip: "10.8.0.8"
+
+    loris.ssh.forward_agent = true
+    loris.ssh.insert_key = false
+
+    loris.vm.provider "virtualbox" do |v|
         v.memory = "4096"
     end
   end
@@ -74,6 +88,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     idsvarnish.ssh.insert_key = false
 
     idsvarnish.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
+    end
+  end
+
+  # hx-varnish node
+  config.vm.define "hxvarnish" do |hxvarnish|
+    hxvarnish.vm.box = "bento/ubuntu-16.04"
+    hxvarnish.vm.hostname = "hxvarnish.vm"
+    hxvarnish.vm.network "private_network", ip: "10.8.0.17"
+
+    hxvarnish.ssh.forward_agent = true
+    hxvarnish.ssh.insert_key = false
+
+    hxvarnish.vm.provider "virtualbox" do |v|
         v.memory = "1096"
     end
   end
