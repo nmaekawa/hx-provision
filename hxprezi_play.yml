@@ -1,19 +1,7 @@
 ---
-- hosts: '{{ target_hosts | default("tag_service_hxprezi", true) }}'
-  remote_user: "{{ my_remote_user }}"
-  become: yes
-  become_user: root
-  gather_facts: False
-  vars_files:
-      - vars/common_vars.yml
-      - vars/hxprezi_vars.yml
-
-  tasks:
-      - name: install python2
-        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-        register: result
-        changed_when: "result.stdout != ''"
-
+#
+# assumes common_play.yml already applied to all involved inventory
+#
 
 - hosts: '{{ target_hosts | default("tag_service_hxprezi", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -27,11 +15,16 @@
       - vars/common_vars.yml
       - vars/hxprezi_vars.yml
 
-  roles:
-      - external/jmcvetta.passwordless_sudo
-      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_hxprezi }}" }
-      - external/Stouts.users
-      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+          apt_other_packages: "{{ apt_required_packages_hxprezi }}"
+
+      - include_role:
+          name: external/Stouts.users
+        vars:
+          users_users: '{{ [local_user] }}'
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxprezi", true) }}'
@@ -63,7 +56,7 @@
             dest: '{{ service_data_dir }}'
             owner: '{{ service_user }}'
             group: '{{ service_group }}'
-        when: ec2_tag_cluster == 'vagrant' and ( local_image_sample_path_tar_gz is defined )
+        when: ec2_tag_cluster == 'vagrant' and ( local_manifests_path_tar_gz is defined )
 
       - name: unarchive local manifests tar.gz
         unarchive:
@@ -72,7 +65,7 @@
             owner: '{{ service_user }}'
             group: '{{ service_group }}'
             remote_src: yes
-        when: ec2_tag_cluster == 'vagrant' and ( local_image_sample_path_tar_gz is defined )
+        when: ec2_tag_cluster == 'vagrant' and ( local_manifests_path_tar_gz is defined )
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxprezi", true) }}'

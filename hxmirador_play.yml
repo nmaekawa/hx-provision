@@ -1,19 +1,7 @@
 ---
-- hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'
-  remote_user: "{{ my_remote_user }}"
-  become: yes
-  become_user: root
-  gather_facts: False
-  vars_files:
-      - vars/common_vars.yml
-      - vars/hxmirador_vars.yml
-
-  tasks:
-      - name: install python2
-        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-        register: result
-        changed_when: "result.stdout != ''"
-
+#
+# assumes common_play.yml already applied to all involved inventory
+#
 
 - hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -27,11 +15,16 @@
       - vars/common_vars.yml
       - vars/hxmirador_vars.yml
 
-  roles:
-      - external/jmcvetta.passwordless_sudo
-      - { role: external/nmaekawa.apt, apt_other_packages: "{{ apt_required_packages_hxmirador }}" }
-      - external/Stouts.users
-      - { role: external/Stouts.users, users_users: '{{ users_developers + [local_user] }}' }
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+          apt_other_packages: "{{ apt_required_packages_hxmirador }}"
+
+      - include_role:
+          name: external/Stouts.users
+        vars:
+          users_users: '{{ [local_user] }}'
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'

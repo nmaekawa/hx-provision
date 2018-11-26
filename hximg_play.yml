@@ -1,5 +1,8 @@
 ---
 
+- import_playbook: common_play.yml
+- import_playbook: ids_play.yml  # ids must exists before configuring idsvarnish
+  when: ec2_tag_cluster == 'vagrant'
 - import_playbook: loris_dedicated_varnish_play.yml
 - import_playbook: hxprezi_play.yml
 - import_playbook: hxmirador_play.yml
