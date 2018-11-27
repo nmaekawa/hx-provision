@@ -47,7 +47,7 @@
         include_role:
             name: hx.loris
         vars:
-            local_image_sample_path_tar_gz: '/Volumes/hx-images/ids_images_tif.tar.gz'
+            local_image_sample_path_tar_gz: '{{ playbook_dir }}/tmp/ids_images_sample.tar.gz'
 
       - name: setup proxy
         include_role:
