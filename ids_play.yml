@@ -47,6 +47,7 @@
         include_role:
             name: hx.loris
         vars:
+            vagrant_webserver_dns: 'ids.vm'
             local_image_sample_path_tar_gz: '{{ playbook_dir }}/tmp/ids_images_sample.tar.gz'
 
       - name: setup proxy
@@ -56,6 +57,7 @@
             enable_ssl: False  # should always be False for mock ids
             static_dir: '{{ service_static_dir }}'
             nginx_template_path: roles/nginx/templates/nginx_ids.j2
+            vagrant_webserver_dns: 'ids.vm'
 
 
 
