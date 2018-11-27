@@ -113,7 +113,6 @@ apt_required_packages_loris:
     - 'liblcms2-utils'
     - 'libtiff5-dev'
     - 'libwebp-dev'
-      #- 'nginx'
     - 'supervisor'
 
 
