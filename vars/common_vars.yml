@@ -37,7 +37,7 @@ local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_
 webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
         {{ cert_dns }}.{{ org_dns_domain }}\
     {% elif ec2_tag_cluster == 'vagrant' %}\
-        {{ inventory_hostname }}\
+        {{ vagrant_webserver_dns }}\
     {% else %}\
         {{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_dns_domain }}\
     {% endif %}"

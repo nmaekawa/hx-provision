@@ -1,0 +1,25 @@
+---
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/common_vars.yml
+
+  tasks:
+      - name: install python2
+        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        register: result
+        changed_when: "result.stdout != ''"
+
+      - include_role:
+          name: external/jmcvetta.passwordless_sudo
+
+      - include_role:
+          name: external/nmaekawa.apt
+
+      - include_role:
+          name: external/Stouts.users
+        vars:
+          users_users: '{{ users_developers }}'

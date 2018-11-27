@@ -9,15 +9,11 @@
 
 # assumes inventory_hostname is public ip
 # assumes ok to get the first ec2 with tag_service loris if list of 'loris'
-hx_varnish_host: "{% if ec2_tag_cluster == 'vagrant' %}\
-        127.0.0.1\
-    {% else %}\
-        {% for  host in hostvars %}\
+hx_varnish_host: "{% for host in hostvars %}\
             {% if hostvars[host].ec2_tag_service == 'hxvarnish' %}\
                 {{ hostvars[host].ec2_private_ip_address }}\
             {% endif %}\
-        {% endfor %}\
-    {% endif %}"
+        {% endfor %}"
 hx_varnish_port: '80'
 
 # how to access external ids image server
@@ -29,15 +25,11 @@ ids_port: '80'
 # ids host, as exposed by dedicated varnish
 # implies that there is always a dedicated varnish for ids; not able to set the
 # same varnish instance for both hx and ids...
-ids_varnish_host: "{% if ec2_tag_cluster == 'vagrant' %}\
-        {{ inventory_hostname }}\
-    {% else %}\
-        {% for host in hostvars %}\
+ids_varnish_host: "{% for host in hostvars %}\
             {% if hostvars[host].ec2_tag_service == 'idsvarnish' %}\
                 {{ hostvars[host].ec2_private_ip_address }}\
             {% endif %}\
-        {% endfor %}\
-    {% endif %}"
+        {% endfor %}"
 ids_varnish_port: '80'
 
 
@@ -72,15 +64,12 @@ service_images_dir: '{{ service_data_dir }}/images'
 #loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
 
 # how gunicorn exposes access to loris-hx
-hx_host: "{% if ec2_tag_cluster == 'vagrant' %}\
-        127.0.0.1\
-    {% else %}\
-        {% for  host in hostvars %}\
+# hack for vagrant, didn't figure why 2 ip addr
+hx_host: "{% for host in hostvars %}\
             {% if hostvars[host].ec2_tag_service == 'loris' %}\
-                {{ hostvars[host].ec2_private_ip_address }}\
+                    {{ hostvars[host].ec2_private_ip_address }}\
             {% endif %}\
-        {% endfor %}\
-    {% endif %}"
+        {% endfor %}"
 hx_port: '9090'
 service_gunicorn_port: '{{ hx_port }}'
 service_gunicorn_host: '{{ hx_host }}'
@@ -124,7 +113,7 @@ apt_required_packages_loris:
     - 'liblcms2-utils'
     - 'libtiff5-dev'
     - 'libwebp-dev'
-    - 'nginx'
+      #- 'nginx'
     - 'supervisor'
 
 
@@ -182,6 +171,8 @@ hx_image_port: '{{ varnish_instances.hx.frontend.port }}'
 static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
 cert_dns: 'images'  # this name must match pattern for ssl cert names
+# special case for vagrant
+vagrant_webserver_dns: 'images.vm'
 
 # for nmaekawa.apt
 apt_required_packages_proxy:

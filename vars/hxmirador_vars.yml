@@ -85,6 +85,8 @@ enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 static_dir: '{{service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
 cert_dns: 'mirador'  # this name must match pattern for ssl cert names
+# special case for vagrant
+vagrant_webserver_dns: inventory_hostname
 
 
 

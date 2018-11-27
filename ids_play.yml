@@ -3,7 +3,7 @@
 # assumes common_play.yml already applied to all involved inventory
 #
 
-- hosts: '{{ target_hosts | default("tag_ids", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_mockids", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
@@ -28,7 +28,7 @@
 
 
 
-- hosts: '{{ target_hosts | default("tag_ids", true) }}'
+- hosts: '{{ target_hosts | default("tag_service_mockids", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root

@@ -1,0 +1,148 @@
+---
+#
+# assumes common_play.yml already applied to all involved inventory
+#
+
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_user }}'
+          authorized: []
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
+
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+          apt_other_packages: "{{ apt_required_packages_loris }}"
+
+      - include_role:
+          name: external/Stouts.users
+        vars:
+          users_users: '{{ [local_user] }}'
+
+
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
+  vars:
+    loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
+    loris_git_version: 'v2.2.0'
+
+  handlers:
+    - include: handlers/main.yml
+
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+            apt_other_packages: '{{ apt_required_packages_loris }}'
+
+      - name: setup loris
+        include_role:
+            name: hx.loris
+        vars:
+            local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_prod_20180824.tar.gz'
+
+
+
+- hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+      cronjob_scripts_dir: '/usr/local/bin'
+      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/loris_dedicated_varnish_vars.yml
+
+  tasks:
+
+      - debug:
+          msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
+
+      #
+      # 19nov18 naomi: skipping since this is done via cloudformation
+      # -------------------------------------------------------------
+      # associate proper instance profile for permissions
+      #- import_tasks: roles/external/nmaekawa.iam-instance-profile/tasks/associate_iam_instance_profile.yml
+      #  vars:
+      #      instance_profile_name: "hx_{{ project_name }}-{{ cluster_env }}_instance_profile"
+      #      instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
+      #  when: "use_aws"
+
+      - import_role:
+          name: external/Stouts.users
+        vars:
+            users_enabled: yes
+            users_users:
+                - name: cloudwatch
+                  authorized: []
+            users_to_install:
+                - cloudwatch
+        when: "use_aws"
+
+      - import_role:
+          name: external/nmaekawa.cloudwatch
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: cloudwatch
+        when: "use_aws"
+
+      # install script for syslog backup
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: root
+            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
+            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
+            files_to_backup:
+                - /var/log/syslog.1
+        when: "use_aws"
+
+      # install script for images sync, if images instance
+      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml
+        vars:
+            script_install_dir: '{{ cronjob_scripts_dir }}'
+            cronjob_owner: "{{ service_user }}"
+            s3_sync_bucket_name: '{{ s3_source_bucket_name }}'
+            s3_sync_prefix: 'images'
+            target_s3_sync_dir: '{{ service_images_dir }}'
+        when: "use_aws"
+
+      - name: run initial s3 sync for images
+        become: yes
+        become_user: '{{ service_user }}'
+        shell: >
+            /usr/bin/aws s3 sync
+            "s3://{{ s3_source_bucket_name }}/images"
+            "{{ service_images_dir }}"
+            2>&1 | logger -t "[s3 sync INITIAL]"
+        when: "use_aws"
+
+      - name: run initial s3 sync for loris cache
+        become: yes
+        become_user: '{{ service_user }}'
+        shell: >
+            /usr/bin/aws s3 sync
+            "s3://{{ s3_source_bucket_name }}/loris-cache"
+            "{{ service_cache_dir }}"
+            2>&1 | logger -t "[s3 sync INITIAL]"
+        when: "use_aws"
+
+
+
+
