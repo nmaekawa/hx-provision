@@ -146,6 +146,7 @@
             s3_sync_bucket_name: '{{ s3_source_bucket_name }}'
             s3_sync_prefix: 'manifests'
             target_s3_sync_dir: '/opt/hxprezi/data'
+        when: "use_aws"
 
       - name: run initial s3 sync for manifests
         shell: >
