@@ -2,11 +2,6 @@
 # hximg-provision
 Ansible provisioning for iiif backend service
 
-## as of 03oct18, hximg config for vagrant is **broken** due to tweaks in
-production setup.
-
-# todo: update the following deprecated docs...
-
 # disclaimer
 For demo purposes only! provided to show how to setup a hximg vagrant
 installation and support to this repo is OUT-OF-SCOPE at this time.
@@ -23,7 +18,7 @@ You'll need:
 
 # start vagrant instances
 
-*BE WARNED:* the vagrantfile in this repo will start _7 ubuntu xenial instances_.
+*BE WARNED:* the vagrantfile in this repo will start _7 (seven)_ ubuntu xenial instances.
 This is to maintain parity with current production environment.
 
 - loris.vm, the hx iiif loris image server
@@ -38,24 +33,21 @@ So, for the hx image service there is a loris server (loris.vm), a varnish
 cache in front of it (hxvarnish.vm), and a reverse proxy in front of hxvarnish
 to deal with ssl in prod env (images.vm).
 
-manifests.vm uses
-[hxprezi][https://github.com/nmaekawa/hxprezi] as iiif manifest
-server.
+manifests.vm uses [hxprezi](https://github.com/nmaekawa/hxprezi) as iiif manifest server.
 
-The mirador lti provider
-[hxmirador][https://github.com/nmaekawa/hxmirador] serves a
-[mirador][http://projectmirador.org/docs/] instance via lti protocol.
+The mirador lti provider [hxmirador](https://github.com/nmaekawa/hxmirador) serves a
+[mirador](http://projectmirador.org/docs/) instance via lti protocol.
 
 idsvarnish.vm uses the mock ids.vm as varnish backend.
 
+
+Below will start the boxes, but not install anything yet. You
+can change the assigned local ips in the `Vagrantfile`.
 
     $> git clone https://github.com/nmaekawa/hximg-provision.git
     $> cd hximg-provision
     $> vagrant up
 
-
-This will only start the boxes and they don't have anything installed yet. You
-can change the assigned local ips in the `Vagrantfile`.
 
 Login into the boxes like below, so the ssh host key
 fingerprint is stored in `~/.ssh/known_hosts`. This helps with ansible-playbook
@@ -122,7 +114,7 @@ images as well. The provision playbooks expect the manifests to be a `.tar.gz`
 file, below is an example of gathering sample manifests. Again, subdirs are
 relevant since hxprezi is rigid about the format of a manifest id, and quite
 coupled to HarvardX way to define manifests. Refer to the
-[hxprezi][https://github.com/nmaekawa/hxprezi] repo for details.
+[hxprezi](https://github.com/nmaekawa/hxprezi) repo for details.
 
     # say some manifests (that reference your sample images) are in /tmp/hx
     $> ls /tmp/hx
