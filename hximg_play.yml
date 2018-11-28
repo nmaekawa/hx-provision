@@ -3,9 +3,11 @@
 - import_playbook: common_play.yml
 - import_playbook: ids_play.yml  # ids must exists before configuring idsvarnish
   when: ec2_tag_cluster == 'vagrant'
-- import_playbook: loris_dedicated_varnish_play.yml
 - import_playbook: hxprezi_play.yml
 - import_playbook: hxmirador_play.yml
+- import_playbook: images_loris_play.yml
+- import_playbook: images_varnish_play.yml
+- import_playbook: images_reverseproxy_play.yml
 - import_playbook: cloudwatch_scripts_play.yml
   when: ec2_tag_cluster == 'prod'
 - import_playbook: route53_play.yml

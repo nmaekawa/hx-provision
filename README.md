@@ -18,27 +18,35 @@ You'll need:
 
 - vagrant
     - install dns plugin landrush: `$> vagrant plugin install landrush`
-- virtualbox
-- ansible 2.4.0
+- virtualbox 5.1.14 or later
+- ansible 2.4.0 or later
 
 # start vagrant instances
 
-The vagrantfile in this repo will start 5 ubuntu xenial instances:
+*BE WARNED:* the vagrantfile in this repo will start _7 ubuntu xenial instances_.
+This is to maintain parity with current production environment.
 
-- images.vm, the hx iiif loris image server
+- loris.vm, the hx iiif loris image server
+- images.vm, a reverse proxy in front of hx loris
+- hxvarnish.vm, a dedicated varnish for hx loris images
 - ids.vm, another loris image server to mock the libraries server
+- idsvarnish.vm, a dedicated varnish for ids images
 - manifests.vm, the iiif manifest server
 - mirador.vm, a mirador(iiif image viewer) lti provider
-- idsvarnish.vm, a dedicated varnish for ids images
 
-The hx image server (images.vm) has a varnish cache setup in the same instance,
-as well as an nginx for reverse proxy. The varnish cache uses the loris from
-images.vm as backend. manifests.vm uses
+So, for the hx image service there is a loris server (loris.vm), a varnish
+cache in front of it (hxvarnish.vm), and a reverse proxy in front of hxvarnish
+to deal with ssl in prod env (images.vm).
+
+manifests.vm uses
 [hxprezi][https://github.com/nmaekawa/hxprezi] as iiif manifest
-server. The mirador lti provider
+server.
+
+The mirador lti provider
 [hxmirador][https://github.com/nmaekawa/hxmirador] serves a
 [mirador][http://projectmirador.org/docs/] instance via lti protocol.
-idsvarnish.vm uses ids.vm as varnish backend.
+
+idsvarnish.vm uses the mock ids.vm as varnish backend.
 
 
     $> git clone https://github.com/nmaekawa/hximg-provision.git
@@ -126,7 +134,7 @@ coupled to HarvardX way to define manifests. Refer to the
     # then set the path for hx manifests in the playbook
     $> vi hximg-provision/hxprezi_play.yml
     ...
-        - hosts: '{{ target_hosts | default("tag_manifest", true) }}'
+        - hosts: '{{ target_hosts | default("tag_service_hxprezi", true) }}'
           remote_user: "{{ my_remote_user }}"
           become: yes
               vars:
@@ -135,6 +143,11 @@ coupled to HarvardX way to define manifests. Refer to the
 
 
 # provision the instances
+
+Because this involves all these vms, it's easier to do it piecemeal. I had
+problems accessing github.com (of all things) and having the playbooks fail
+right in the beginning of the process... so, again, be warned not to expect
+hximg_play.yml to work with vagrant.
 
 Run:
 
@@ -154,23 +167,25 @@ Run:
     # set vagrant insecure key in your env
     (venv) $> ssh-add ~/.vagrant.d/insecure_private_key
     
-    # there's a playbook for each instance
-    # provision the libraries mock -- this has to be first, otherwise varnish
-    # in images.vm will fail
+    # run the common_play.yml for each instance, preferably 2 at a time
+    (venv) $> ansible-playbook -i hosts/vagrant.ini common_play.yml --extra-vars target_hosts=hxmirador.vm,hxprezi.vm
+    ...
+    
+    (venv) $> ansible-playbook -i hosts/vagrant.ini common_play.yml --extra-vars target_hosts=loris.vm,images.vm
+    ...
+    # ... and so forth
+    
+    
+    # then provision each service; order matters
     (venv) $> ansible-playbook -i hosts/vagrant.ini ids_play.yml
     
-    # provision the images server
-    (venv) $> ansible-playbook -i hosts/vagrant.ini loris_dedicated_varnish_play.yml
-    
-    # provision the ids varnish server
-    (venv) $> ansible-playbook -i hosts/vagrant.ini ids_dedicated_varnish_play.yml
-    
-    # provision the manifest
+    (venv) $> ansible-playbook -i hosts/vagrant.ini hxmirador_play.yml
     (venv) $> ansible-playbook -i hosts/vagrant.ini hxprezi_play.yml
     
-    # provision the mirador lti provider
-    (venv) $> ansible-playbook -i hosts/vagrant.ini hxmirador_play.yml
-
+    (venv) $> ansible-playbook -i hosts/vagrant.ini images_loris_play.yml
+    (venv) $> ansible-playbook -i hosts/vagrant.ini images_varnish_play.yml
+    (venv) $> ansible-playbook -i hosts/vagrant.ini images_reverseproxy_play.yml
+    
 if all goes well, you should be able to see images in your browser by hitting
 the url for hx images server:
 
