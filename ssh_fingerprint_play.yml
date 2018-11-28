@@ -1,0 +1,22 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars:
+    stack_name: 'name-of-stack-goes-here'
+
+  tasks:
+    - name: filter ec2 description for stack
+      command: "aws ec2 describe-instances --filter Name=tag:stack,Values={{ stack_name | mandatory }}"
+      register: ec2_result
+
+    - set_fact: ec2_obj={{ ec2_result.stdout | from_json }}
+
+    - debug:
+        var: ec2_obj
+
+    - name: add ssh fingerprint to known hosts
+      shell: 'ssh-keyscan {{ item.Instances[0].PublicIpAddress }} >> {{ playbook_dir }}/known_hosts'
+      with_items: "{{ ec2_obj.Reservations }}"
+
+
+
