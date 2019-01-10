@@ -8,24 +8,11 @@ import os
 import shutil
 import stat
 
-try:
-    from pip._internal.req import parse_requirements
-    from pip._internal.download import PipSession
-except ImportError:  # for pip <= 9.0.3
-    from pip.req import parse_requirements
-    from pip.download import PipSession
-
-
 VERSION = loris.__version__
 
 
-def local_file(name):
-    return os.path.relpath(os.path.dirname(__file__), name))
-
-
-install_requires = parse_requirements(
-    local_file('requirements.txt'), session=PipSession()
-)
+with open('requirements.txt') as f:
+    install_requires = list(f)
 
 def _read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -40,7 +27,7 @@ setup(
     license='Simplified BSD',
     version=VERSION,
     packages=find_packages(exclude=["docs", "tests*"]),
-    install_requires=[str(ir.req) for ir in install_requires],
+    install_requires=install_requires,
 )
 
 

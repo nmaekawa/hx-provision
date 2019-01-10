@@ -10,9 +10,6 @@
   vars_files:
       - vars/common_vars.yml
       - vars/loris_dedicated_varnish_vars.yml
-  vars:
-    loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
-    loris_git_version: 'v2.2.0'
 
   handlers:
     - include: handlers/main.yml

@@ -37,7 +37,7 @@
       - vars/loris_vars.yml
   vars:
     loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
-    loris_git_version: 'v2.2.0'
+    loris_git_version: 'v2.3.3'
 
   handlers:
     - include: handlers/main.yml
