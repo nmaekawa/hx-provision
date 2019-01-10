@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#
+# assumes having an s3 bucket with images as a source of truth.
+# this script will sync local dir with s3 bucket, and then cleanup loris cache
+# so the new sync'd images are picked up by loris.
+# requires awscli to be installed.
+#
+
+echo "$(date +"%F %T") starting s3_sync for {{ service_images_dir }}"
+/usr/bin/aws s3 sync "s3://{{ s3_sync_bucket_name }}/{{ s3_sync_prefix }}" "{{ target_s3_sync_dir }}"
+
+echo "$(date +"%F %T") cleanup after s3_sync for {{ service_images_dir }}"
+for file in `find . -type f -print`; do
+    cached_dir="{{ service_cache_dir }}/http/$file"
+    cached_json="$cached_json/info.json"
+
+    if [ -d $cached_json ]; then
+
+        # todo: this generates lots of log messages; remove in future
+        echo "$(date +"%F %T") found cached: $cached_json"
+
+        if [[ $(stat -c%Y $file) -gt $(stat -c%Y $cached_json) ]]; then
+            echo "$(date +"%F %T") DELETING cached dir: $cached_dir"
+            rm -rf "$cached_dir"
+        fi
+
+    fi
+
+done
+echo "$(date +"%F %T") s3_sync DONE."
+
+
+
+

@@ -1,0 +1,22 @@
+---
+
+    # install script to do image s3 sync
+    - name: s3 sync | copy script s3 sync
+      become_user: '{{ service_user }}'
+      template:
+        src: ../templates/s3_sync_images.sh.j2
+        dest: '{{ service_bin_dir }}/s3_sync_images.sh'
+        mode: 0754
+        backup: yes
+
+
+    - name: s3 sync | set cronjob for s3 sync
+      cron:
+        name: "s3 sync for {{ target_s3_sync_dir }}"
+        user: "{{ service_user }}"
+        special_time: daily
+        state: present
+        job: >
+            {{ service_bin_dir }}/s3_sync_images.sh
+            2>&1 | logger -t "[s3 sync]"
+

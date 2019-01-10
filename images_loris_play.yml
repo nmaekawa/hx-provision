@@ -8,9 +8,9 @@
   become: yes
   become_user: root
   vars:
-      local_user:
-          name: '{{ service_user }}'
-          authorized: []
+    local_user:
+      name: '{{ service_user }}'
+      authorized: []
   vars_files:
       - vars/common_vars.yml
       - vars/loris_dedicated_varnish_vars.yml
@@ -19,7 +19,7 @@
       - include_role:
           name: external/nmaekawa.apt
         vars:
-          apt_other_packages: "{{ apt_required_packages_loris }}"
+          apt_other_packages: '{{ apt_required_packages_loris }}'
 
       - include_role:
           name: external/Stouts.users
@@ -113,15 +113,15 @@
                 - /var/log/syslog.1
         when: "use_aws"
 
+
       # install script for images sync, if images instance
-      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_sync.yml
+      - import_tasks: roles/hx.loris/tasks/setup_s3_sync_images.yml
         vars:
-            script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: "{{ service_user }}"
             s3_sync_bucket_name: '{{ s3_source_bucket_name }}'
             s3_sync_prefix: 'images'
             target_s3_sync_dir: '{{ service_images_dir }}'
-        when: "use_aws"
+        when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
+
 
       - name: run initial s3 sync for images
         become: yes
