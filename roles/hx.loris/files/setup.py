@@ -8,22 +8,24 @@ import os
 import shutil
 import stat
 
+try:
+    from pip._internal.req import parse_requirements
+    from pip._internal.download import PipSession
+except ImportError:  # for pip <= 9.0.3
+    from pip.req import parse_requirements
+    from pip.download import PipSession
+
+
 VERSION = loris.__version__
 
-DEPENDENCIES = [
-    # (package, version, module)
-    ('werkzeug', '>=0.8.3', 'werkzeug'),
-    ('pillow', '>=2.4.0', 'PIL'),
-    ('configobj', '>=4.7.2,<=5.0.0', 'configobj'),
-    ('requests', '>=2.12.0', 'requests'),
-]
 
-install_requires = []
-for d in DEPENDENCIES:
-    try:
-        __import__(d[2], fromlist=[''])
-    except ImportError:
-        install_requires.append(''.join(d[0:2]))
+def local_file(name):
+    return os.path.relpath(os.path.dirname(__file__), name))
+
+
+install_requires = parse_requirements(
+    local_file('requirements.txt'), session=PipSession()
+)
 
 def _read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -38,5 +40,7 @@ setup(
     license='Simplified BSD',
     version=VERSION,
     packages=find_packages(exclude=["docs", "tests*"]),
-    install_requires=install_requires
+    install_requires=[str(ir.req) for ir in install_requires],
 )
+
+
