@@ -8,10 +8,17 @@
       - vars/common_vars.yml
 
   tasks:
-      - name: install python2
-        raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-        register: result
-        changed_when: "result.stdout != ''"
+      # https://stackoverflow.com/a/54143390
+      - name: link to python3
+        raw: |
+          if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
+            ln --symbolic /usr/bin/python3 /usr/bin/python
+          fi
+
+        #- name: install python2
+        #raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        #register: result
+        #changed_when: "result.stdout != ''"
 
       - include_role:
           name: external/jmcvetta.passwordless_sudo

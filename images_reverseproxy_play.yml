@@ -9,7 +9,7 @@
   become_user: root
   vars_files:
       - vars/common_vars.yml
-      - vars/loris_dedicated_varnish_vars.yml
+      - vars/loris_vars.yml
 
   handlers:
     - include: handlers/main.yml
@@ -35,7 +35,7 @@
       cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
   vars_files:
       - vars/common_vars.yml
-      - vars/loris_dedicated_varnish_vars.yml
+      - vars/loris_vars.yml
 
   tasks:
 

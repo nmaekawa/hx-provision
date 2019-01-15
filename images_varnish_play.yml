@@ -22,7 +22,7 @@
                    {% endif %}"
   vars_files:
       - vars/common_vars.yml
-      - vars/loris_dedicated_varnish_vars.yml
+      - vars/loris_vars.yml
 
   tasks:
       - name: install varnish
@@ -49,7 +49,7 @@
       is_varnish: '{{ service_role | regex_search("varnish") }}'
   vars_files:
       - vars/common_vars.yml
-      - vars/loris_dedicated_varnish_vars.yml
+      - vars/loris_vars.yml
 
   tasks:
 

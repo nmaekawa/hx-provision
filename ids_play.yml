@@ -1,4 +1,3 @@
----
 #
 # assumes common_play.yml already applied to all involved inventory
 #
@@ -48,7 +47,7 @@
             name: hx.loris
         vars:
             vagrant_webserver_dns: 'ids.vm'
-            local_image_sample_path_tar_gz: '{{ playbook_dir }}/tmp/ids_images_sample.tar.gz'
+            local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/ids_images_sample.tar.gz'
 
       - name: setup proxy
         include_role:
