@@ -11,6 +11,6 @@
 - import_playbook: cloudwatch_scripts_play.yml
   when: ec2_tag_cluster == 'prod'
 - import_playbook: route53_play.yml
-  when: "use_aws and ec2_tag_cluster != 'prod'"
+  when: "use_aws and ec2_tag_cluster not in ['prod', 'demo']"
 
 

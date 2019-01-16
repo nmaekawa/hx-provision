@@ -6,6 +6,12 @@
           group: varnish
           state: directory
 
+    - name: create varnishncsa pid dir
+      file:
+          path: /run/varnishncsa
+          owner: varnishlog
+          group: varnish
+          state: directory
 
     # from https://github.com/varnishcache/pkg-varnish-cache/issues/31
     - name: drop varnishlog.service
@@ -15,10 +21,36 @@
           owner: root
           group: root
 
+    - name: drop varnishncsa.service
+      copy:
+        src: ../files/varnishncsa.service
+        dest: /lib/systemd/system/varnishncsa.service
+        owner: root
+        group: root
+
+    - name: stop varnishlog service
+      systemd:
+          name: varnishlog
+          daemon_reload: yes
+          state: stopped
 
     - name: start varnishlog service
       systemd:
           name: varnishlog
-          enabled: True
+          enabled: yes
+          daemon_reload: yes
+          state: started
+
+    - name: stop varnishncsa service
+      systemd:
+          name: varnishncsa
+          daemon_reload: yes
+          state: stopped
+
+    - name: start varnishncsa service
+      systemd:
+          name: varnishncsa
+          enabled: yes
+          daemon_reload: yes
           state: started
 

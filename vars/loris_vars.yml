@@ -127,9 +127,9 @@ users_to_install:
 # VARNISH VARS
 # -------------------------------------------------------------
 
-varnish_enabled_services:
-    - varnish
-    - varnishncsa
+#varnish_enabled_services:
+#    - varnish
+#    - varnishncsa
 
 varnish_instances:
     hx:

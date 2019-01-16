@@ -30,10 +30,11 @@
             name: external/geerlingguy.varnish
         when: is_varnish is defined and is_varnish == 'varnish'
 
-      - name: enable varnishlog
+      - name: enable varnishlog and varnishncsa
         include_role:
             name: varnishlog
         when: is_varnish is defined and is_varnish == 'varnish'
+
 
 
 - hosts: '{{ target_hosts | default("all", true) }}'
