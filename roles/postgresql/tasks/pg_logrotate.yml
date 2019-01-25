@@ -1,0 +1,69 @@
+---
+
+    - name: config log | turn on log collector
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*logging_collector.*"
+        replace: "logging_collector = on"
+      notify:
+         - restart postgres
+
+    - name: config log | set up log_directory
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*log_directory.*"
+        replace: "log_directory = '{{ db_log_dir }}'"
+      notify:
+         - restart postgres
+
+    - name: config log | set up log_filename
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*log_filename.*"
+        replace: "log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'"
+      notify:
+         - restart postgres
+
+    - name: config log | set up log_rotation
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*log_truncate_on_rotation.*"
+        replace: "log_truncate_on_rotation = on"
+      notify:
+         - restart postgres
+
+    - name: config log | set up log_rotation_age
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*log_rotation_age.*"
+        replace: "log_rotation_age = 1d"
+      notify:
+         - restart postgres
+
+    - name: config log | set up log_rotation_size
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*log_rotation_size.*"
+        replace: "log_rotation_size = 100MB"
+      notify:
+         - restart postgres
+
+    - name: cleanup log | copy script to delete old log files
+      template:
+        src: cronjob_cleanup_log.sh.j2
+        dest: "{{ db_bin_dir }}/cleanup_log.sh"
+        owner: postgres
+        group: www-data
+        mode: 0774
+      tags:
+          - copy_script
+
+    - name: cleanup log | set cleanup cronjob run daily
+      cron:
+        name: cleanup logs older than {{ db_log_retention_in_days }}
+        user: postgres
+        special_time: daily
+        state: present
+        job: "{{ db_bin_dir }}/cleanup_log.sh >> {{ db_other_log_dir }}/cronjob.log 2&>1 | logger -t '[log cleanup]'"
+
+

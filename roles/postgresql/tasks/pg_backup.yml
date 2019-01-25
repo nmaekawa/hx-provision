@@ -1,0 +1,30 @@
+---
+    # aws cli installed and permissions for s3
+
+    - name: backup | ensure backup dir exists
+      file:
+        path: "{{ db_backup_dir }}"
+        owner: postgres
+        group: postgres
+        mode: 0766
+        state: directory
+
+    - name: backup | script to perform backups
+      become_user: postgres
+      template:
+        src: cronjob_backup.sh.j2
+        dest: "{{ db_bin_dir }}/backup.sh"
+        owner: postgres
+        group: postgres
+        mode: 0754
+
+    - name: backup | cronjob for db backup
+      cron:
+        name: "daily postgres data dump"
+        user: postgres
+        special_time: daily
+        state: present
+        job: >
+          {{ db_bin_dir }}/backup.sh >> {{ db_other_log_dir }}/cronjob.log
+          2&>1 | logger -t "[db backup]"
+

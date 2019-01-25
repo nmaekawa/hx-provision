@@ -1,0 +1,46 @@
+---
+
+    - name: postgres | import postgres signing key
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+
+    - name: postgres | add source for postgres to apt repository
+      apt_repository:
+          repo: 'deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main'
+          update_cache: yes
+          state: present
+
+    - name: postgres | update pkg list
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: postgres | install postgres
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - postgresql-{{ postgres_version }}
+        - postgresql-contrib-{{ postgres_version }}
+        - python-psycopg2
+
+    - name: install | ensure data and backup dir exists
+      file:
+        path: "{{ db_rootdir }}/{{ item }}"
+        owner: postgres
+        group: "{{ service_group }}"
+        mode: 0775
+        state: directory
+      with_items:
+        - backup
+        - data
+        - bin
+        - log
+
+    - name: postgres | ensure service is running
+      service:
+        name: postgresql
+        state: started
+        enabled: yes
+

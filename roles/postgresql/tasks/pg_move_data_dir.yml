@@ -1,0 +1,50 @@
+---
+
+    # i believe i took these steps from
+    # https://www.digitalocean.com/community/tutorials/how-to-move-a-postgresql-data-directory-to-a-new-location-on-ubuntu-16-04
+
+    - name: check | check if already moved dir
+      stat:
+        path: /var/lib/postgresql/{{ postgres_version }}/main.bak
+      register: result
+
+    - name: data dir | ensure postgres is not running
+      service:
+        name: postgresql
+        state: stopped
+      when: result.stat.exists == False
+
+    - name: data dir | ensure data dir existis
+      file:
+        path: "{{ db_data_dir }}"
+        owner: postgres
+        group: postgres
+        # why change the owner group???
+        # group: "{{ service_group }}"
+        mode: 0700
+        state: directory
+
+    - name: rsync | copy data from default location to new data_dir
+      synchronize:
+        src: "/var/lib/postgresql/{{ postgres_version }}/main/"
+        dest: "{{ db_data_dir }}"
+      delegate_to: "{{ inventory_hostname }}"
+      when: result.stat.exists == False
+
+    - name: bak | rename old data_dir
+      command: >
+        mv /var/lib/postgresql/{{ postgres_version }}/main
+            /var/lib/postgresql/{{ postgres_version }}/main.bak
+      when: result.stat.exists == False
+
+    - name: data dir | set data dir
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*data_directory.*"
+        replace: "data_directory = '{{ db_data_dir }}'"
+      when: result.stat.exists == False
+
+    - name: data dir | ensure postgres is up
+      service:
+        name: postgresql
+        state: started

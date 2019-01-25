@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Usage:
+# ./backup.sh database1 database2 database3
+
+set -e
+
+DB_NAME="{{ service_db_name }}"
+BACKUP_DIR="{{ db_backup_dir }}"
+S3_PATH="{{ db_backup_s3_path }}"
+
+LOCAL_RETENTION_DAYS="{{ db_backup_local_retention_in_days }}"
+S3_RETENTION="{{ db_backup_s3_retention }}"
+
+NOW=$(date +"%m-%d-%Y-at-%H-%M-%S")
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "$(date +"%F %T") pg_dump starting:"
+echo "pg_dump -Fc ${DB_NAME} > ${BACKUP_DIR}/${NOW}_${DB_NAME}.pgdump"
+
+# dump db
+pg_dump -Fc ${DB_NAME} > "${BACKUP_DIR}/${NOW}_${DB_NAME}.pgdump"
+
+if [ $? -ne 0 ]; then
+    echo "Error: dumping ${NOW}_${DB_NAME}.pgdump"
+    exit 10
+fi
+
+# copy to s3
+# STANDARD_IA == infrequent access
+# BEWARE that dev|prod will name backups the same and might overwrite!!!!
+#aws s3 cp /tmp/${NOW}_${DB_NAME}.pgdump s3://${S3_PATH}/${NOW}_${DB_NAME}.pgdump --storage-class STANDARD_IA
+
+#if [ $? -ne 0 ]; then
+#    echo "Error: transferring ${NOW}_${DB_NAME}.pgdump to s3://${S3_PATH}"
+#    exit 20
+#fi
+
+echo "$(date +"%F %T") remove old backups:"
+find ${BACKUP_DIR} \
+    -type f \
+    -name "*_${DB_NAME}.pgdump" \
+    -mtime +${LOCAL_RETENTION_DAYS} \
+    -print
+
+# delete local backups older than LOCAL_RETENTION_DAYS days (default "7")
+find ${BACKUP_DIR} \
+    -type f \
+    -name "*_${DB_NAME}.pgdump" \
+    -mtime +${LOCAL_RETENTION_DAYS} \
+    -delete
+
+#############
+#
+# hack to skip s3 stuff; make sure instance profile is setup before enabling s3
+#
+echo "$(date +"%F %T") pg_dump DONE"
+exit 0
+
+
+# delete s3 backups older than S3_RETENTION (default "6 months")
+maxDate=$(date +%s --date="-$S3_RETENTION")
+
+aws s3 ls s3://$S3_PATH/ | while read -r line; do
+    # get file creation date in sec from epoch
+    createDate=$(echo $line| aws {'print $1" "$2'})
+    createDate=$(date -d"$createDate" +%s)
+
+    if [[ $createDate -lt $maxDate ]]
+    then
+        filename=$(echo $line| awk {'print $4'})
+        if [[ filename != "" ]]
+        then
+            echo "*** Deleting $filename"
+            aws s3 rm s3://$S3_PATH/$filename
+        fi
+    fi
+done
+
+date
+echo Done

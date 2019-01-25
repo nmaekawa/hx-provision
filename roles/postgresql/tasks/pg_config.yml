@@ -1,0 +1,25 @@
+---
+
+    - name: config | listen to all addresses
+      replace:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: ".*listen_addresses.*"
+        replace: "listen_addresses = '*'"
+        backup: yes
+      notify:
+         - restart postgres
+
+    - name: config encoding | explicitly set default client encoding
+      lineinfile:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        line: "client_encoding = utf8"
+      notify:
+         - restart postgres
+
+    - name: config access | add password auth
+      lineinfile:
+        path: /etc/postgresql/{{ postgres_version }}/main/pg_hba.conf
+        line: "host    all             all             all            md5"
+      notify:
+         - restart postgres
+
