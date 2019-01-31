@@ -1,25 +1,30 @@
 ---
 
-    - name: config | listen to all addresses
-      replace:
-        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
-        regexp: ".*listen_addresses.*"
-        replace: "listen_addresses = '*'"
-        backup: yes
+    - name: config | conf.d for shared config
+      template:
+        src: 00shared.conf.j2
+        dest: /etc/postgresql/{{ postgres_version }}/main/conf.d/00shared.conf
+        owner: postgres
+        group: postgres
+        mode: 0600
       notify:
          - restart postgres
 
-    - name: config encoding | explicitly set default client encoding
-      lineinfile:
-        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
-        line: "client_encoding = utf8"
+    - name: config | conf.d for logging config
+      template:
+        src: 01log.conf.j2
+        dest: /etc/postgresql/{{ postgres_version }}/main/conf.d/01log.conf
+        owner: postgres
+        group: postgres
+        mode: 0600
       notify:
          - restart postgres
 
-    - name: config access | add password auth
+    - name: config access | allow login from other hosts
       lineinfile:
         path: /etc/postgresql/{{ postgres_version }}/main/pg_hba.conf
         line: "host    all             all             all            md5"
       notify:
          - restart postgres
+
 

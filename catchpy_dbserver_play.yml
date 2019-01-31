@@ -5,6 +5,9 @@
 # *** data on the volume will be _erased_ ***
 #
 
+- import_playbook: common_play.yml
+
+
 - hosts: '{{ target_hosts | default("tag_service_postgres", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
@@ -12,7 +15,7 @@
       - vars/common_vars.yml
       - vars/postgres_vars.yml
   handlers:
-      - include_tasks: handlers/main.yml
+      - include: handlers/main.yml
 
   tasks:
       - name: make filesystem out of ebs
@@ -45,16 +48,34 @@
   become: yes
   become_user: root
   vars:
-      postgres_version: 9.6
+    postgres_version: 11
+    #postgres_version: 9.6
   vars_files:
     - vars/common_vars.yml
-    - vars/catchpy_vars.yml
+    - vars/postgres_vars.yml
 
   handlers:
-    - include: handlers/handlers.yml
+      - include: handlers/main.yml
 
-  roles:
-    - postgresql
+  tasks:
+    - include_role:
+        name: postgresql
+
+    - name: make sure postgres is running
+      service:
+        name: postgresql
+        state: started
+
+    - import_tasks: roles/postgresql/tasks/pg_account.yml
+      vars:
+        service_db_name: "{{ lookup('env', 'SERVICE_DB_NAME') | mandatory }}"
+        service_db_user: "{{ lookup('env', 'SERVICE_DB_USER') | mandatory }}"
+        service_db_password: "{{ lookup('env', 'SERVICE_DB_PASSWORD') | mandatory }}"
+
+    - import_tasks: roles/postgresql/tasks/pg_backup.yml
+      vars:
+        service_db_name: "{{ lookup('env', 'SERVICE_DB_NAME') | mandatory }}"
+        db_backup_s3_path: "something bogus"
 
 
 

@@ -1,0 +1,33 @@
+#-------------------
+# log config for hx
+#-------------------
+
+# enable logging
+logging_collector = 'on'
+
+# log dir in hx data dir
+log_directory = '{{ db_log_dir }}'
+
+# date in logfilename
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+
+# enable rotation
+log_truncate_on_rotation = on
+
+# rotate either daily, or if logfile gets to rotation size
+log_rotation_age = 1d
+log_rotation_size = 100MB
+
+# raise log level from warn to notice
+log_min_messages = 'NOTICE'
+
+# add duration of statements
+log_duration = on
+
+# custom log prefix: add line number for multiline log msg
+log_line_prefix = '%m [%p] %q%u@%d (%l) '
+
+# turn to 'mod' if too verbose
+log_statement = all
+
+

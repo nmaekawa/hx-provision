@@ -1,0 +1,29 @@
+---
+
+# POSTGRES VARS
+# ----------------------------------------------------------------------------------
+#
+
+# when use_aws == True, and ec2 has extra volume
+# check with cloudformation template that the **device name** is the same!!!
+ebs_device: "/dev/xvdf"
+ebs_mountpoint: "/opt/data_ebs"
+
+org_rootdir: "{{ ebs_mountpoint }}"
+
+db_rootdir: "{{ org_rootdir }}/postgres"
+db_data_dir: "{{ db_rootdir }}/data/{{ postgres_version }}/main"
+db_backup_dir: "{{ db_rootdir }}/backup"
+db_log_dir: "{{ db_data_dir }}/pg_log"
+db_bin_dir: "{{ db_rootdir }}/bin"
+db_backup_local_retention_in_days: 7
+db_backup_s3_retention: "6 months"
+db_log_retention_in_days: 90
+
+
+
+
+
+
+
+

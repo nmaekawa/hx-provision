@@ -5,6 +5,7 @@
       postgresql_user:
         name: "{{ service_db_user }}"
         password: "{{ service_db_password }}"
+        role_attr_flags: CREATEDB
 
     - name: db | create service database
       become_user: postgres
