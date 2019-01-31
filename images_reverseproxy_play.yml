@@ -15,6 +15,13 @@
     - include: handlers/main.yml
 
   tasks:
+      - name: ensure static_dir exists
+        file:
+            path: '{{ service_static_dir }}'
+            state: directory
+            owner: root
+            group: www-data
+
       - name: setup proxy
         include_role:
             name: nginx
