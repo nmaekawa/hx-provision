@@ -1,5 +1,0 @@
----
-    - include: pg_install.yml
-    - include: pg_config.yml
-    - include: pg_logrotate.yml
-
