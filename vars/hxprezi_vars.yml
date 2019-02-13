@@ -63,8 +63,8 @@ service_dns_subdomain: '{{ ec2_tag_cluster is search("prod") | ternary("", ec2_t
 service_images_dns_domain: '{{ ec2_tag_cluster is search("prod") | ternary("images", ".images") }}'
 service_manifests_dns_domain: '{{ ec2_tag_cluster is search("prod") | ternary("oculus", ".oculus") }}'
 service_environment_hostnames:
-  HXPREZI_IMAGES_HOSTNAME: '{{ service_dns_subdomain }}{{ service_images_dns_domain }}.{{ org_dns_domain }}'
-  HXPREZI_MANIFESTS_HOSTNAME: '{{ service_dns_subdomain }}{{ service_manifests_dns_domain }}.{{ org_dns_domain }}'
+  HXPREZI_IMAGES_HOSTNAME: '{{ service_dns_subdomain }}{{ service_images_dns_domain }}.{{ org_public_domain }}'
+  HXPREZI_MANIFESTS_HOSTNAME: '{{ service_dns_subdomain }}{{ service_manifests_dns_domain }}.{{ org_public_domain }}'
 
 # hxprezi doesn't need flask users yet
 service_flask_users: []
