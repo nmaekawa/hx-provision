@@ -1,0 +1,38 @@
+---
+#
+# assumes ec2 instance has the `ebs_device` volume already attached.
+#
+
+- import_playbook: common_play.yml
+
+
+- hosts: '{{ target_hosts | default("tag_service_postgres", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/common_vars.yml
+    - vars/postgres_vars.yml
+
+  handlers:
+      - include: handlers/main.yml
+
+  tasks:
+
+    - include_role:
+        name: external/nmaekawa.extra-ebs
+      when: use_aws
+
+    - include_role:
+        name: external/nmaekawa.postgres
+
+    - name: make sure postgres is running
+      service:
+        name: postgresql
+        state: started
+
+- import_playbook: catchpy_dbserver_s3bak_play.yml
+  when: use_aws
+
+- import_playbook: cloudwatch_scripts_play.yml
+  when: ec2_tag_cluster == 'prod'

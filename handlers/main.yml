@@ -27,3 +27,15 @@
     name: supervisor
     state: restarted
     enabled: yes
+
+- name: restart postgres
+  service:
+    name: postgresql
+    state: restarted
+    enabled: yes
+
+- name: restart crontab
+  service:
+    name: cron
+    state: restarted
+

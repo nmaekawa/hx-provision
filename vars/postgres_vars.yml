@@ -1,0 +1,21 @@
+---
+
+# check in cloudformation for the device name
+ebs_device: /dev/xvdf
+ebs_mountpoint: /opt/hx
+
+postgres_version: 11
+
+rootdir: "{{ ebs_mountpoint }}"
+db_rootdir: "{{ rootdir }}/postgresql"
+
+# move postgres data to extra-ebs
+db_data_dir: "{{ db_rootdir }}/{{ postgres_version }}/main"
+
+db_backup_dir: "{{ db_rootdir }}/backup"
+db_log_dir: "/var/log/postgresql"  # keep logs in expected location
+db_bin_dir: "{{ db_rootdir }}/bin"
+
+db_backup_local_retention_in_days: 7
+db_log_retention_in_days: 90       # keep local log for longer
+

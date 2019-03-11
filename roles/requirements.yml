@@ -29,10 +29,10 @@
       name: weihrauch.cloudwatch-monitoring
 
     - src: git+https://github.com/nmaekawa/ansible-role-cloudwatch.git
-      version: "3.1.1"
+      version: "4.0.0"
       name: nmaekawa.cloudwatch
 
-    - src: git+https://github.com/nmaekawa/ansible-role-iam-instance-profile.git
+    - src: git+https://github.com/nmaekawa/ansible-role-postgres.git
       version: "1.0.0"
-      name: nmaekawa.iam-instance-profile
+      name: nmaekawa.postgres
 

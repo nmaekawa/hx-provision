@@ -1,0 +1,16 @@
+---
+
+# CATCHPY VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "catchpy"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+
+# specific to catchpy
+service_db_name: "{{ lookup('env', 'CATCHPY_DB_NAME') | default(service_name , true) }}"
+service_db_user: "{{ lookup('env', 'CATCHPY_DB_USER') | default(service_name, true) }}"
+service_db_password: "{{ lookup('env', 'CATCHPY_DB_PASSWORD') | default('CHANGE_ME', true) }}"
+service_db_host: "{{ lookup('env', 'CATCHPY_DB_HOST') | default('localhost', true) }}"
+service_db_port: "{{ lookup('env', 'CATCHPY_DB_PORT') | default('5432', true) }}"

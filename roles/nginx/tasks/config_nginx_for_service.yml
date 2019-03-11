@@ -7,7 +7,7 @@
 
     - name: compose the cert filename
       set_fact:
-          cert_partial_filename: "{{ (ec2_tag_cluster == 'prod') | ternary('', 'all_') }}{{ cert_dns }}_{{ org_dns_domain | replace('.', '_') }}"
+          cert_partial_filename: "{{ (ec2_tag_cluster == 'prod') | ternary('', 'all_') }}{{ cert_dns }}_{{ org_public_domain | replace('.', '_') }}"
 
     - name: copy ssl cert dir to service host
       copy:

@@ -1,4 +1,9 @@
 ---
+
+#
+# apply to aws prod, for extra metrics on memory
+#
+
 - hosts: '{{ target_hosts | default("all", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
@@ -12,6 +17,10 @@
       - vars/common_vars.yml
 
   tasks:
+
+      # install cw scripts, cronjobs for disk metrics and syslog->s3
+      - import_role:
+          name: external/nmaekawa.cloudwatch
 
       - import_role:
           name: external/weihrauch.cloudwatch-monitoring

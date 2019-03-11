@@ -8,11 +8,14 @@ my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 # used in testing ONLY
 prod_domain: "{{ lookup('env', 'HX_PROD_DNS') | default('harvardx.harvard.edu', true) }}"
 devo_domain: "{{ lookup('env', 'HX_DEVO_DNS') | default('harvardx.harvard.edu', true) }}"
-org_dns_domain: "{% if ec2_tag_cluster in ['prod', 'demo'] %}\
+org_public_domain: "{% if ec2_tag_cluster in ['prod', 'demo'] %}\
                  {{ prod_domain }}\
             {% else %}\
                  {{ devo_domain }}\
             {% endif %}"
+
+# for dns valid within the vpc, like the database
+org_private_domain: "{{ ec2_tag_cluster }}.org"
 
 # for Stouts.users
 users_developers:
@@ -34,12 +37,14 @@ local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_
 
 
 # webserver dns used for django apps, hx varnish, and nginx configs
+# - based on instance tags and definitions from role-specific var files
+#   e.g. vars/hxprezi_vars.yml
 webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
-        {{ cert_dns }}.{{ org_dns_domain }}\
+        {{ cert_dns }}.{{ org_public_domain }}\
     {% elif ec2_tag_cluster == 'vagrant' %}\
         {{ vagrant_webserver_dns }}\
     {% else %}\
-        {{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_dns_domain }}\
+        {{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_public_domain }}\
     {% endif %}"
 
 
@@ -49,3 +54,8 @@ cloudwatch_namespace_prefix: 'HX/CustomMetrics'
 # s3 bucket for sync and backups
 s3_backup_bucket_name: 'backups-hx-edu'
 s3_source_bucket_name: 'sources-hx-edu'
+
+# when you don't know were to stash scripts
+default_cronjob_scripts_dir: /usr/local/bin
+
+
