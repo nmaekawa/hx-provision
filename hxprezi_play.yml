@@ -149,6 +149,7 @@
         when: "use_aws"
 
       - name: run initial s3 sync for manifests
+        become_user: "{{ service_name }}"
         shell: >
             /usr/bin/aws s3 sync
             "s3://{{ s3_source_bucket_name }}/manifests"
