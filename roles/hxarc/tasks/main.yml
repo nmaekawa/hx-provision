@@ -1,0 +1,26 @@
+---
+#
+# tasks very specific to hxarc nodes
+#
+# install script and cronjob to cleanup upload and temp dirs
+#
+    - name: script to cleanup subproc upload/output files
+      become_user: "{{ service_user }}"
+      template:
+        src: cleanup_workdir.sh.j2
+        dest: "{{ service_bin_dir }}/cleanup_work_dir.sh"
+        owner: "{{ service_user }}"
+        group: "{{ service_user }}"
+        mode: 0754
+
+    - name: cronjob for service work-dir
+      become_user: "{{ service_user }}"
+      cron:
+        name: "hourly work dir cleanup"
+        user: "{{ service_user }}"
+        special_time: hourly
+        job: >
+            {{ service_bin_dir }}/cleanup_work_dir.sh 2>&1
+            | logger -t "[hxarc cleanup cron]"
+        state: present
+

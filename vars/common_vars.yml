@@ -1,4 +1,3 @@
----
 
 # assumes either aws or vagrant, then derive remote_user(assumes ubuntu)
 use_aws: "{{ (ec2_tag_cluster == 'vagrant') | ternary(False, True) }}"
@@ -39,8 +38,13 @@ local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_
 # webserver dns used for django apps, hx varnish, and nginx configs
 # - based on instance tags and definitions from role-specific var files
 #   e.g. vars/hxprezi_vars.yml
+# - in some cases, prod has a subdomain; e.g. live.hxarc.{{ org_public_domain # }}
 webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
-        {{ cert_dns }}.{{ org_public_domain }}\
+        {% if not hx_prod_subdomain %}\
+            {{ cert_dns }}.{{ org_public_domain }}\
+        {% else %}\
+            {{ hx_prod_subdomain }}.{{ cert_dns }}.{{ org_public_domain }}\
+        {% endif %}\
     {% elif ec2_tag_cluster == 'vagrant' %}\
         {{ vagrant_webserver_dns }}\
     {% else %}\

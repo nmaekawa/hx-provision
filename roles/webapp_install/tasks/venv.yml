@@ -23,4 +23,5 @@
             virtualenv: "{{ service_venv_dir }}"
             name: '.'
             editable: yes
+            state: forcereinstall  # assumes setup.py does not list any dependencies!
 
