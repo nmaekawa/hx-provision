@@ -1,0 +1,56 @@
+---
+#
+# assumes ec2 instance has the `ebs_device` volume already attached.
+#
+
+- import_playbook: common_play.yml
+
+
+- hosts: '{{ target_hosts | default("tag_service_hxarc", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
+  vars_files:
+    - vars/common_vars.yml
+    - vars/hxarc_vars.yml
+
+  handlers:
+      - include: handlers/main.yml
+
+  tasks:
+
+    - name: create hxarc user
+      include_role:
+        name: external/Stouts.users
+      vars:
+        users_users: '{{ [local_user] }}'
+
+
+    - include_role:
+        name: external/nmaekawa.extra-ebs
+      when: use_aws
+
+    - name: install subproc
+      include_role:
+        name: subproc_install
+
+      #- name: install webapp
+      #include_role:
+      #  name: webapp_install
+
+      #- name: config nginx
+      #include_role:
+      #  name: nginx
+      #vars:
+      #  nginx_template_path: roles/nginx/templates/service_config.j2
+
+
+  #- import_playbook: catchpy_dbserver_s3bak_play.yml
+  #when: use_aws
+
+  #- import_playbook: cloudwatch_scripts_play.yml
+  #when: ec2_tag_cluster == 'prod'

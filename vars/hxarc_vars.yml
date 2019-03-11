@@ -1,0 +1,145 @@
+---
+
+# HXARC VARS
+# ---------------------------------------------------------------------------
+
+# when use_aws == True, and ec2 has extra volume
+# check with cloudformation template that the **device name** is the same!!!
+ebs_device: "/dev/xvdf"
+ebs_mountpoint: "/opt/hx"
+
+# subproc vars
+subproc_name: "hx_util"
+subproc_user: "{{ service_name }}"  # use same as web
+subproc_group: "{{ service_name }}"  # use same as web
+subproc_rootdir: "{{ebs_mountpoint }}/{{ subproc_name }}"
+subproc_venv_dir: "{{ subproc_rootdir }}/venv"
+subproc_bin_dir: "{{ subproc_rootdir }}/bin"
+subproc_install_dir: "{{ subproc_rootdir }}/{{ subproc_name }}"
+subproc_script_path: "{{ subproc_venv_dir }}/bin/{{ subproc_name }}"
+subproc_wrapper_path: "{{ subproc_bin_dir }}/wrapper.sh"
+subproc_git_repo: "https://github.com/Colin-Fredericks/hx_util.git"
+subproc_git_revision: "master"
+
+# how long output files take to be deleted
+# this is set in the service provisioning in a cronjob
+subproc_grace_period_in_minutes: 60
+
+subproc_dirs_to_create:
+    - "{{ subproc_rootdir }}"
+    - "{{ subproc_bin_dir }}"
+
+
+# service vars
+service_name: "hxarc"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+service_rootdir: "{{ ebs_mountpoint }}/{{ service_name }}"
+service_venv_dir: "{{ service_rootdir }}/venv"
+service_log_dir: "{{ service_rootdir }}/log"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
+service_data_dir: "{{ service_rootdir }}/data"
+
+service_work_dir: "{% if ec2_tag_cluster == 'vagrant' %}\
+                {{ service_data_dir }}/work\
+                   {% else %}\
+                {{ ebs_mountpoint }}/data/work\
+                   {% endif %}"
+
+service_db_dir: "{{ service_data_dir }}/db"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_static_dir: "{{ service_rootdir }}/www"
+service_git_repo: "https://github.com/nmaekawa/hxarc.git"
+var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
+service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
+
+service_dirs_to_create:
+    - "{{ service_rootdir }}"
+    - "{{ service_log_dir }}"
+    - "{{ service_config_dir }}"
+    - "{{ service_data_dir }}"
+    - "{{ service_work_dir }}"
+    - "{{ service_db_dir }}"
+    - "{{ service_bin_dir }}"
+    - "{{ service_static_dir }}"
+
+service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
+service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
+service_admin_user: "{{ lookup('env', 'HXARC_ADMIN_USER') | default('user', true) }}"
+service_admin_email: "{{ lookup('env', 'HXARC_ADMIN_EMAIL') | default('user@user.com', true) }}"
+service_admin_password: "{{ lookup('env', 'HXARC_ADMIN_PASSWORD') | default('password', true) }}"
+service_environment:
+  HXARC_SECRET: "{{ lookup('env', 'HXARC_SECRET') | default('nao pode mais meu coracao viver assim', true) }}"
+  HXARC_LOG_CONFIG: "{{ service_install_dir }}/logging.yaml"
+  HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
+  HXARC_UPLOAD_FILENAME: "export"
+  HXARC_DB_PATH: "{{ service_db_dir }}/{{ service_name }}.db"
+  HXARC_SCRIPT_PATH: "{{ subproc_wrapper_path }}"
+
+
+service_flask_users: []
+# define a list of dict with users like below. Do NOT commit actual user:pwd!
+#    - username: "{{ lookup('env', 'HXARC_HXSTAFF_USER") }}"
+#      password: "{{ lookup('env', 'HXARC_HXSTAFF_PASSWORD") }}"
+#      email: "{{ lookup('env', 'HXARC_HXSTAFF_EMAIL") }}"
+
+
+# TODO: sockets or tcp port have to be manually edited in template
+service_gunicorn_port: "{{ lookup('env', 'HXARC_GUNICORN_PORT') | default('8123', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'HXARC_GUNICORN_HOST') | default('0.0.0.0', true) }}"
+
+# some large uploads take this long in slow wifi
+gunicorn_timeout_seconds: 1200
+
+
+# for nmaekawa.apt
+# ---------------------------------------------------------------------------
+apt_required_packages_hxarc:
+    - 'python-pip'
+    - 'python-dev'
+    - 'python-setuptools'
+    - 'nginx'
+    - 'supervisor'
+    - 'sqlite3'
+
+
+# for Stouts.users
+# ---------------------------------------------------------------------------
+users_enabled: yes
+
+project_users:
+    - name: '{{ service_user }}'
+      authorized: []
+    - name: '{{ subproc_user }}'
+      authorized: []
+
+# cloudwatch stuff
+cloudwatch_namespace_prefix: 'HX/CustomMetrics'
+script_install_dir: '/usr/local/bin'
+cronjob_owner: '{{ service_user }}'
+
+
+
+# PROXY VARS
+# ---------------------------------------------------------------------------
+enable_ssl: '{{ use_aws }}'
+
+static_dir: "{{ service_static_dir }}"
+nginx_ssl_dest_dir: "/etc/ssl/certs"
+# special case for vagrant
+cert_dns: 'hxarc'  # this name must match pattern for ssl cert names
+
+# allow really huge uploads
+service_upload_max_size: "1000M"
+
+# special case for vagrant
+vagrant_webserver_dns: "{{ inventory_hostname }}"
+
+# for local services, in prod, we use the wildcard cert with this subdomain
+# e.g. live.hxarc.harvardx.harvard.edu
+hx_prod_subdomain: "live"
+
+
+
+

@@ -1,0 +1,52 @@
+#!/bin/bash -e
+
+SCRIPT_VENV={{ subproc_venv_dir }}
+SCRIPT_FULLPATH={{ subproc_script_path }}
+SCRIPT_DIR=$(dirname ${SCRIPT_FULLPATH})
+SCRIPT_FILENAME=$(basename ${SCRIPT_FULLPATH})
+
+# hack to get subproc's pkg version
+VENV_DIR=$(dirname $SCRIPT_FULLPATH)
+SCRIPT_VERSION=$($VENV_DIR/pip show {{ subproc_name }} | grep 'Version' | cut -d ' ' -f 2)
+if [ ${1} == 'version_only' ]
+then
+    echo $SCRIPT_VERSION
+    exit 0
+fi
+
+input_file=${1}
+input_dir=$(dirname ${1})
+input_id=$(basename ${input_dir})  # assumes input file has a unique parent dir
+
+echo "***** untar/ungzip input file ${input_file}"
+# untar uploaded file
+tar xf ${input_file} -C ${input_dir}
+
+echo
+echo "***** about to process input file ${input_file}"
+
+# run hx_util script
+cd ${SCRIPT_DIR}
+${SCRIPT_VENV}/bin/python ${SCRIPT_FILENAME} ${input_dir}/course
+
+echo "***** done processing"
+echo
+
+result_dir=${input_dir}/result_${input_id}
+mkdir -p ${result_dir}
+
+echo "***** copying output files to ${result_dir}"
+echo
+
+# move result to known location
+cp ${input_dir}/course/*.tsv ${result_dir}
+cp ${input_dir}/*.zip ${result_dir}
+
+echo "***** generating tar.gz"
+echo
+
+cd ${input_dir}
+tar cvzf ${input_dir}/result.tar.gz result_${input_id}
+
+echo "***** all done"
+

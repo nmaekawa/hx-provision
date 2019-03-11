@@ -33,7 +33,7 @@ users_ssh_keys: '{{ users_users }}'
 
 
 # certificates mount point
-local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_numbers/certs/hximg", true) }}'
+local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_numbers/certs", true) }}'
 
 
 # webserver dns used for django apps, hx varnish, and nginx configs
