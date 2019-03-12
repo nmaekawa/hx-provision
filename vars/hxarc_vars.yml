@@ -139,6 +139,7 @@ vagrant_webserver_dns: "{{ inventory_hostname }}"
 # for local services, in prod, we use the wildcard cert with this subdomain
 # e.g. live.hxarc.harvardx.harvard.edu
 hx_prod_subdomain: "live"
+cert_partial_filename: "all_{{ cert_dns }}_{{ org_public_domain | replace('.', '_') }}"
 
 
 
