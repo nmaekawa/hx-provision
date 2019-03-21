@@ -33,7 +33,7 @@
           special_time: daily  # check when the logs are being rotated to schedule after that
           state: present
           job: >
-            /user/bin/aws s3 sync
+            /usr/bin/aws s3 sync
             {{ db_log_dir }}
             s3://{{ s3_backup_bucket_name }}/{{ cluster_env }}/{{ project_name }}/{{ service_name }}_{{ ansible_ec2_instance_id }}
 
@@ -44,7 +44,7 @@
           special_time: daily  # check when dumps are performed to schedule after that
           state: present
           job: >
-            /user/bin/aws s3 sync
+            /usr/bin/aws s3 sync
             {{ db_backup_dir }}
             s3://{{ s3_backup_bucket_name }}/{{ cluster_env }}/{{ project_name }}/{{ service_name }}_{{ ansible_ec2_instance_id }}
 
