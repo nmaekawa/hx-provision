@@ -1,0 +1,17 @@
+---
+
+- import_playbook: common_play.yml
+- import_playbook: catchpy_dbserver_play.yml
+- import_playbook: catchpy_postgres_acct_play.yml  # creates postgres acct and db for catchpy
+- import_playbook: catchpy_webserver_play.yml
+
+  #- import_playbook: cloudwatch_scripts_play.yml
+  #when: ec2_tag_cluster == 'prod'
+  #
+  #- import_playbook: catchpy_dbserver_s3bak_play.yml
+  #when: ec2_tag_cluster == 'prod'
+
+  #- import_playbook: route53_play.yml
+  #when: "ec2_tag_cluster not in ['prod', 'demo']"
+
+
