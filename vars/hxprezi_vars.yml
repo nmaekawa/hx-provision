@@ -105,7 +105,7 @@ static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
 cert_dns: 'oculus'  # this name must match pattern for ssl cert names
 # special case for vagrant
-vagrant_webserver_dns: inventory_hostname
+vagrant_webserver_dns: '{{ inventory_hostname }}'
 
 
 
