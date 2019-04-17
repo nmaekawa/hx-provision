@@ -8,10 +8,10 @@
   become: yes
   become_user: root
   vars:
-      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
-      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
-      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
-      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+      aws_project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      aws_service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+      aws_cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ aws_project_name }}'
   vars_files:
       - vars/common_vars.yml
       - vars/postgres_vars.yml
@@ -19,7 +19,7 @@
   tasks:
 
       - debug:
-          msg: "project_name={{ project_name }}; service_name={{ service_name }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
+          msg: "aws_project_name={{ aws_project_name }}; aws_service_name={{ aws_service_name }}; aws_cluster_env={{ aws_cluster_env }}; namespace={{ cloudwatch_namespace }}"
 
       # install aws scripts
       - include_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_scripts.yml
@@ -35,7 +35,7 @@
           job: >
             /usr/bin/aws s3 sync
             {{ db_log_dir }}
-            s3://{{ s3_backup_bucket_name }}/{{ cluster_env }}/{{ project_name }}/{{ service_name }}_{{ ansible_ec2_instance_id }}
+            s3://{{ s3_backup_bucket_name }}/{{ aws_cluster_env }}/{{ aws_project_name }}/{{ aws_service_name }}_{{ ansible_ec2_instance_id }}
 
       - name: install s3 cronjob for postgres databases
         cron:
@@ -46,7 +46,7 @@
           job: >
             /usr/bin/aws s3 sync
             {{ db_backup_dir }}
-            s3://{{ s3_backup_bucket_name }}/{{ cluster_env }}/{{ project_name }}/{{ service_name }}_{{ ansible_ec2_instance_id }}
+            s3://{{ s3_backup_bucket_name }}/{{ aws_cluster_env }}/{{ aws_project_name }}/{{ aws_service_name }}_{{ ansible_ec2_instance_id }}
 
 
 
