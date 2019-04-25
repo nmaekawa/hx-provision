@@ -1,7 +1,11 @@
 ---
 #
-# assumes common_play.yml already applied to all involved inventory
+# assumes ec2 instance has the `ebs_device` volume already attached.
+# assumes postgres catchpy database and acct already created
 #
+
+- import_playbook: common_play.yml
+
 
 - hosts: '{{ target_hosts | default("tag_service_catchpy", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -29,7 +33,6 @@
     - include_role:
         name: external/nmaekawa.extra-ebs
       when: use_aws
-
 
 
 - hosts: '{{ target_hosts | default("tag_service_catchpy", true) }}'

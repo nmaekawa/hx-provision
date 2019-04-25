@@ -1,6 +1,5 @@
 ---
 
-- import_playbook: common_play.yml
 - import_playbook: catchpy_dbserver_play.yml
 - import_playbook: catchpy_postgres_acct_play.yml  # creates postgres acct and db for catchpy
 - import_playbook: catchpy_webserver_play.yml
