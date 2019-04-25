@@ -5,6 +5,8 @@
         name: nginx
         state: present
 
+    - include_tasks: define_log_format.yml
+
     - name: compose the cert filename
       set_fact:
           cert_partial_filename: "{{ (ec2_tag_cluster == 'prod') | ternary('', 'all_') }}{{ cert_dns }}_{{ org_public_domain | replace('.', '_') }}"

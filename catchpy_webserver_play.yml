@@ -61,9 +61,7 @@
       include_role:
         name: nginx
       vars:
-        #nginx_non_ssl_port: 5050
-        #nginx_ssl_port: 5450
-        nginx_template_path: roles/nginx/templates/nginx_hxmirador.j2
+        nginx_template_path: roles/nginx/templates/nginx_catchpy.j2
 
 
 

@@ -26,7 +26,6 @@
         proxy_redirect off;
         proxy_read_timeout {{ gunicorn_timeout_seconds }};
         proxy_connect_timeout {{ gunicorn_timeout_seconds }};
-        proxy_intercept_errors on;
         proxy_pass http://{{ hx_image_host }}:{{ hx_image_port }};
     }
 
@@ -42,7 +41,6 @@
         proxy_redirect off;
         proxy_read_timeout {{ gunicorn_timeout_seconds }};
         proxy_connect_timeout {{ gunicorn_timeout_seconds }};
-        proxy_intercept_errors on;
         proxy_pass http://{{ ids_image_host }}:{{ ids_image_port }};
     }
 

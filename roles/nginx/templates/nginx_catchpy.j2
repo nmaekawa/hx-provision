@@ -4,28 +4,19 @@
 
 {% block custom_location %}
 
-    location  /harvard_logo.tif/full/full/0/default.jpg {
-        alias {{ static_dir }}/harvard_logo.jpg;
-    }
-
     location / {
         try_files $uri @proxy_to_app;
     }
 
     location @proxy_to_app {
-
-        rewrite full/full /404.html last;     # do not server originals
-        rewrite ^(.*)native(.*)$ $1default$2; # support iiif 1.0
-        rewrite ^(.*)default$ $1default.jpg;  # ensure format present for iiif 2.0
-
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Host $http_host;
-        proxy_redirect off;
+        proxy_hide_header x-hx-custom1;
         proxy_read_timeout {{ gunicorn_timeout_seconds }};
         proxy_connect_timeout {{ gunicorn_timeout_seconds }};
         proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
     }
 
-
 {% endblock %}
-
