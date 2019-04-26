@@ -15,7 +15,6 @@
         proxy_set_header Host $http_host;
         proxy_hide_header x-hx-custom1;
         proxy_read_timeout {{ gunicorn_timeout_seconds }};
-        proxy_connect_timeout {{ gunicorn_timeout_seconds }};
         proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
     }
 
