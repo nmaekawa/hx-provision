@@ -1,7 +1,7 @@
 ---
 
 #
-# apply to aws prod, for extra metrics on memory
+# apply to aws prod, for syslog backup, disk metrics, and extra metrics on memory
 #
 
 - hosts: '{{ target_hosts | default("all", true) }}'
@@ -10,6 +10,8 @@
   become_user: root
   vars:
       project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
       cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
       service_cw_install_dir: '/opt/aws-scripts-mon/'
 
@@ -21,6 +23,10 @@
       # install cw scripts, cronjobs for disk metrics and syslog->s3
       - import_role:
           name: external/nmaekawa.cloudwatch
+        vars:
+          # s3_backup_bucket_name: ''  # defined in vars/common_vars.yml
+          s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
+          file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
 
       - import_role:
           name: external/weihrauch.cloudwatch-monitoring
