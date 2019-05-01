@@ -31,8 +31,52 @@
         name: postgresql
         state: started
 
-- import_playbook: catchpy_dbserver_s3bak_play.yml
-  when: use_aws
 
 - import_playbook: cloudwatch_scripts_play.yml
   when: ec2_tag_cluster == 'prod'
+
+
+- hosts: '{{ target_hosts | default("tag_service_postgres", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/postgres_vars.yml
+
+  tasks:
+      - ec2_metadata_facts:
+
+      - debug:
+          msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
+
+      - name: s3 backup | cronjob for postgres log->s3
+        cron:
+          name: "s3 sync for postgres log"
+          user: postgres
+          special_time: daily  # check when the logs are being rotated to schedule after that
+          state: present
+          job: >
+            /usr/bin/aws s3 sync
+            {{ db_log_dir }}
+            s3://{{ s3_backup_bucket_name }}/{{ cluster_env }}/{{ project_name }}/{{ service_role }}_{{ ansible_ec2_instance_id }}
+        when: ec2_tag_cluster == 'prod'
+
+      - name: install s3 cronjob for postgres databases
+        cron:
+          name: "s3 sync for postgres databases"
+          user: postgres
+          special_time: daily  # check when dumps are performed to schedule after that
+          state: present
+          job: >
+            /usr/bin/aws s3 sync
+            {{ db_backup_dir }}
+            s3://{{ s3_backup_bucket_name }}/{{ cluster_env }}/{{ project_name }}/{{ service_role }}_{{ ansible_ec2_instance_id }}
+        when: ec2_tag_cluster == 'prod'
+
+

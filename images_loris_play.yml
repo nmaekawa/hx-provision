@@ -54,6 +54,10 @@
             local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/images_prod_20180824.tar.gz'
 
 
+  # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
+- import_playbook: cloudwatch_scripts_play.yml
+  when: ec2_tag_cluster == 'prod'
+
 
 - hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -61,66 +65,22 @@
   become_user: root
   vars:
       project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
-      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'  # this should be "loris"...
       cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
-      cronjob_scripts_dir: '/usr/local/bin'
       cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+      cronjob_scripts_dir: '/usr/local/bin'
   vars_files:
       - vars/common_vars.yml
       - vars/loris_vars.yml
 
   tasks:
-
-      - debug:
-          msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
-
-      #
-      # 19nov18 naomi: skipping since this is done via cloudformation
-      # -------------------------------------------------------------
-      # associate proper instance profile for permissions
-      #- import_tasks: roles/external/nmaekawa.iam-instance-profile/tasks/associate_iam_instance_profile.yml
-      #  vars:
-      #      instance_profile_name: "hx_{{ project_name }}-{{ cluster_env }}_instance_profile"
-      #      instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
-      #  when: "use_aws"
-
-      - import_role:
-          name: external/Stouts.users
-        vars:
-            users_enabled: yes
-            users_users:
-                - name: cloudwatch
-                  authorized: []
-            users_to_install:
-                - cloudwatch
-        when: "use_aws"
-
-      - import_role:
-          name: external/nmaekawa.cloudwatch
-        vars:
-            script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: cloudwatch
-        when: "use_aws"
-
-      # install script for syslog backup
-      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
-        vars:
-            script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: root
-            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
-            files_to_backup:
-                - /var/log/syslog.1
-        when: "use_aws"
-
-
       # install script for images sync, if images instance
       - import_tasks: roles/hx.loris/tasks/setup_s3_sync_images.yml
         vars:
             s3_sync_bucket_name: '{{ s3_source_bucket_name }}'
             s3_sync_prefix: 'images'
             target_s3_sync_dir: '{{ service_images_dir }}'
-        when: "use_aws and hostvars[inventory_hostname].ec2_tag_service == 'loris'"
+        when: ec2_tag_cluster == 'prod'
 
 
       - name: run initial s3 sync for images
@@ -131,7 +91,7 @@
             "s3://{{ s3_source_bucket_name }}/images"
             "{{ service_images_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
-        when: "use_aws"
+        when: ec2_tag_cluster == 'prod'
 
       - name: run initial s3 sync for loris cache
         become: yes
@@ -141,7 +101,7 @@
             "s3://{{ s3_source_bucket_name }}/loris-cache"
             "{{ service_cache_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
-        when: "use_aws"
+        when: ec2_tag_cluster == 'prod'
 
 
 

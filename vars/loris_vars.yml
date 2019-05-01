@@ -103,9 +103,9 @@ service_python_dependencies:
 
 # for nmaekawa.apt
 apt_required_packages_loris:
-    - 'python-pip'
-    - 'python-dev'
-    - 'python-setuptools'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
     - 'libjpeg-turbo8-dev'
     - 'libfreetype6-dev'
     - 'zlib1g-dev'

@@ -23,5 +23,13 @@
             virtualenv: "{{ service_venv_dir }}"
             name: '.'
             editable: yes
-            state: forcereinstall  # assumes setup.py does not list any dependencies!
+            #state: forcereinstall  # assumes setup.py does not list any dependencies!
+            # note: i've added the forcereinstall when testing provisioning and
+            # changes in the repo, thus forcing reinstall every time would make
+            # sure fresh changes to repo wwould be installed.
+            # BUT if you want to go back a version, this will run setup.py from
+            # the main service (say, catchpy) and sometimes setup.py DOES list
+            # dependencies without specific versions... that clobbers the
+            # previous install via requirements.txt.
+
 

@@ -54,6 +54,7 @@ webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
 
 # cloudwatch stuff
 cloudwatch_namespace_prefix: 'HX/CustomMetrics'
+script_install_dir: '/usr/local/bin'
 
 # s3 bucket for sync and backups
 s3_backup_bucket_name: 'backups-hx-edu'

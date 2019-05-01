@@ -120,6 +120,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  # catchpy webserver
+  config.vm.define "catchpy" do |dbserver|
+    dbserver.vm.box = "bento/ubuntu-16.04"
+    dbserver.vm.hostname = "catchpy.vm"
+    dbserver.vm.network "private_network", ip: "10.5.50.41"
+
+    dbserver.ssh.forward_agent = true
+    dbserver.ssh.insert_key = false
+
+    dbserver.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+    end
+  end
+
   # hxarc node
   config.vm.define "hxarc" do |hxarc|
     hxarc.vm.box = "bento/ubuntu-16.04"

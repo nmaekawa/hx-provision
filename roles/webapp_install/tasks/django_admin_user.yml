@@ -3,6 +3,7 @@
     - name: django admin user | create admin user
       become_user: '{{ service_user }}'
       environment:
+          CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
       shell: >
           . {{ service_venv_dir }}/bin/activate &&
