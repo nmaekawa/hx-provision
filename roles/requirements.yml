@@ -17,7 +17,7 @@
       name: geerlingguy.varnish
 
     - src: git+https://github.com/nmaekawa/ansible-role-virtualenv.git
-      version: "1.0.0"
+      version: "1.0.1"
       name: nmaekawa.virtualenv
 
     - src: git+https://github.com/geerlingguy/ansible-role-redis.git

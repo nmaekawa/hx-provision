@@ -8,6 +8,7 @@
   become: yes
   become_user: root
   vars:
+    #varnish_version: '6.1.1'
       is_varnish: '{{ hostvars[inventory_hostname].ec2_tag_service | regex_search("varnish") }}'
       varnish_default_vcl_template_path: 'roles/varnishlog/templates/default_dedicated.vcl.j2'
       varnish_be: "{% if hostvars[inventory_hostname].ec2_tag_service == 'idsvarnish' %}\
@@ -36,75 +37,33 @@
         when: is_varnish is defined and is_varnish == 'varnish'
 
 
+  # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
+- import_playbook: cloudwatch_scripts_play.yml
+  when: ec2_tag_cluster == 'prod'
+
 
 - hosts: '{{ target_hosts | default("all", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
   vars:
-      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
-      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
-      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
-      cronjob_scripts_dir: '/usr/local/bin'
-      cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
-      is_varnish: '{{ service_role | regex_search("varnish") }}'
+    project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+    service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+    cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+    cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+    cronjob_scripts_dir: '/usr/local/bin'
   vars_files:
-      - vars/common_vars.yml
-      - vars/loris_vars.yml
+    - vars/common_vars.yml
+    - vars/loris_vars.yml
 
   tasks:
-
-      - debug:
-          msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
-
-      #
-      # 19nov18 naomi: skipping since this is done via cloudformation
-      # -------------------------------------------------------------
-      # associate proper instance profile for permissions
-      #- import_tasks: roles/external/nmaekawa.iam-instance-profile/tasks/associate_iam_instance_profile.yml
-      #  vars:
-      #      instance_profile_name: "hx_{{ project_name }}-{{ cluster_env }}_instance_profile"
-      #      instance_id_to_associate: '{{ hostvars[inventory_hostname].ec2_id }}'
-      #  when: "use_aws"
-
-      - import_role:
-          name: external/Stouts.users
-        vars:
-            users_enabled: yes
-            users_users:
-                - name: cloudwatch
-                  authorized: []
-            users_to_install:
-                - cloudwatch
-        when: "use_aws"
-
-      - import_role:
-          name: external/nmaekawa.cloudwatch
-        vars:
-            script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: cloudwatch
-        when: "use_aws"
-
-      # install script for syslog backup
-      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
-        vars:
-            script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: root
-            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
-            files_to_backup:
-                - /var/log/syslog.1
-        when: "use_aws"
-
-      # install script for varnish logs backup
-      - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_s3_backup.yml
-        vars:
-            script_install_dir: '{{ cronjob_scripts_dir }}'
-            cronjob_owner: root
-            s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
-            file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
-            files_to_backup:
-                - /var/log/varnish/varnishncsa.log.1
-        when: "use_aws and is_varnish is defined and is_varnish == 'varnish'"
+    - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_backup_cronjob.yml
+      vars:
+        cronjob_owner: root
+        s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
+        file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
+        files_to_backup:
+          - /var/log/varnish/varnishncsa.log.1
+      when: "ec2_tag_cluster == 'prod' and is_varnish is defined and is_varnish == 'varnish'"
 
 

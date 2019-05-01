@@ -70,9 +70,9 @@ users_to_install:
 
 # for nmaekawa.apt
 apt_required_packages_hxmirador:
-    - 'python-pip'
-    - 'python-dev'
-    - 'python-setuptools'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
     - 'nginx'
     - 'supervisor'
     - 'sqlite3'
