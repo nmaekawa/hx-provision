@@ -56,7 +56,7 @@ service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
 service_admin_user: "{{ lookup('env', 'HXAT_ADMIN_USER') | default('user', true) }}"
 service_admin_email: "{{ lookup('env', 'HXAT_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXAT_ADMIN_PASSWORD') | default('password', true) }}"
-service_default_django_settings: '{{ service_name }}.settings.dev'
+service_default_django_settings: '{{ wsgi_module }}.settings.base'
 # env vars defined in service_dotenv_path file
 service_environment:
   DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXAT_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
