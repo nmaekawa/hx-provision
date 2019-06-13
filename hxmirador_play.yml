@@ -51,8 +51,6 @@
         include_role:
             name: nginx
         vars:
-            #nginx_non_ssl_port: 5050
-            #nginx_ssl_port: 5450
             nginx_template_path: roles/nginx/templates/nginx_hxmirador.j2
 
 
@@ -91,7 +89,6 @@
     service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
     cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
     cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
-    cronjob_scripts_dir: '/usr/local/bin'
   vars_files:
     - vars/common_vars.yml
     - vars/hxmirador_vars.yml

@@ -27,6 +27,7 @@
           # s3_backup_bucket_name: ''  # defined in vars/common_vars.yml
           s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
           file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
+        when: ec2_tag_cluster == 'prod'
 
       - import_role:
           name: external/weihrauch.cloudwatch-monitoring
@@ -34,7 +35,7 @@
             cw_install_dir: '{{ service_cw_install_dir }}'
             cw_options: "--mem-util --mem-used --mem-avail"
             cw_cron_minute: "*/2"
-        when: "use_aws"
+        when: ec2_tag_cluster == 'prod'
 
       - name: change metric namespace
         replace:
@@ -42,5 +43,5 @@
             regexp: "(.*input_ref->{'Namespace'} =).*"
             replace: '\1 "{{ cloudwatch_namespace }}";'
             backup: yes
-        when: "use_aws"
+        when: ec2_tag_cluster == 'prod'
 

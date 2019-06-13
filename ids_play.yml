@@ -1,4 +1,7 @@
 #
+# ATT: only apply this when in a VAGRANT cluster
+####################################################################
+#
 # assumes common_play.yml already applied to all involved inventory
 #
 
