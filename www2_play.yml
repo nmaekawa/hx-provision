@@ -1,0 +1,38 @@
+---
+#
+# assumes common_play.yml already applied to all involved inventory
+#
+#- import_playbook: common_play.yml
+
+- hosts: '{{ target_hosts | default("tag_service_www2", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/www2_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
+
+  tasks:
+    - debug:
+        var: www2_content_tar_gz_path
+    - debug:
+        var: www2_proxy_to
+
+    - name: config nginx
+      include_role:
+        name: nginx
+      vars:
+        nginx_template_path: roles/nginx/templates/nginx_www2.j2
+
+
+    - name: unarchive www2 content tar.gz
+      unarchive:
+        src: '{{ www2_content_tar_gz_path }}'
+        dest: '/var/www'
+        owner: 'root'
+        group: 'root'
+        remote_src: no
+        extra_opts:
+          - '-m'
+
