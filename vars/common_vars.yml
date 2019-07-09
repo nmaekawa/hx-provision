@@ -40,10 +40,10 @@ local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_
 #   e.g. vars/hxprezi_vars.yml
 # - in some cases, prod has a subdomain; e.g. live.hxarc.{{ org_public_domain # }}
 webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
-        {% if not hx_prod_subdomain %}\
-            {{ cert_dns }}.{{ org_public_domain }}\
-        {% else %}\
+        {% if hx_prod_subdomain is defined and hx_prod_subdomain|length > 0 %}\
             {{ hx_prod_subdomain }}.{{ cert_dns }}.{{ org_public_domain }}\
+        {% else %}\
+            {{ cert_dns }}.{{ org_public_domain }}\
         {% endif %}\
     {% elif ec2_tag_cluster == 'vagrant' %}\
         {{ vagrant_webserver_dns }}\

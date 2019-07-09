@@ -1,4 +1,9 @@
 ---
+#
+# provision and config all instances for hximg installation
+# loris, loris varnish, ids varnish, images reverse-proxy, hxprezi manifests,
+# hxmirador lti provider of mirador instances
+#
 
 - import_playbook: common_play.yml
 - import_playbook: ids_play.yml  # ids must exists before configuring idsvarnish

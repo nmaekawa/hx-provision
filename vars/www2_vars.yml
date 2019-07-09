@@ -1,0 +1,38 @@
+---
+
+# WWW2 VARS
+# ----------------------------------------------------------------------------------
+service_name: 'www2'
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+
+# for nmaekawa.apt
+apt_required_packages:
+    - 'nginx'
+
+www2_content_tar_gz_path: '{{ lookup("env", "WWW2_CONTENT_TAR_GZ_PATH") | mandatory }}'
+www2_proxy_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
+
+
+# PROXY VARS
+# ----------------------------------------------------------------------------------
+
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
+
+# att: service_static_dir and the actual static_dir for nginx config might be
+# different if proxy is to be in separate instance than the service(loris)
+# - you can change this in the playbook, in **vars for include_role**
+static_dir_root: '/var/www'
+static_dir: '{{ static_dir_root }}/html'
+nginx_ssl_dest_dir: '/etc/ssl/certs'
+cert_dns: 'www2'  # this name must match pattern for ssl cert names
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+
+
+

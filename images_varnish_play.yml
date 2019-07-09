@@ -8,6 +8,7 @@
   become: yes
   become_user: root
   vars:
+      varnish_version: '6.1.1'
       is_varnish: '{{ hostvars[inventory_hostname].ec2_tag_service | regex_search("varnish") }}'
       varnish_default_vcl_template_path: 'roles/varnishlog/templates/default_dedicated.vcl.j2'
       varnish_be: "{% if hostvars[inventory_hostname].ec2_tag_service == 'idsvarnish' %}\

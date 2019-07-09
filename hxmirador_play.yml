@@ -89,7 +89,6 @@
     service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
     cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
     cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
-    cronjob_scripts_dir: '/usr/local/bin'
   vars_files:
     - vars/common_vars.yml
     - vars/hxmirador_vars.yml

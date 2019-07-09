@@ -1,4 +1,7 @@
 #
+# ATT: only apply this when in a VAGRANT cluster
+####################################################################
+#
 # assumes common_play.yml already applied to all involved inventory
 #
 
@@ -48,6 +51,7 @@
         vars:
             vagrant_webserver_dns: 'ids.vm'
             local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/ids_images_sample.tar.gz'
+            hx_host: '{{ ec2_private_ip_address }}'
 
       - name: setup proxy
         include_role:
@@ -57,6 +61,7 @@
             static_dir: '{{ service_static_dir }}'
             nginx_template_path: roles/nginx/templates/nginx_ids.j2
             vagrant_webserver_dns: 'ids.vm'
+            hx_host: '{{ ec2_private_ip_address }}'
 
 
 

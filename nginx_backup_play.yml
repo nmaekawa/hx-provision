@@ -15,7 +15,7 @@
     cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
   vars_files:
     - vars/common_vars.yml
-    - roles/external/nmaekawa.cloudwatch/defaults/main.yml
+    - roles/external/nmaekawa.cloudwatch/defaults/main.yml  # TODO: define needed vars in import_tasks
 
   tasks:
     - ec2_metadata_facts:
