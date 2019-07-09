@@ -7,6 +7,7 @@
       environment:
           HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
           CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
+          HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: migrate
@@ -20,6 +21,7 @@
       # next time, define a standard env var!
           HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
           CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
+          HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: collectstatic

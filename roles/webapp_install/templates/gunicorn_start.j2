@@ -26,6 +26,8 @@ export {{ service_name | upper }}_DOTENV_PATH="{{ service_dotenv_path }}"
 RUNDIR=$(dirname $SOCKFILE)
 test -d $RUNDIR || mkdir -p $RUNDIR
 
+WSGI_MODULE="{{ wsgi_module | default(service_name, true) }}"
+
 # run under supervisor so do not use --daemon
 exec gunicorn \
     --name $NAME \
@@ -35,4 +37,4 @@ exec gunicorn \
     --user $USER --group $GROUP \
     --log-level debug \
     --bind $GUNICORN_HOST:$GUNICORN_PORT \
-    {{ service_name }}.wsgi
+    $WSGI_MODULE.wsgi

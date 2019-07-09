@@ -21,7 +21,8 @@
           if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
             ln --symbolic /usr/bin/python3 /usr/bin/python
           fi
-        when: ansible_version.full < "2.8.1"
+        when: ansible_version.full < "2.8.0"
+
 
       - include_role:
           name: external/jmcvetta.passwordless_sudo

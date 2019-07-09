@@ -18,4 +18,8 @@ HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
 CATCHPY_ALLOWED_HOSTS="{{ webserver_dns }}"
 {% endif %}
 
+{% if webserver_dns is defined and service_name == 'hxat' %}
+ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
+
 

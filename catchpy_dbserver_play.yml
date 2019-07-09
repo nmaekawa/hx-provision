@@ -51,6 +51,7 @@
 
   tasks:
       - ec2_metadata_facts:
+        when: ec2_tag_cluster == 'prod'
 
       - debug:
           msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}"
