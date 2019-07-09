@@ -14,6 +14,8 @@
           if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
             ln --symbolic /usr/bin/python3 /usr/bin/python
           fi
+        # https://docs.ansible.com/ansible/2.8/reference_appendices/interpreter_discovery.html
+        when: ansible_version.full < "2.8.0"
 
         #- name: install python2
         #raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)

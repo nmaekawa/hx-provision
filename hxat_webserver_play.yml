@@ -55,8 +55,6 @@
 
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
-      environment:
-        HXAT_DOTENV_PATH': '{{ service_dotenv_path }}'
 
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
@@ -65,8 +63,6 @@
       include_role:
         name: nginx
       vars:
-        #nginx_non_ssl_port: 5050
-        #nginx_ssl_port: 5450
         nginx_template_path: roles/nginx/templates/nginx_hxmirador.j2
 
 
