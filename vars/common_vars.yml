@@ -22,11 +22,14 @@ users_developers:
       groups: ['sudo']
       authorized:
           - https://github.com/nmaekawa.keys
-
     - name: lduarte
       groups: ['sudo']
       authorized:
           - https://github.com/lduarte1991.keys
+    - name: hxops
+      groups: ['sudo']
+      authorized:
+          - https://github.com/harvardx-tech-ops.keys
 
 users_ssh_keys: '{{ users_users }}'
 
@@ -63,4 +66,5 @@ s3_source_bucket_name: 'sources-hx-edu'
 # when you don't know were to stash scripts
 default_cronjob_scripts_dir: /usr/local/bin
 
-
+# django-app might have different name from default, service_name
+wsgi_module: '{{ service_name }}'

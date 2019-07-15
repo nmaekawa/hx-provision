@@ -51,8 +51,6 @@
 
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
-      environment:
-        CATCHPY_DOTENV_PATH': '{{ service_dotenv_path }}'
 
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'

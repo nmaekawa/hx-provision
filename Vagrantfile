@@ -2,6 +2,8 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = "2"
+DEFAULT_VB = "bento/ubuntu-18.04"
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # vagrant dns; requires `vagrant plugin install landrush`
@@ -108,7 +110,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # catchpy postgres
   config.vm.define "dbserver" do |dbserver|
-    dbserver.vm.box = "bento/ubuntu-16.04"
+    dbserver.vm.box = DEFAULT_VB
     dbserver.vm.hostname = "dbserver.vm"
     dbserver.vm.network "private_network", ip: "10.5.50.31"
 
@@ -122,7 +124,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # catchpy webserver
   config.vm.define "catchpy" do |dbserver|
-    dbserver.vm.box = "bento/ubuntu-16.04"
+    dbserver.vm.box = DEFAULT_VB
     dbserver.vm.hostname = "catchpy.vm"
     dbserver.vm.network "private_network", ip: "10.5.50.41"
 
