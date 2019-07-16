@@ -36,7 +36,6 @@ service_user: "{{ service_name }}"
 service_group: "{{ service_name }}"
 service_rootdir: "{{ ebs_mountpoint }}/{{ service_name }}"
 service_venv_dir: "{{ service_rootdir }}/venv"
-service_log_dir: "{{ service_rootdir }}/log"
 service_config_dir: "{{ service_rootdir }}/conf"
 service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
 service_data_dir: "{{ service_rootdir }}/data"
@@ -56,7 +55,6 @@ service_git_revision: "{{ lookup('env', var_service_git_revision) | default('mas
 
 service_dirs_to_create:
     - "{{ service_rootdir }}"
-    - "{{ service_log_dir }}"
     - "{{ service_config_dir }}"
     - "{{ service_data_dir }}"
     - "{{ service_work_dir }}"
@@ -65,7 +63,6 @@ service_dirs_to_create:
     - "{{ service_static_dir }}"
 
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
-service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
 service_admin_user: "{{ lookup('env', 'HXARC_ADMIN_USER') | default('user', true) }}"
 service_admin_email: "{{ lookup('env', 'HXARC_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXARC_ADMIN_PASSWORD') | default('password', true) }}"

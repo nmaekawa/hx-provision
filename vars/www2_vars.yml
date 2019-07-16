@@ -23,9 +23,6 @@ www2_proxy_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
 
 enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
-# att: service_static_dir and the actual static_dir for nginx config might be
-# different if proxy is to be in separate instance than the service(loris)
-# - you can change this in the playbook, in **vars for include_role**
 static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root }}/html'
 nginx_ssl_dest_dir: '/etc/ssl/certs'

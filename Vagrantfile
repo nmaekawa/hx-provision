@@ -52,23 +52,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # manifests node
-  config.vm.define "manifests" do |manifests|
-    manifests.vm.box = "bento/ubuntu-16.04"
-    manifests.vm.hostname = "manifests.vm"
-    manifests.vm.network "private_network", ip: "10.8.0.14"
+  # hxprezi node
+  config.vm.define "hxprezi" do |hxprezi|
+    hxprezi.vm.box = DEFAULT_VB
+    hxprezi.vm.hostname = "hxprezi.vm"
+    hxprezi.vm.network "private_network", ip: "10.8.0.14"
 
-    manifests.ssh.forward_agent = true
-    manifests.ssh.insert_key = false
+    hxprezi.ssh.forward_agent = true
+    hxprezi.ssh.insert_key = false
 
-    manifests.vm.provider "virtualbox" do |v|
+    hxprezi.vm.provider "virtualbox" do |v|
         v.memory = "1096"
     end
   end
 
   # mirador-lti node
   config.vm.define "mirador" do |mirador|
-    mirador.vm.box = "bento/ubuntu-16.04"
+    mirador.vm.box = DEFAULT_VB
     mirador.vm.hostname = "mirador.vm"
     mirador.vm.network "private_network", ip: "10.8.0.15"
 

@@ -8,11 +8,13 @@ service_name: "hxprezi"
 service_user: "{{ service_name }}"
 service_group: "{{ service_name }}"
 
-service_rootdir: "/opt/{{ service_name }}"
+# check in cloudformation for the device name and uncomment if extra-ebs
+#ebs_device: /dev/xvdf
+ebs_mountpoint: /opt/hx
+
+rootdir: "{{ ebs_mountpoint }}"
+service_rootdir: "{{ rootdir }}/{{ service_name }}"
 service_venv_dir: "{{ service_rootdir }}/venv"
-service_log_dir: "{{ service_rootdir }}/log"
-# sending app logs to syslog in supervisor
-#service_log_path: "{{ service_log_dir }}/{{ service_name }}.log"
 # uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
 # service_log_level: "DEBUG"
 
@@ -38,7 +40,6 @@ service_git_revision: "{{ lookup('env', var_service_git_revision) | default('mas
 # easier to create dirs with this dict
 service_dirs_to_create:
     - "{{ service_rootdir }}"
-    - "{{ service_log_dir }}"
     - "{{ service_config_dir }}"
     - "{{ service_data_dir }}"
     - "{{ service_source_dir }}"

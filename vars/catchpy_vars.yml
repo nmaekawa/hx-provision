@@ -60,7 +60,7 @@ service_default_django_settings: '{{ service_name }}.settings.dev'
 # env vars defined in service_dotenv_path file
 service_environment:
   DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'CATCHPY_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
-  DJANGO_SECRET_KEY: "{{ lookup('env', 'CATCHPY_DJANGO_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
+  CATCHPY_DJANGO_SECRET_KEY: "{{ lookup('env', 'CATCHPY_DJANGO_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
   CATCHPY_STATIC_ROOT: "{{ service_django_static_dir }}"
   CATCHPY_DB_NAME: "{{ service_db_name }}"
   CATCHPY_DB_USER: "{{ service_db_user }}"
