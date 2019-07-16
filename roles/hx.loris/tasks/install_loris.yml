@@ -34,6 +34,14 @@
           owner: '{{ service_user }}'
           group: '{{ service_group }}'
 
+    - name: overwrite loris icon with hx
+      become_user: '{{ service_user }}'
+      copy:
+          src: ../files/loris-static/icons/
+          dest: '{{ service_static_dir }}/icons'
+          owner: '{{ service_user }}'
+          group: '{{ service_group }}'
+
     - name: pip install loris from source
       become_user: '{{ service_user }}'
       pip:
