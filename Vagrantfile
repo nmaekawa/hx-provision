@@ -12,7 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # reverse proxy node
   config.vm.define "images" do |images|
-    images.vm.box = "bento/ubuntu-16.04"
+    images.vm.box = DEFAULT_VB
     images.vm.hostname = "images.vm"
     images.vm.network "private_network", ip: "10.8.0.10"
 
@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # loris image server node
   config.vm.define "loris" do |loris|
-    loris.vm.box = "bento/ubuntu-16.04"
+    loris.vm.box = DEFAULT_VB
     loris.vm.hostname = "loris.vm"
     loris.vm.network "private_network", ip: "10.8.0.8"
 
@@ -40,7 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # ids image server node
   config.vm.define "ids" do |ids|
-    ids.vm.box = "bento/ubuntu-16.04"
+    ids.vm.box = DEFAULT_VB
     ids.vm.hostname = "ids.vm"
     ids.vm.network "private_network", ip: "10.8.0.9"
 
@@ -82,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # ids-varnish node
   config.vm.define "idsvarnish" do |idsvarnish|
-    idsvarnish.vm.box = "bento/ubuntu-16.04"
+    idsvarnish.vm.box = DEFAULT_VB
     idsvarnish.vm.hostname = "idsvarnish.vm"
     idsvarnish.vm.network "private_network", ip: "10.8.0.16"
 
@@ -96,7 +96,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hx-varnish node
   config.vm.define "hxvarnish" do |hxvarnish|
-    hxvarnish.vm.box = "bento/ubuntu-16.04"
+    hxvarnish.vm.box = DEFAULT_VB
     hxvarnish.vm.hostname = "hxvarnish.vm"
     hxvarnish.vm.network "private_network", ip: "10.8.0.17"
 
