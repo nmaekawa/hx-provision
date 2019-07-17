@@ -1,7 +1,7 @@
 ---
 
 - import_playbook: catchpy_dbserver_play.yml
-- import_playbook: catchpy_postgres_acct_play.yml  # creates postgres acct and db for catchpy
+- import_playbook: postgres_acct_play.yml  # creates postgres acct and db for catchpy
 - import_playbook: catchpy_webserver_play.yml
 
 - import_playbook: cloudwatch_scripts_play.yml
@@ -29,5 +29,5 @@
             ttl: 300
             value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
         delegate_to: localhost
-        when: "ec2_tag_cluster not in ['prod', 'demo']"
+        when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
 
