@@ -2,12 +2,7 @@
 hx-provision
 ===============
 
-Ansible provisioning for HarvardX projects:
-
-* hxighlighter, a UI client for AnnotationsX
-* hxat, a UI server for AnnotationsX
-* catchpy, a storage server for AnnotationsX
-* hximg, iiif image infrastructure
+Ansible provisioning for HarvardX projects.
 
 To learn more about these projects, visit the hx wiki *** hx wiki link HERE ***.
 
@@ -110,8 +105,7 @@ needed.
    ...
 
 
-To learn which playbooks are relevant for each project, see the wiki *** TODO
-link to wiki HERE ***.
+To learn which playbooks are relevant for each project, see the hxwiki_.
 
 ---eop
 
@@ -121,3 +115,7 @@ link to wiki HERE ***.
 .. _ansible: https://www.ansible.com
 .. _virtualbox: https://www.virtualbox.org
 .. _landrush: https://github.com/vagrant-landrush/landrush
+.. _hxwiki: https://github.com/nmaekawa/hx-provision/wiki
+
+
+
