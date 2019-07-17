@@ -4,34 +4,26 @@ hximg-provision
 
 Ansible provisioning for HarvardX projects:
 
-    * annotationsx:
-        * hxighlighter, a UI client
-        * hxat, a UI server
-        * catchpy, a storage server
+* hxighlighter, a UI client for AnnotationsX
+* hxat, a UI server for AnnotationsX
+* catchpy, a storage server for AnnotationsX
+* hximg, iiif image infrastructure
 
-    * hximg, iiif image infrastructure:
-        * loris, a iiif image server
-        * hxmirador, an LTI provider for the Mirador Image Viewer
-        * hxprezi, a filesys-based iiif manifest server
+To learn more about these projects, visit the hx wiki *** hx wiki link HERE ***.
 
 
-TODO:
-
-- links to projects and references
-- links to wiki(repo or org?) with details about hx projects
-
-
-.. topic:: disclaimer
+disclaimer
+==========
 
     For demo purposes only! These playbooks are provided to show how to setup
-    a vagrant installation and support to this repo is OUT-OF-SCOPE at this time.
+    a vagrant installation and support to this repo is ``OUT-OF-SCOPE``
+    at this time.
 
 
 requirements
 ============
 
 * vagrant_ 2.2.5 or later
-
   * install dns plugin landrush_: ``$> vagrant plugin install landrush``
 
 * virtualbox_ 6.0 or later
@@ -92,8 +84,8 @@ Be sure to specify which instance you want to launch:
     above with their current state. For more information about a specific
     VM, run `vagrant status NAME`.
 
-    # start the ones you need, say for catchpy
-    $> vagrant up catchpy dbserver
+    # start the ones you need, say for catchpy and dbserver
+    (venv) $> vagrant up catchpy dbserver
 
 
 provision/config the instances
@@ -101,8 +93,8 @@ provision/config the instances
 
 The overall workflow is:
 
-    - vagrant up instances for target project
-    - run relevant ansible playbooks
+- vagrant up instances for target project
+- run relevant ansible playbooks
 
 In the subdir `hosts` there are ansible inventory files for each project.
 These inventories match the IPs and hostnames defined in the `Vagrantfile`.
