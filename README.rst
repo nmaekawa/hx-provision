@@ -1,5 +1,5 @@
 
-hximg-provision
+hx-provision
 ===============
 
 Ansible provisioning for HarvardX projects:
