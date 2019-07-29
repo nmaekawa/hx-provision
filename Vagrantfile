@@ -138,7 +138,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxat  webserver
   config.vm.define "hxat" do |dbserver|
-    dbserver.vm.box = "bento/ubuntu-16.04"
+    dbserver.vm.box = DEFAULT_VB
     dbserver.vm.hostname = "hxat.vm"
     dbserver.vm.network "private_network", ip: "10.5.50.51"
 
