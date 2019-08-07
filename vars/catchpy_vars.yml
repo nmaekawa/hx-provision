@@ -67,6 +67,10 @@ service_environment:
   CATCHPY_DB_PASSWORD: "{{ service_db_password }}"
   CATCHPY_DB_HOST: "{{ service_db_host }}"
   CATCHPY_DB_PORT: "{{ service_db_port }}"
+  CATCH_LOG_REQUEST_TIME: "true"
+  CATCH_LOG_SEARCH_TIME: "true"
+  CATCH_LOG_JWT: "true"
+  CATCH_LOG_JWT_ERROR: "true"
 
 
 # for Stouts.users
