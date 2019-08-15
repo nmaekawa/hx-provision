@@ -56,7 +56,6 @@ service_dirs_to_create:
     - "{{ service_bin_dir }}"
     - "{{ service_static_dir }}"
     - "{{ service_django_static_dir }}"
-    - "{{ service_daphne.socket_dir }}"
 
 # specific to webapp_install role
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
