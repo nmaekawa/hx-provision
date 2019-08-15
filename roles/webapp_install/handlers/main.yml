@@ -1,6 +1,6 @@
 ---
 
+  # could not figure how to restart multiprocess under supervisor
 - name: restart webapp
-  supervisorctl:
-    name: '{{ service_name }}'
-    state: restarted
+  shell: supervisorctl restart '{{ service_name }}:*' if service_daphne is defined else '{{ service_name }}'
+

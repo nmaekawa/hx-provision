@@ -37,6 +37,13 @@ service_gunicorn_port: "{{ lookup('env', 'HXAT_GUNICORN_PORT') | default('8236',
 service_gunicorn_host: "{{ lookup('env', 'HXAT_GUNICORN_HOST') | default('127.0.0.1', true) }}"
 gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 
+# below configures hxat as asgi django app;
+# comment for wsgi-only django app
+service_daphne:
+  host: "localhost"
+  port: "8555"
+  socket_dir: "/run/daphne"
+
 service_git_repo: "https://github.com/lduarte1991/{{ service_name }}.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
 service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
@@ -49,6 +56,7 @@ service_dirs_to_create:
     - "{{ service_bin_dir }}"
     - "{{ service_static_dir }}"
     - "{{ service_django_static_dir }}"
+    - "{{ service_daphne.socket_dir }}"
 
 # specific to webapp_install role
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"

@@ -8,12 +8,16 @@
 
     - name: supervisor | create supervisor config
       template:
-        src: supervisor_config.j2
+        src: "{{ 'supervisor_asgi_config.j2' if service_daphne is defined else 'supervisor_wsgi_config.j2' }}"
         dest: /etc/supervisor/conf.d/{{ service_name }}.conf
         backup: yes
 
-    - name: supervisor | reload supervisor config for {{ service_name }}
-      supervisorctl:
-        name: "{{ service_name }}"
-        state: present
+    # restart supervisor to pickup just dropped hxat config
+    # restart of supervisor managed service doesn't work...
+    - name: supervisor | restart supervisor for config of {{ service_name }}
+      service:
+        name: supervisor
+        state: restarted
+        enabled: yes
+
 
