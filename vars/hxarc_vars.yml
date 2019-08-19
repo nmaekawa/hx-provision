@@ -9,21 +9,28 @@ ebs_device: "/dev/xvdf"
 ebs_mountpoint: "/opt/hx"
 
 # subproc vars
-subproc_name: "hx_util"
-subproc_user: "{{ service_name }}"  # use same as web
-subproc_group: "{{ service_name }}"  # use same as web
-subproc_rootdir: "{{ebs_mountpoint }}/{{ subproc_name }}"
+subproc_rootdir: "{{ebs_mountpoint }}/subproc"
 subproc_venv_dir: "{{ subproc_rootdir }}/venv"
 subproc_bin_dir: "{{ subproc_rootdir }}/bin"
-subproc_install_dir: "{{ subproc_rootdir }}/{{ subproc_name }}"
-subproc_script_path: "{{ subproc_venv_dir }}/bin/{{ subproc_name }}"
-subproc_wrapper_path: "{{ subproc_bin_dir }}/wrapper.sh"
-subproc_git_repo: "https://github.com/Colin-Fredericks/hx_util.git"
-subproc_git_revision: "master"
+
+subproc_dirs_to_create:
+    - "{{ subproc_rootdir }}"
+    - "{{ subproc_bin_dir }}"
+
+# subproc dependencies
+subproc_deps:
+  - name: "hx_util"
+    git_repo: "https://github.com/Colin-Fredericks/hx_util.git"
+    git_revision: "master"
+
+  - name: "olxcleaner"
+    git_repo: "https://github.com/jolyonb/olxcleaner.git"
+    git_revision: "master"
 
 # how long output files take to be deleted
 # this is set in the service provisioning in a cronjob
 subproc_grace_period_in_minutes: 60
+service_wrapper_path: "{{ service_bin_dir }}/wrapper.sh"
 
 subproc_dirs_to_create:
     - "{{ subproc_rootdir }}"
@@ -72,7 +79,7 @@ service_environment:
   HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
   HXARC_UPLOAD_FILENAME: "export"
   HXARC_DB_PATH: "{{ service_db_dir }}/{{ service_name }}.db"
-  HXARC_SCRIPT_PATH: "{{ subproc_wrapper_path }}"
+  HXARC_SCRIPT_PATH: "{{ service_wrapper_path }}"
 
 
 service_flask_users: []
@@ -107,8 +114,6 @@ users_enabled: yes
 
 project_users:
     - name: '{{ service_user }}'
-      authorized: []
-    - name: '{{ subproc_user }}'
       authorized: []
 
 # cloudwatch stuff

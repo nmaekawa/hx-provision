@@ -41,6 +41,13 @@
     - name: install subproc
       include_role:
         name: subproc_install
+      vars:
+        subproc_name: '{{ subproc_deps_item.name }}'
+        subproc_git_repo: '{{ subproc_deps_item.git_repo }}'
+        subproc_git_revision: '{{ subproc_deps_item.git_revision }}'
+      loop: '{{ subproc_deps }}'
+      loop_control:
+        loop_var: subproc_deps_item
 
     - name: install webapp
       include_role:

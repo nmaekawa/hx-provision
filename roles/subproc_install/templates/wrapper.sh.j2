@@ -1,15 +1,14 @@
 #!/bin/bash -e
 
 SCRIPT_VENV={{ subproc_venv_dir }}
-SCRIPT_FULLPATH={{ subproc_script_path }}
-SCRIPT_DIR=$(dirname ${SCRIPT_FULLPATH})
-SCRIPT_FILENAME=$(basename ${SCRIPT_FULLPATH})
 
 # hack to get subproc's pkg version
-VENV_DIR=$(dirname $SCRIPT_FULLPATH)
-SCRIPT_VERSION=$($VENV_DIR/pip show {{ subproc_name }} | grep 'Version' | cut -d ' ' -f 2)
 if [ ${1} == 'version_only' ]
 then
+    if [ "$#" -eq 2 ]
+    then
+        SCRIPT_VERSION=$($SCRIPT_VENV/bin/pip show $2 | grep 'Version' | cut -d ' ' -f 2)
+    fi
     echo $SCRIPT_VERSION
     exit 0
 fi
@@ -26,8 +25,7 @@ echo
 echo "***** about to process input file ${input_file}"
 
 # run hx_util script
-cd ${SCRIPT_DIR}
-${SCRIPT_VENV}/bin/python ${SCRIPT_FILENAME} ${input_dir}/course
+${SCRIPT_VENV}/bin/hx_util ${input_dir}/course
 
 echo "***** done processing"
 echo
