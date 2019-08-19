@@ -27,8 +27,11 @@ echo "***** about to process input file ${input_file}"
 # run hx_util script
 ${SCRIPT_VENV}/bin/hx_util ${input_dir}/course
 
-echo "***** done processing"
+echo "***** done with hx_util, next olxcleaner for ${input_dir}"
 echo
+
+# run olxcleaner script
+${SCRIPT_VENV}/bin/edx-report -c ${input_dir}/course/course.xml > ${input_dir}/latexfile.tex
 
 result_dir=${input_dir}/result_${input_id}
 mkdir -p ${result_dir}
@@ -36,9 +39,10 @@ mkdir -p ${result_dir}
 echo "***** copying output files to ${result_dir}"
 echo
 
-# move result to known location
+# move result to known locaton
 cp ${input_dir}/course/*.tsv ${result_dir}
 cp ${input_dir}/*.zip ${result_dir}
+cp ${input_dir}/latexfile.tex ${result_dir}
 
 echo "***** generating tar.gz"
 echo

@@ -152,7 +152,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxarc node
   config.vm.define "hxarc" do |hxarc|
-    hxarc.vm.box = "bento/ubuntu-16.04"
+    hxarc.vm.box = DEFAULT_VB
     hxarc.vm.hostname = "hxarc.vm"
     hxarc.vm.network "private_network", ip: "10.44.0.11"
 
