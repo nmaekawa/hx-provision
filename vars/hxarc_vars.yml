@@ -32,11 +32,6 @@ subproc_deps:
 subproc_grace_period_in_minutes: 60
 service_wrapper_path: "{{ service_bin_dir }}/wrapper.sh"
 
-subproc_dirs_to_create:
-    - "{{ subproc_rootdir }}"
-    - "{{ subproc_bin_dir }}"
-
-
 # service vars
 service_name: "hxarc"
 service_user: "{{ service_name }}"
@@ -53,9 +48,13 @@ service_work_dir: "{% if ec2_tag_cluster == 'vagrant' %}\
                 {{ ebs_mountpoint }}/data/work\
                    {% endif %}"
 
+# specific to hxarc
 service_db_dir: "{{ service_data_dir }}/db"
+service_db_path: "{{ service_db_dir }}/{{ service_name }}_sqlite3.db"
+
 service_bin_dir: "{{ service_rootdir }}/bin"
 service_static_dir: "{{ service_rootdir }}/www"
+service_django_static_dir: "{{ service_static_dir }}/static"
 service_git_repo: "https://github.com/nmaekawa/hxarc.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
 service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
@@ -68,30 +67,26 @@ service_dirs_to_create:
     - "{{ service_db_dir }}"
     - "{{ service_bin_dir }}"
     - "{{ service_static_dir }}"
+    - "{{ service_django_static_dir }}"
 
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
 service_admin_user: "{{ lookup('env', 'HXARC_ADMIN_USER') | default('user', true) }}"
 service_admin_email: "{{ lookup('env', 'HXARC_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXARC_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: '{{ service_name }}.settings.dev'
 service_environment:
-  HXARC_SECRET: "{{ lookup('env', 'HXARC_SECRET') | default('nao pode mais meu coracao viver assim', true) }}"
-  HXARC_LOG_CONFIG: "{{ service_install_dir }}/logging.yaml"
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXARC_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  HXARC_DJANGO_SECRET_KEY: "{{ lookup('env', 'HXARC_SECRET') | default('nao pode mais meu coracao viver assim', true) }}"
+  HXARC_STATIC_ROOT: "{{ service_django_static_dir }}"
   HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
   HXARC_UPLOAD_FILENAME: "export"
-  HXARC_DB_PATH: "{{ service_db_dir }}/{{ service_name }}.db"
+  HXARC_DB_PATH: "{{ service_db_path }}"
   HXARC_SCRIPT_PATH: "{{ service_wrapper_path }}"
 
 
-service_flask_users: []
-# define a list of dict with users like below. Do NOT commit actual user:pwd!
-#    - username: "{{ lookup('env', 'HXARC_HXSTAFF_USER") }}"
-#      password: "{{ lookup('env', 'HXARC_HXSTAFF_PASSWORD") }}"
-#      email: "{{ lookup('env', 'HXARC_HXSTAFF_EMAIL") }}"
-
-
 # TODO: sockets or tcp port have to be manually edited in template
-service_gunicorn_port: "{{ lookup('env', 'HXARC_GUNICORN_PORT') | default('8123', true) }}"
-service_gunicorn_host: "{{ lookup('env', 'HXARC_GUNICORN_HOST') | default('0.0.0.0', true) }}"
+service_gunicorn_port: "{{ lookup('env', 'HXARC_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'HXARC_GUNICORN_HOST') | default('127.0.0.1', true) }}"
 
 # some large uploads take this long in slow wifi
 gunicorn_timeout_seconds: 1200

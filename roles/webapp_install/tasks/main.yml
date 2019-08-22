@@ -10,6 +10,11 @@
 
         # could not figure how to restart multiprocess under supervisor
       - name: restart service
-        shell: supervisorctl restart '{{ service_name }}:*' if service_daphne is defined else '{{ service_name }}'
+        shell: supervisorctl restart '{{ service_name }}:*'
+        when: service_daphne is defined
+
+      - name: restart service
+        shell: supervisorctl restart '{{ service_name }}'
+        when: service_daphne is not defined
 
 
