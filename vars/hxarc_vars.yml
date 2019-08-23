@@ -78,6 +78,7 @@ service_environment:
   DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXARC_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
   HXARC_DJANGO_SECRET_KEY: "{{ lookup('env', 'HXARC_SECRET') | default('nao pode mais meu coracao viver assim', true) }}"
   HXARC_STATIC_ROOT: "{{ service_django_static_dir }}"
+  HXARC_MEDIA_ROOT: "{{ service_work_dir }}"
   HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
   HXARC_UPLOAD_FILENAME: "export"
   HXARC_DB_PATH: "{{ service_db_path }}"

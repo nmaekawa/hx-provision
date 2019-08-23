@@ -8,6 +8,7 @@
           HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
           CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
+          HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: migrate
@@ -22,6 +23,7 @@
           HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
           CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
+          HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: collectstatic

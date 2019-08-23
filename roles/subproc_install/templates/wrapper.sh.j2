@@ -31,7 +31,7 @@ echo "***** done with hx_util, next olxcleaner for ${input_dir}"
 echo
 
 # run olxcleaner script
-${SCRIPT_VENV}/bin/edx-report -c ${input_dir}/course/course.xml > ${input_dir}/latexfile.tex
+${SCRIPT_VENV}/bin/edx-reporter -c ${input_dir}/course/course.xml > ${input_dir}/latexfile.tex
 
 result_dir=${input_dir}/result_${input_id}
 mkdir -p ${result_dir}
