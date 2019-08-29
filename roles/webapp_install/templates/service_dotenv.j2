@@ -16,6 +16,7 @@ HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
 
 {% if webserver_dns is defined and service_name == 'hxarc' %}
 HXARC_ALLOWED_HOSTS="{{ webserver_dns }}"
+{{ subproc_config_env }}
 {% endif %}
 
 {% if webserver_dns is defined and service_name == 'catchpy' %}

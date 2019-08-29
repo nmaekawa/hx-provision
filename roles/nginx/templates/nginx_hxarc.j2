@@ -4,14 +4,13 @@
 
 {% block custom_location %}
 
+    client_max_body_size {{ service_upload_max_size }};
+
     location / {
-        client_max_body_size {{ service_upload_max_size }};
         try_files $uri @proxy_to_app;
     }
 
     location @proxy_to_app {
-        client_max_body_size {{ service_upload_max_size }};
-
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Real-IP $remote_addr;

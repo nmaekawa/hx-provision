@@ -13,24 +13,50 @@ subproc_rootdir: "{{ebs_mountpoint }}/subproc"
 subproc_venv_dir: "{{ subproc_rootdir }}/venv"
 subproc_bin_dir: "{{ subproc_rootdir }}/bin"
 
+subproc_rootdir_base: "{{ebs_mountpoint }}/subproc"
+
 subproc_dirs_to_create:
     - "{{ subproc_rootdir }}"
     - "{{ subproc_bin_dir }}"
 
-# subproc dependencies
+# subproc specifics
 subproc_deps:
   - name: "hx_util"
     git_repo: "https://github.com/Colin-Fredericks/hx_util.git"
     git_revision: "master"
+    subproc_dirs_to_create:
+      - "{{ subproc_rootdir_base }}/hx_util"
+      - "{{ subproc_rootdir_base }}/hx_util/venv"
+      - "{{ subproc_rootdir_base }}/hx_util/bin"
+    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_hx_util.sh.j2"
+    subproc_wrapper_path: "{{ subproc_rootdir_base }}/hx_util/bin/wrapper.sh"
+    subproc_script_path: "{{ subproc_rootdir_base }}/hx_util/venv/bin/hx_util"
 
   - name: "olxcleaner"
     git_repo: "https://github.com/jolyonb/olxcleaner.git"
     git_revision: "master"
+    subproc_dirs_to_create:
+      - "{{ subproc_rootdir_base }}/olxcleaner"
+      - "{{ subproc_rootdir_base }}/olxcleaner/venv"
+      - "{{ subproc_rootdir_base }}/olxcleaner/bin"
+    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_olxcleaner.sh.j2"
+    subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
+    subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
+
+subproc_config:
+    hx_util:
+      wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
+      display_name: "hx_util"
+    olxcleaner:
+      wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
+      display_name: "olxcleaner"
+
+# hack to evaluate bash env var as json and sort out single/double quotes
+subproc_config_env: "HXARC_SUBPROCS='{{ subproc_config | to_json }}'"
 
 # how long output files take to be deleted
 # this is set in the service provisioning in a cronjob
 subproc_grace_period_in_minutes: 60
-service_wrapper_path: "{{ service_bin_dir }}/wrapper.sh"
 
 # service vars
 service_name: "hxarc"
@@ -82,7 +108,8 @@ service_environment:
   HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
   HXARC_UPLOAD_FILENAME: "export"
   HXARC_DB_PATH: "{{ service_db_path }}"
-  HXARC_SCRIPT_PATH: "{{ service_wrapper_path }}"
+
+  #HXARC_SUBPROCS_EXTRA: "{{ lookup('env', 'HXARC_SUBPROCS', allow_undefined=true)}}"
 
 
 # TODO: sockets or tcp port have to be manually edited in template

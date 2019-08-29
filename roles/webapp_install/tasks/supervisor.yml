@@ -21,13 +21,11 @@
         state: directory
       when: service_daphne is defined
 
-    # could not figure how to restart multiprocess using ansible supervisor module
-    - name: restart service
-      shell: supervisorctl restart '{{ service_name }}:*'
-      when: service_daphne is defined
+    - name: supervisor | restart supervisor
+      service:
+        name: supervisor
+        state: restarted
+        enabled: yes
 
-    - name: restart service
-      shell: supervisorctl restart '{{ service_name }}'
-      when: service_daphne is not defined
 
 

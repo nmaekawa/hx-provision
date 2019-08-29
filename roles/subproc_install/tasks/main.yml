@@ -27,20 +27,11 @@
       state: present
 
 
-  - name: wrapper | create dir for wrapper.sh
-    file:
-      path: "{{ service_wrapper_path | dirname }}"
-      owner: "{{ service_user }}"
-      group: "{{ service_group }}"
-      mode: 0755
-      state: directory
-
-
   - name: wrapper | drop subprocess wrapper shell file
     become_user: "{{ service_user }}"
     template:
-      src: wrapper.sh.j2
-      dest: "{{ service_wrapper_path }}"
+      src: "{{ subproc_wrapper_template }}"
+      dest: "{{ subproc_wrapper_path }}"
       owner: "{{ service_user }}"
       group: "{{ service_group }}"
       mode: 0744
