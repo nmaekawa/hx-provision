@@ -46,10 +46,10 @@ subproc_deps:
 subproc_config:
     hx_util:
       wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
-      display_name: "hx_util"
+      display_name: "archive"
     olxcleaner:
       wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
-      display_name: "olxcleaner"
+      display_name: "outline"
 
 # hack to evaluate bash env var as json and sort out single/double quotes
 subproc_config_env: "HXARC_SUBPROCS='{{ subproc_config | to_json }}'"
