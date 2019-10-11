@@ -1,0 +1,146 @@
+---
+
+- import_playbook: common_play.yml
+
+- hosts: '{{ target_hosts | default("tag_service_elk", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
+  vars_files:
+      - vars/common_vars.yml
+      - vars/elk_vars.yml
+
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+          apt_other_packages: "{{ apt_required_packages_elk }}"
+
+      - include_role:
+          name: external/Stouts.users
+        vars:
+          users_users: '{{ [local_user] }}'
+
+
+- hosts: '{{ target_hosts | default("tag_service_elk", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/elk_vars.yml
+
+  tasks:
+    - name: set java home for all
+      shell: 'echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /etc/environment'
+
+    - name: add elastic gpg key into apt
+      shell: 'wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -'
+
+    - name: add elastic source to apt
+      shell: 'echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list'
+
+    - name: update package list and install elasticsearch, logstash, kibana, filebeat
+      apt:
+        name: '{{ package }}'
+        update_cache: yes
+        state: present
+      vars:
+        package:
+          - elasticsearch
+          - kibana
+          - logstash
+          - filebeat
+
+    - name: es | restrict es to local access
+      lineinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^network\.host: '
+        insertafter: '#network\.host: '
+        line: 'network.host: localhost'
+        state: present
+        backup: yes
+
+    - name: kibana | create htaccess
+      shell: >-
+        echo "{{ kibana_admin_user }}: $(echo "{{ kibana_admin_password }}" |
+        openssl passwd -stdin)" > {{ nginx_auth_basic_user_file }}
+
+    - name: es | enable and start service
+      systemd:
+        name: elasticsearch
+        state: started
+        enabled: yes
+
+    - name: kibana | enable and start service
+      systemd:
+        name: kibana
+        state: started
+        enabled: yes
+
+    - name: logstash | config input from
+      template:
+        src: roles/elk/templates/logstash-beats-input.conf.j2
+        dest: /etc/logstash/conf.d/02-beats-input.conf
+        backup: yes
+
+    - name: logstash | config syslog filter
+      template:
+        src: roles/elk/templates/logstash-syslog-filter.conf.j2
+        dest: /etc/logstash/conf.d/10-syslog-filter.conf
+        backup: yes
+
+    - name: logstash | config output to elasticsearch
+      template:
+        src: roles/elk/templates/logstash-elastic-output.conf.j2
+        dest: /etc/logstash/conf.d/30-elasticsearch-output.conf
+        backup: yes
+
+    - name: logstash | enable and start service
+      systemd:
+        name: logstash
+        state: started
+        enabled: yes
+
+    - name: filebeats | disable output to elasticsearch (1)
+      replace:
+        path: /etc/filebeat/filebeat.yml
+        regexp: '^output.elasticsearch'
+        replace: '#output.elasticsearch'
+
+    - name: filebeats | disable output to elasticsearch (2)
+      replace:
+        path: /etc/filebeat/filebeat.yml
+        regexp: 'hosts: \["localhost:9200"\]'
+        replace: '#hosts: [localhost:9200]'
+
+    - name: filebeats | enable 'system' module
+      shell: filebeat modules enable system
+
+    - name: filebeats | cfg to pull from syslog-store
+      template:
+        src: roles/elk/templates/filebeats-modules-system.yml
+        dest: /etc/filebeat/modules.d/system.yml
+        backup: yes
+
+
+- hosts: '{{ target_hosts | default("tag_service_elk", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/elk_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
+
+  tasks:
+      - name: config nginx
+        include_role:
+            name: nginx
+        vars:
+            nginx_template_path: roles/nginx/templates/nginx_elk.j2
+
+
