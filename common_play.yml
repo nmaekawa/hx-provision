@@ -13,6 +13,10 @@
   gather_facts: False
   vars_files:
       - vars/common_vars.yml
+  module_defaults:
+    apt:
+      force_apt_get: yes
+
 
   tasks:
       # https://stackoverflow.com/a/54143390
