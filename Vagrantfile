@@ -163,4 +163,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "4096"
     end
   end
+
+  # rsyslog server node
+  config.vm.define "rsyslog" do |rsyslog|
+    rsyslog.vm.box = DEFAULT_VB
+    rsyslog.vm.hostname = "rsyslog.vm"
+    rsyslog.vm.network "private_network", ip: "10.55.0.11"
+
+    rsyslog.ssh.forward_agent = true
+    rsyslog.ssh.insert_key = false
+
+    rsyslog.vm.provider "virtualbox" do |v|
+        v.memory = "2048"
+    end
+  end
 end
