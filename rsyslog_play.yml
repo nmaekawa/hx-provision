@@ -1,0 +1,70 @@
+---
+
+- import_playbook: common_play.yml
+
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
+  vars_files:
+      - vars/common_vars.yml
+      - vars/rsyslog_vars.yml
+
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+          apt_other_packages: "{{ apt_required_packages_log }}"
+        when: apt_required_packages_log is defined
+
+
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/rsyslog_vars.yml
+
+  tasks:
+    - name: ensure service dirs are present
+      file:
+          path: "{{ item }}"
+          owner: "syslog"
+          group: "adm"
+          mode: 0755
+          state: directory
+      with_items: "{{ service_dirs_to_create }}"
+
+    - name: permissions for rsyslog store
+      file:
+        path: "{{ rsyslog_store_dir }}"
+        mode: 0740
+        state: directory
+
+    - name: config rsyslog server
+      template:
+        src: roles/elk/templates/01-server.conf.j2
+        dest: /etc/rsyslog.d/01-server.conf
+        backup: yes
+      when: rsyslog_server is defined and rsyslog_server == 'true'
+
+    - name: config rsyslog client
+      template:
+        src: roles/elk/templates/01-client.conf.j2
+        dest: /etc/rsyslog.d/01-client.conf
+        backup: yes
+      when: rsyslog_server is not defined or rsyslog_server != 'true'
+
+    - name: restart rsyslog
+      systemd:
+        name: rsyslog
+        state: restarted
+        enabled: yes
+
+
+
+

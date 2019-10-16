@@ -1,0 +1,45 @@
+---
+
+# LOG VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "log"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+
+# check in cloudformation for the device name and uncomment if extra-ebs
+#ebs_device: /dev/xvdf
+ebs_mountpoint: /opt/hx
+
+rootdir: "{{ ebs_mountpoint }}"
+service_rootdir: "{{ rootdir }}/{{ service_name }}"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
+# rsyslog specifics
+#rsyslog_syslog_dir: '/var/log/syslog-store'
+rsyslog_syslog_dir: '{{ service_rootdir }}/syslog-store'
+rsyslog_store_dir: "{{ lookup('env', 'RSYSLOG_SYSLOG_DIR') | default(rsyslog_syslog_dir, true) }}"
+rsyslog_server_host: "{{ lookup('env', 'RSYSLOG_SERVER_HOST') | default('rsyslog.vm', true) }}"
+rsyslog_server_port: "{{ lookup('env', 'RSYSLOG_SERVER_PORT') | default('514', true) }}"
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+  - "{{ rsyslog_store_dir }}"
+
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+
+# for nmaekawa.apt
+#apt_required_packages_log:
+#    - 'python3-apt'
+#    - 'nginx'
+
+
+
+

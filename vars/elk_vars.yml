@@ -1,0 +1,83 @@
+---
+
+# ELK VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "elk"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+
+# check in cloudformation for the device name and uncomment if extra-ebs
+#ebs_device: /dev/xvdf
+ebs_mountpoint: /opt/hx
+
+rootdir: "{{ ebs_mountpoint }}"
+service_rootdir: "{{ rootdir }}/{{ service_name }}"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
+# ................................................................
+# TODO: check this is needed
+service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
+service_static_dir: "{{ service_rootdir }}/www"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_data_dir: "{{ service_rootdir }}/data"
+service_cache_dir: "{{ service_data_dir }}/cache"
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+    - "{{ service_rootdir }}"
+    - "{{ service_config_dir }}"
+    - "{{ service_data_dir }}"
+    - "{{ service_source_dir }}"
+    - "{{ service_bin_dir }}"
+    - "{{ service_static_dir }}"
+# ................................................................
+
+
+# rsyslog specifics
+#rsyslog_syslog_dir: '/var/log/syslog-store'
+rsyslog_syslog_dir: '{{ service_rootdir }}/log'
+syslog_server_store: "{{ lookup('env', 'RSYSLOG_SYSLOG_DIR') | default(rsyslog_syslog_dir, true) }}"
+
+# elasticsearch specifics
+elasticsearch_port: 9200
+
+# kibana specifics
+kibana_port: 5601
+kibana_admin_user: "{{ lookup('env', 'KIBANA_ADMIN_USER') | default('kibana', true) }}"
+kibana_admin_password: "{{ lookup('env', 'KIBANA_ADMIN_PASSWORD') | default('kibana', true) }}"
+
+# beats specifics
+beats_input_port: 5044
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ service_user }}'
+
+# for nmaekawa.apt
+apt_required_packages_elk:
+    - 'nginx'
+    - 'openjdk-8-jre'
+
+
+# PROXY VARS
+# ----------------------------------------------------------------------------------
+
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
+static_dir: '{{ service_static_dir }}'
+nginx_ssl_dest_dir: '/etc/ssl/certs'
+cert_dns: 'elk'  # this name must match pattern for ssl cert names
+# basic auth
+nginx_auth_basic_user_file: '/etc/nginx/htpasswd.users'
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+
+
+
