@@ -1,0 +1,8 @@
+*.* action(type="omfwd"
+    queue.type="linkedlist"
+    queue.filename="rsyslog_bak"
+    action.resumeRetryCount="-1"
+    queue.saveOnShutdown="on"
+    target="{{ rsyslog_server_host }}" port="{{ rsyslog_server_port}}" protocol="tcp"
+    )
+

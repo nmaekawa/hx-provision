@@ -1,0 +1,11 @@
+# listen to tcp
+module(load="imtcp")
+# listen on port 514
+input(type="imtcp" port="{{ rsyslog_server_port }}")
+
+template(name="RemoteServer" type="list") {
+    constant(value="{{ rsyslog_store_dir }}/syslog.log-")
+    property(name="hostname")
+    }
+*.* ?RemoteServer
+
