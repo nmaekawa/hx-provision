@@ -21,12 +21,11 @@
         state: directory
       when: service_daphne is defined
 
-    # restart supervisor to pickup just dropped hxat config
-    # restart of supervisor managed service doesn't work...
-    - name: supervisor | restart supervisor for config of {{ service_name }}
+    - name: supervisor | restart supervisor
       service:
         name: supervisor
         state: restarted
         enabled: yes
+
 
 

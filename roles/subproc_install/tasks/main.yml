@@ -14,13 +14,13 @@
       name: external/nmaekawa.virtualenv
     vars:
       venv_path: "{{ subproc_venv_dir }}"
-      venv_user: "{{ subproc_user }}"
-      venv_group: "{{ subproc_group }}"
+      venv_user: "{{ service_user }}"
+      venv_group: "{{ service_group }}"
       venv_python_version: 3
 
 
   - name: venv | pip install SUBPROC from repo
-    become_user: "{{ subproc_user }}"
+    become_user: "{{ service_user }}"
     pip:
       virtualenv: "{{ subproc_venv_dir }}"
       name: 'git+{{ subproc_git_repo }}@{{ subproc_git_revision }}'
@@ -28,12 +28,12 @@
 
 
   - name: wrapper | drop subprocess wrapper shell file
-    become_user: "{{ subproc_user }}"
+    become_user: "{{ service_user }}"
     template:
-      src: wrapper.sh.j2
+      src: "{{ subproc_wrapper_template }}"
       dest: "{{ subproc_wrapper_path }}"
-      owner: "{{ subproc_user }}"
-      group: "{{ subproc_group }}"
+      owner: "{{ service_user }}"
+      group: "{{ service_group }}"
       mode: 0744
       backup: yes
 

@@ -8,8 +8,4 @@
       - include_tasks: gunicorn.yml
       - include_tasks: supervisor.yml
 
-        # could not figure how to restart multiprocess under supervisor
-      - name: restart service
-        shell: supervisorctl restart '{{ service_name }}:*' if service_daphne is defined else '{{ service_name }}'
-
 

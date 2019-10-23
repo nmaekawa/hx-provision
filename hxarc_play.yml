@@ -11,18 +11,16 @@
   become: yes
   become_user: root
   vars:
-      local_user:
-          name: '{{ service_name }}'
-          authorized: []
+    local_user:
+      name: '{{ service_name }}'
+      authorized: []
   vars_files:
     - vars/common_vars.yml
     - vars/hxarc_vars.yml
-
   handlers:
-      - include: handlers/main.yml
+    - include: handlers/main.yml
 
   tasks:
-
     - include_role:
         name: external/nmaekawa.apt
       vars:
@@ -38,20 +36,44 @@
         name: external/nmaekawa.extra-ebs
       when: use_aws
 
-    - name: install subproc
+
+- hosts: '{{ target_hosts | default("tag_service_hxarc", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/common_vars.yml
+    - vars/hxarc_vars.yml
+  handlers:
+      - include: handlers/main.yml
+
+  tasks:
+    - name: SUBPROC DEPS | install subproc
       include_role:
         name: subproc_install
+      vars:
+        subproc_name: '{{ subproc_deps_item.name }}'
+        subproc_git_repo: '{{ subproc_deps_item.git_repo }}'
+        subproc_git_revision: '{{ subproc_deps_item.git_revision }}'
+        subproc_dirs_to_create: '{{ subproc_deps_item.subproc_dirs_to_create }}'
+        subproc_venv_dir: '{{ subproc_rootdir_base }}/{{ subproc_deps_item.name }}/venv'
+        subproc_bin_dir: '{{ subproc_rootdir_base }}/{{ subproc_deps_item.name }}/bin'
+        subproc_wrapper_template: '{{ subproc_deps_item.subproc_wrapper_template }}'
+        subproc_wrapper_path: '{{ subproc_deps_item.subproc_wrapper_path }}'
+        subproc_script_path: '{{ subproc_deps_item.subproc_script_path }}'
+      loop: '{{ subproc_deps }}'
+      loop_control:
+        loop_var: subproc_deps_item
 
     - name: install webapp
       include_role:
         name: webapp_install
 
-    - name: create flask admin user and hx user
-      include_tasks: 'roles/webapp_install/tasks/flask_admin.yml'
+    - name: run migration and collectstatic
+      include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
 
-    - name: hxarc-only | cleanup temp files cronjob
-      include_role:
-        name: hxarc
+    - name: create django admin user
+      include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
 
     - name: config nginx
       include_role:
@@ -59,11 +81,25 @@
       vars:
         nginx_template_path: roles/nginx/templates/nginx_hxarc.j2
 
-    - name: move static content to nginx static dir (hxarc UI)
-      become_user: '{{ service_user }}'
-      command: "cp -R {{ service_install_dir }}/{{ service_name }}/static {{ service_static_dir }}/static"
-      args:
-        creates: "{{ service_static_dir }}/static"
+    - name: hxarc-only | cleanup temp files cronjob
+      include_role:
+        name: hxarc
+
+- hosts: '{{ target_hosts | default("tag_service_hxarc", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/common_vars.yml
+    - vars/hxarc_vars.yml
+  handlers:
+      - include: handlers/main.yml
+
+  tasks:
+      - name: install redis
+        include_role:
+            name: external/geerlingguy.redis
+
 
 
 - import_playbook: cloudwatch_scripts_play.yml

@@ -9,26 +9,54 @@ ebs_device: "/dev/xvdf"
 ebs_mountpoint: "/opt/hx"
 
 # subproc vars
-subproc_name: "hx_util"
-subproc_user: "{{ service_name }}"  # use same as web
-subproc_group: "{{ service_name }}"  # use same as web
-subproc_rootdir: "{{ebs_mountpoint }}/{{ subproc_name }}"
+subproc_rootdir: "{{ebs_mountpoint }}/subproc"
 subproc_venv_dir: "{{ subproc_rootdir }}/venv"
 subproc_bin_dir: "{{ subproc_rootdir }}/bin"
-subproc_install_dir: "{{ subproc_rootdir }}/{{ subproc_name }}"
-subproc_script_path: "{{ subproc_venv_dir }}/bin/{{ subproc_name }}"
-subproc_wrapper_path: "{{ subproc_bin_dir }}/wrapper.sh"
-subproc_git_repo: "https://github.com/Colin-Fredericks/hx_util.git"
-subproc_git_revision: "master"
 
-# how long output files take to be deleted
-# this is set in the service provisioning in a cronjob
-subproc_grace_period_in_minutes: 60
+subproc_rootdir_base: "{{ebs_mountpoint }}/subproc"
 
 subproc_dirs_to_create:
     - "{{ subproc_rootdir }}"
     - "{{ subproc_bin_dir }}"
 
+# subproc specifics
+subproc_deps:
+  - name: "hx_util"
+    git_repo: "https://github.com/Colin-Fredericks/hx_util.git"
+    git_revision: "master"
+    subproc_dirs_to_create:
+      - "{{ subproc_rootdir_base }}/hx_util"
+      - "{{ subproc_rootdir_base }}/hx_util/venv"
+      - "{{ subproc_rootdir_base }}/hx_util/bin"
+    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_hx_util.sh.j2"
+    subproc_wrapper_path: "{{ subproc_rootdir_base }}/hx_util/bin/wrapper.sh"
+    subproc_script_path: "{{ subproc_rootdir_base }}/hx_util/venv/bin/hx_util"
+
+  - name: "olxcleaner"
+    git_repo: "https://github.com/jolyonb/olxcleaner.git"
+    git_revision: "master"
+    subproc_dirs_to_create:
+      - "{{ subproc_rootdir_base }}/olxcleaner"
+      - "{{ subproc_rootdir_base }}/olxcleaner/venv"
+      - "{{ subproc_rootdir_base }}/olxcleaner/bin"
+    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_olxcleaner.sh.j2"
+    subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
+    subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
+
+subproc_config:
+    hx_util:
+      wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
+      display_name: "archive"
+    olxcleaner:
+      wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
+      display_name: "outline"
+
+# hack to evaluate bash env var as json and sort out single/double quotes
+subproc_config_env: "HXARC_SUBPROCS='{{ subproc_config | to_json }}'"
+
+# how long output files take to be deleted
+# this is set in the service provisioning in a cronjob
+subproc_grace_period_in_minutes: 60
 
 # service vars
 service_name: "hxarc"
@@ -46,9 +74,13 @@ service_work_dir: "{% if ec2_tag_cluster == 'vagrant' %}\
                 {{ ebs_mountpoint }}/data/work\
                    {% endif %}"
 
+# specific to hxarc
 service_db_dir: "{{ service_data_dir }}/db"
+service_db_path: "{{ service_db_dir }}/{{ service_name }}_sqlite3.db"
+
 service_bin_dir: "{{ service_rootdir }}/bin"
 service_static_dir: "{{ service_rootdir }}/www"
+service_django_static_dir: "{{ service_static_dir }}/static"
 service_git_repo: "https://github.com/nmaekawa/hxarc.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
 service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
@@ -61,30 +93,28 @@ service_dirs_to_create:
     - "{{ service_db_dir }}"
     - "{{ service_bin_dir }}"
     - "{{ service_static_dir }}"
+    - "{{ service_django_static_dir }}"
 
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
 service_admin_user: "{{ lookup('env', 'HXARC_ADMIN_USER') | default('user', true) }}"
 service_admin_email: "{{ lookup('env', 'HXARC_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXARC_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: '{{ service_name }}.settings.dev'
 service_environment:
-  HXARC_SECRET: "{{ lookup('env', 'HXARC_SECRET') | default('nao pode mais meu coracao viver assim', true) }}"
-  HXARC_LOG_CONFIG: "{{ service_install_dir }}/logging.yaml"
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXARC_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  HXARC_DJANGO_SECRET_KEY: "{{ lookup('env', 'HXARC_SECRET') | default('nao pode mais meu coracao viver assim', true) }}"
+  HXARC_STATIC_ROOT: "{{ service_django_static_dir }}"
+  HXARC_MEDIA_ROOT: "{{ service_work_dir }}"
   HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
   HXARC_UPLOAD_FILENAME: "export"
-  HXARC_DB_PATH: "{{ service_db_dir }}/{{ service_name }}.db"
-  HXARC_SCRIPT_PATH: "{{ subproc_wrapper_path }}"
+  HXARC_DB_PATH: "{{ service_db_path }}"
 
-
-service_flask_users: []
-# define a list of dict with users like below. Do NOT commit actual user:pwd!
-#    - username: "{{ lookup('env', 'HXARC_HXSTAFF_USER") }}"
-#      password: "{{ lookup('env', 'HXARC_HXSTAFF_PASSWORD") }}"
-#      email: "{{ lookup('env', 'HXARC_HXSTAFF_EMAIL") }}"
+  #HXARC_SUBPROCS_EXTRA: "{{ lookup('env', 'HXARC_SUBPROCS', allow_undefined=true)}}"
 
 
 # TODO: sockets or tcp port have to be manually edited in template
-service_gunicorn_port: "{{ lookup('env', 'HXARC_GUNICORN_PORT') | default('8123', true) }}"
-service_gunicorn_host: "{{ lookup('env', 'HXARC_GUNICORN_HOST') | default('0.0.0.0', true) }}"
+service_gunicorn_port: "{{ lookup('env', 'HXARC_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'HXARC_GUNICORN_HOST') | default('127.0.0.1', true) }}"
 
 # some large uploads take this long in slow wifi
 gunicorn_timeout_seconds: 1200
@@ -93,9 +123,9 @@ gunicorn_timeout_seconds: 1200
 # for nmaekawa.apt
 # ---------------------------------------------------------------------------
 apt_required_packages_hxarc:
-    - 'python-pip'
-    - 'python-dev'
-    - 'python-setuptools'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
     - 'nginx'
     - 'supervisor'
     - 'sqlite3'
@@ -107,8 +137,6 @@ users_enabled: yes
 
 project_users:
     - name: '{{ service_user }}'
-      authorized: []
-    - name: '{{ subproc_user }}'
       authorized: []
 
 # cloudwatch stuff
