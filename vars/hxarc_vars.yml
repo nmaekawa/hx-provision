@@ -43,6 +43,17 @@ subproc_deps:
     subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
     subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
 
+  - name: "hxann"
+    git_repo: "https://github.com/nmaekawa/hxann.git"
+    git_revision: "master"
+    subproc_dirs_to_create:
+      - "{{ subproc_rootdir_base }}/hxann"
+      - "{{ subproc_rootdir_base }}/hxann/venv"
+      - "{{ subproc_rootdir_base }}/hxann/bin"
+    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_hxann.sh.j2"
+    subproc_wrapper_path: "{{ subproc_rootdir_base }}/hxann/bin/wrapper.sh"
+    subproc_script_path: "{{ subproc_rootdir_base }}/hxann/venv/bin/hxann"
+
 subproc_config:
     hx_util:
       wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
@@ -50,6 +61,13 @@ subproc_config:
     olxcleaner:
       wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
       display_name: "outline"
+    hxann:
+      wrapper_path: "{{ subproc_deps[2].subproc_wrapper_path }}"
+      display_name: "video annotation"
+      display_label: "comma separated value file (.csv)"
+      output_basename: "result"
+      output_ext: "json"
+      exts_in_upload: [".csv"]
 
 # hack to evaluate bash env var as json and sort out single/double quotes
 subproc_config_env: "HXARC_SUBPROCS='{{ subproc_config | to_json }}'"

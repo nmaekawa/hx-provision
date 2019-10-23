@@ -7,11 +7,15 @@ SCRIPT_FILENAME=$(basename ${SCRIPT_FULLPATH})
 
 # hack to get subproc's pkg version
 VENV_DIR=$(dirname $SCRIPT_FULLPATH)
-SCRIPT_VERSION=$($VENV_DIR/pip show {{ subproc_name }} | grep 'Version' | cut -d ' ' -f 2)
 if [ ${1} == 'version_only' ]
 then
-    echo $SCRIPT_VERSION
-    exit 0
+    SCRIPT_VERSION=$($VENV_DIR/pip show {{ subproc_name }} | grep 'Version' | cut -d ' ' -f 2)
+    if [[ -z "${SCRIPT_VERSION// }" ]]; then
+        exit 1
+    else
+        echo $SCRIPT_VERSION
+        exit 0
+    fi
 fi
 
 input_file=${1}
