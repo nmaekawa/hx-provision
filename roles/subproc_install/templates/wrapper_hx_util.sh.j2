@@ -50,7 +50,8 @@ echo "***** generating tar.gz"
 echo
 
 cd ${input_dir}
-tar cvzf ${input_dir}/result.tar.gz result_${input_id}
+output={{ subproc_output_basename }}.{{ subproc_output_ext }}
+tar cvzf ${input_dir}/${output} result_${input_id}
 
 echo "***** all done"
 

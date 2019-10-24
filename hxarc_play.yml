@@ -61,6 +61,8 @@
         subproc_wrapper_template: '{{ subproc_deps_item.subproc_wrapper_template }}'
         subproc_wrapper_path: '{{ subproc_deps_item.subproc_wrapper_path }}'
         subproc_script_path: '{{ subproc_deps_item.subproc_script_path }}'
+        subproc_output_basename: '{{ subproc_config[subproc_deps_item.name]["output_basename"] }}'
+        subproc_output_ext: '{{ subproc_config[subproc_deps_item.name]["output_ext"] }}'
       loop: '{{ subproc_deps }}'
       loop_control:
         loop_var: subproc_deps_item

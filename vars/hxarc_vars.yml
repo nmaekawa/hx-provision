@@ -58,9 +58,17 @@ subproc_config:
     hx_util:
       wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
       display_name: "archive"
+      display_label: "course export tarball"
+      output_basename: "result"
+      output_ext: "tar.gz"
+      exts_in_upload: [".tar.gz"]
     olxcleaner:
       wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
       display_name: "outline"
+      display_label: "course export tarball"
+      output_basename: "result"
+      output_ext: "tar.gz"
+      exts_in_upload: [".tar.gz"]
     hxann:
       wrapper_path: "{{ subproc_deps[2].subproc_wrapper_path }}"
       display_name: "video annotation"
