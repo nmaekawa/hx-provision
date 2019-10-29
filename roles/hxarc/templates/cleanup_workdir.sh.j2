@@ -12,3 +12,16 @@ ls -l {{ service_work_dir }}
 
 echo "$(date +"%F %T") cleanup DONE:"
 ls -l {{ service_work_dir }}
+
+echo "$(date +"%F %T") starting cleanup for {{ service_django_file_cache_dir }}"
+ls -l {{ service_django_file_cache_dir }}
+
+/usr/bin/find {{ service_django_file_cache_dir }} \
+    -maxdepth 1 \
+    -mindepth 1 \
+    -type f \
+    -mmin +{{ subproc_grace_period_in_minutes | default(60) }} \
+    -exec rm {} \;
+
+echo "$(date +"%F %T") cleanup DONE:"
+ls -l {{ service_django_file_cache_dir }}

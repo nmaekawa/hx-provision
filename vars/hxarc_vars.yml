@@ -93,12 +93,7 @@ service_venv_dir: "{{ service_rootdir }}/venv"
 service_config_dir: "{{ service_rootdir }}/conf"
 service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
 service_data_dir: "{{ service_rootdir }}/data"
-
-service_work_dir: "{% if ec2_tag_cluster == 'vagrant' %}\
-                {{ service_data_dir }}/work\
-                   {% else %}\
-                {{ ebs_mountpoint }}/data/work\
-                   {% endif %}"
+service_work_dir: "{{ service_data_dir }}/work"
 
 # specific to hxarc
 service_db_dir: "{{ service_data_dir }}/db"
@@ -107,6 +102,7 @@ service_db_path: "{{ service_db_dir }}/{{ service_name }}_sqlite3.db"
 service_bin_dir: "{{ service_rootdir }}/bin"
 service_static_dir: "{{ service_rootdir }}/www"
 service_django_static_dir: "{{ service_static_dir }}/static"
+service_django_file_cache_dir: "{{ service_data_dir }}/hxarc_filecache"
 service_git_repo: "https://github.com/nmaekawa/hxarc.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
 service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
@@ -115,6 +111,7 @@ service_dirs_to_create:
     - "{{ service_rootdir }}"
     - "{{ service_config_dir }}"
     - "{{ service_data_dir }}"
+    - "{{ service_django_file_cache_dir }}"
     - "{{ service_work_dir }}"
     - "{{ service_db_dir }}"
     - "{{ service_bin_dir }}"
@@ -134,6 +131,7 @@ service_environment:
   HXARC_UPLOAD_DIR: "{{ service_work_dir }}"
   HXARC_UPLOAD_FILENAME: "export"
   HXARC_DB_PATH: "{{ service_db_path }}"
+  HXARC_FILE_CACHE_DIR: "{{ service_django_file_cache_dir }}"
 
   #HXARC_SUBPROCS_EXTRA: "{{ lookup('env', 'HXARC_SUBPROCS', allow_undefined=true)}}"
 
