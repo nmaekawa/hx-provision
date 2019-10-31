@@ -26,7 +26,7 @@ input_id=$(basename ${input_dir})  # assumes input file has a unique parent dir
 cd ${SCRIPT_DIR}
 # TODO: remove provision break in encapsulation of subproc_install role
 output={{ subproc_output_basename }}.{{ subproc_output_ext }}
-${SCRIPT_VENV}/bin/python ${SCRIPT_FILENAME} --csv ${input_file} --fmt webann > ${input_dir}/${output}
+${SCRIPT_VENV}/bin/python ${SCRIPT_FILENAME} --csv ${input_file} --fmt annjs > ${input_dir}/${output}
 
 echo "***** done processing"
 echo
