@@ -41,6 +41,8 @@
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
+  vars:
+    redirect_to_edx_lti: "{{ lookup('env', 'EDX_REDIRECT') | default('', true) }}"
   vars_files:
     - vars/common_vars.yml
     - vars/hxarc_vars.yml
@@ -61,6 +63,8 @@
         subproc_wrapper_template: '{{ subproc_deps_item.subproc_wrapper_template }}'
         subproc_wrapper_path: '{{ subproc_deps_item.subproc_wrapper_path }}'
         subproc_script_path: '{{ subproc_deps_item.subproc_script_path }}'
+        subproc_output_basename: '{{ subproc_config[subproc_deps_item.name]["output_basename"] }}'
+        subproc_output_ext: '{{ subproc_config[subproc_deps_item.name]["output_ext"] }}'
       loop: '{{ subproc_deps }}'
       loop_control:
         loop_var: subproc_deps_item
@@ -80,6 +84,16 @@
         name: nginx
       vars:
         nginx_template_path: roles/nginx/templates/nginx_hxarc.j2
+
+    - name: drop index to redirect to edge
+      template:
+        src: roles/subproc_install/templates/index_redirect.html.j2
+        dest: "{{ static_dir }}/index.html"
+        owner: "{{ service_user }}"
+        group: "{{ service_group }}"
+        mode: 0766
+        backup: yes
+      when: redirect_to_edx_lti is defined and redirect_to_edx_lti != ''
 
     - name: hxarc-only | cleanup temp files cronjob
       include_role:
