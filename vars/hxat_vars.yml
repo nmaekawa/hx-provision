@@ -41,10 +41,17 @@ gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 
 # below configures hxat as asgi django app;
 # comment for wsgi-only django app
-service_daphne:
-  host: "localhost"
-  port: "8555"
-  socket_dir: "/run/daphne"
+websockets:
+  nginx:
+    worker_connections: "{{ lookup('env', 'NGINX_WORKER_CONNECTIONS') | default(4096, true) }}"
+    worker_rlimit_nofile: "{{ lookup('env', 'NGINX_WORKER_RLIMIT_NOFILE') | default(4096, true) }}"
+  system_limits_conf:
+    soft_nproc: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NPROC') | default(65535, true) }}"
+    soft_nofile: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NOFILE') | default(65535, true) }}"
+  service_daphne:
+    host: "localhost"
+    port: "8555"
+    socket_dir: "/run/daphne"
 
 service_git_repo: "https://github.com/lduarte1991/{{ service_name }}.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"

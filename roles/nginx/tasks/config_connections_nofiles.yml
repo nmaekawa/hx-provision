@@ -1,0 +1,42 @@
+---
+
+    - name: set worker_connection
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'worker_connections.*'
+        line: 'worker_connections {{ websockets.nginx.worker_connections }};'
+        backup: yes
+      when: websockets is defined and websockets.nginx is defined
+
+    - name: set worker_rlimit_nofile
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'worker_rlimit_nofile.*'
+        line: 'worker_rlimit_nofile {{ websockets.nginx.worker_rlimit_nofile }};'
+        #insertafter: 'worker_processes[ \t]+auto;'
+        backup: yes
+      when: websockets is defined and websockets.nginx is defined
+
+    - name: system limits | nproc
+      lineinfile:
+        path: /etc/security/limits.conf
+        regexp: '^\*[ \t]+soft[ \t]+nproc[ \t]+{{ websockets.system_limits_conf.soft_nproc }}'
+        line: '* soft nproc {{ websockets.system_limits_conf.soft_nproc }}'
+        backup: yes
+      when: websockets is defined and websockets.system_limits_conf is defined
+
+    - name: system limits | nofile
+      lineinfile:
+        path: /etc/security/limits.conf
+        regexp: '^\*[ \t]+soft[ \t]+nofile[ \t]+{{ websockets.system_limits_conf.soft_nofile }}'
+        line: '* soft nofile {{ websockets.system_limits_conf.soft_nofile }}'
+        backup: yes
+      when: websockets is defined and websockets.system_limits_conf is defined
+
+    - name: pam.d | common-session
+      lineinfile:
+        path: /etc/pam.d/common-session
+        regexp: 'session[ \t]+required[ \t]+pam_limits.so'
+        line: 'session required pam_limits.so'
+        backup: yes
+      when: websockets is defined and websockets.system_limits_conf is defined

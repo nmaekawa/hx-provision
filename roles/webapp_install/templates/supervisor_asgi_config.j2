@@ -1,11 +1,11 @@
 [fcgi-program:{{ service_name }}]
-socket=tcp://{{ service_daphne.host }}:{{ service_daphne.port }}
+socket=tcp://{{ websockets.service_daphne.host }}:{{ websockets.service_daphne.port }}
 
 user = {{ service_name }}
 environment = {{ service_name | upper }}_DOTENV_PATH="{{ service_dotenv_path }}"
 directory = {{ service_install_dir }}
 
-command = {{ service_venv_dir }}/bin/daphne -u {{ service_daphne.socket_dir }}/daphne%(process_num)d.sock --fd 0 --access-log - --proxy-headers {{ wsgi_module | default(service_name, true) }}.asgi:application
+command = {{ service_venv_dir }}/bin/daphne -u {{ websockets.service_daphne.socket_dir }}/daphne%(process_num)d.sock --fd 0 --access-log - --proxy-headers {{ wsgi_module | default(service_name, true) }}.asgi:application
 
 numprocs = 2
 process_name = asgi%(process_num)d
