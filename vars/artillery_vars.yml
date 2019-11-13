@@ -1,0 +1,37 @@
+---
+
+# artillery VARS
+# ----------------------------------------------------------------------------------
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+
+# for nmaekawa.apt
+apt_required_packages_artillery:
+    - 'nodejs'
+    - 'npm'
+    - 'gnuplot'
+
+# below configures hxat as asgi django app;
+# in websockets client case, we only need the open file limit
+websockets:
+  #nginx:
+  #  worker_connections: "{{ lookup('env', 'NGINX_WORKER_CONNECTIONS') | default(4096, true) }}"
+  #  worker_rlimit_nofile: "{{ lookup('env', 'NGINX_WORKER_RLIMIT_NOFILE') | default(4096, true) }}"
+  system_limits_conf:
+    soft_nproc: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NPROC') | default(65535, true) }}"
+    soft_nofile: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NOFILE') | default(65535, true) }}"
+  #service_daphne:
+  #  host: "localhost"
+  #  port: "8555"
+  #  socket_dir: "/run/daphne"
+
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+
+
+

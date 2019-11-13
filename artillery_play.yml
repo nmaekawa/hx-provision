@@ -1,0 +1,35 @@
+---
+
+
+- import_playbook: common_play.yml
+
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+      - vars/common_vars.yml
+      - vars/artillery_vars.yml
+
+  tasks:
+    - name: install nodejs
+      apt:
+        #name: "{{ item }}"
+        name: ['nodejs', 'npm', 'gnuplot']
+        state: present
+        #with_items:
+        #- 'nodejs'
+        #- 'npm'
+        #- 'gnuplot'
+
+    - name: install artillery
+      npm:
+        name: artillery
+        global: yes
+
+    - name: config system limits for open files
+      import_tasks: roles/nginx/tasks/config_connections_nofiles.yml
+      #when: ec2_tag_cluster != 'vagrant'
+
+
+
