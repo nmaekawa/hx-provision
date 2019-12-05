@@ -14,6 +14,9 @@ apt_required_packages_artillery:
     - 'nodejs'
     - 'npm'
     - 'gnuplot'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
 
 # below configures hxat as asgi django app;
 # in websockets client case, we only need the open file limit

@@ -12,15 +12,10 @@
       - vars/artillery_vars.yml
 
   tasks:
-    - name: install nodejs
+    - name: install nodejs, npm, gnuplot
       apt:
-        #name: "{{ item }}"
         name: ['nodejs', 'npm', 'gnuplot']
         state: present
-        #with_items:
-        #- 'nodejs'
-        #- 'npm'
-        #- 'gnuplot'
 
     - name: install artillery
       npm:
@@ -29,7 +24,8 @@
 
     - name: config system limits for open files
       import_tasks: roles/nginx/tasks/config_connections_nofiles.yml
-      #when: ec2_tag_cluster != 'vagrant'
 
 
-
+      # TODO:
+      # - install websocat
+      # - virtualenv and locust dependencies
