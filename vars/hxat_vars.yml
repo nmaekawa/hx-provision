@@ -34,6 +34,7 @@ service_config_dir: "{{ service_rootdir }}/conf"
 service_bin_dir: "{{ service_rootdir }}/bin"
 service_data_dir: "{{ service_rootdir }}/data"
 service_backup_dir: "{{ service_data_dir }}/backup"
+service_run_dir: "{{ service_rootdir }}/run"
 
 service_gunicorn_port: "{{ lookup('env', 'HXAT_GUNICORN_PORT') | default('8236', true) }}"
 service_gunicorn_host: "{{ lookup('env', 'HXAT_GUNICORN_HOST') | default('127.0.0.1', true) }}"
@@ -51,7 +52,7 @@ websockets:
   service_daphne:
     host: "localhost"
     port: "8555"
-    socket_dir: "/run/daphne"
+    socket_dir: "{{ service_run_dir }}/daphne"
 
 service_git_repo: "https://github.com/lduarte1991/{{ service_name }}.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
@@ -64,6 +65,7 @@ service_dirs_to_create:
     - "{{ service_data_dir }}"
     - "{{ service_backup_dir }}"
     - "{{ service_bin_dir }}"
+    - "{{ service_run_dir }}"
     - "{{ service_static_dir }}"
     - "{{ service_django_static_dir }}"
 
