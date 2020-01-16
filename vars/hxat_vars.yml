@@ -142,5 +142,8 @@ cert_dns: 'hxat'  # this name must match pattern for ssl cert names
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
 
+# REDIS VARS
+# ----------------------------------------------------------------------------------
+redis_timeout: 0  # no timeout set for client
 
 
