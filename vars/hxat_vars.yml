@@ -44,8 +44,8 @@ gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 # comment for wsgi-only django app
 websockets:
   nginx:
-    worker_connections: "{{ lookup('env', 'NGINX_WORKER_CONNECTIONS') | default(4096, true) }}"
-    worker_rlimit_nofile: "{{ lookup('env', 'NGINX_WORKER_RLIMIT_NOFILE') | default(4096, true) }}"
+    worker_connections: "{{ lookup('env', 'NGINX_WORKER_CONNECTIONS') | default(16384, true) }}"
+    worker_rlimit_nofile: "{{ lookup('env', 'NGINX_WORKER_RLIMIT_NOFILE') | default(16384, true) }}"
   system_limits_conf:
     soft_nproc: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NPROC') | default(65535, true) }}"
     soft_nofile: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NOFILE') | default(65535, true) }}"
