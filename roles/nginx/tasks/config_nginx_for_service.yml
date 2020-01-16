@@ -59,6 +59,18 @@
       when: enable_ssl
 
 
+    # nginx need these when upstream doesn't respond
+    - name: create crude 500 error page
+      shell: echo "<html><body>500 server error</body></html>" > "{{ static_dir }}/50x.html"
+      args:
+        creates: "{{ static_dir }}/50x.html"
+
+    - name: create crude 404 error page
+      shell: echo "<html><body>404 not found</body></html>" > "{{ static_dir }}/404.html"
+      args:
+        creates: "{{ static_dir }}/404.html"
+
+
     - name: ensure {{ service_name }} site is enabled
       file:
         src: /etc/nginx/sites-available/{{ enable_ssl | ternary('ssl', 'nonssl') }}_{{ service_name }}
