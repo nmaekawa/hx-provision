@@ -102,7 +102,7 @@ service_environment:
   ANNOTATION_LOGGER_URL: "{{ lookup('env', 'ANNOTATION_LOGGER_URL') | default('', true) }}"
 
   ACCESSIBILITY: "{{ lookup('env', 'ACCESSIBILITY') | default('True', true) }}"
-  DEBUG: "{{ lookup('env', 'DEBUG') | default('True', true) }}"
+  DEBUG: "{{ lookup('env', 'DEBUG') | default('False', true) }}"
 
   LOG_ROOT: "{{ service_data_dir }}"
 
