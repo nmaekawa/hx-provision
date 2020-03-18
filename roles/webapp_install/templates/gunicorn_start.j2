@@ -16,7 +16,6 @@ MAX_REQUESTS="0"
 echo "`date`: Starting $NAME as `whoami`"
 
 # activate the virtual environment
-cd $SERVICE_INSTALL_DIR
 . {{ service_venv_dir }}/bin/activate
 
 # define dotenv location
