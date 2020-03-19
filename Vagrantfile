@@ -123,29 +123,29 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   # catchpy webserver
-  config.vm.define "catchpy" do |dbserver|
-    dbserver.vm.box = DEFAULT_VB
-    dbserver.vm.hostname = "catchpy.vm"
-    dbserver.vm.network "private_network", ip: "10.5.50.41"
+  config.vm.define "catchpy" do |catchpy|
+    catchpy.vm.box = DEFAULT_VB
+    catchpy.vm.hostname = "catchpy.vm"
+    catchpy.vm.network "private_network", ip: "10.5.50.41"
 
-    dbserver.ssh.forward_agent = true
-    dbserver.ssh.insert_key = false
+    catchpy.ssh.forward_agent = true
+    catchpy.ssh.insert_key = false
 
-    dbserver.vm.provider "virtualbox" do |v|
+    catchpy.vm.provider "virtualbox" do |v|
         v.memory = "4096"
     end
   end
 
   # hxat  webserver
-  config.vm.define "hxat" do |dbserver|
-    dbserver.vm.box = DEFAULT_VB
-    dbserver.vm.hostname = "hxat.vm"
-    dbserver.vm.network "private_network", ip: "10.5.50.51"
+  config.vm.define "hxat" do |hxat|
+    hxat.vm.box = DEFAULT_VB
+    hxat.vm.hostname = "hxat.vm"
+    hxat.vm.network "private_network", ip: "10.5.50.51"
 
-    dbserver.ssh.forward_agent = true
-    dbserver.ssh.insert_key = false
+    hxat.ssh.forward_agent = true
+    hxat.ssh.insert_key = false
 
-    dbserver.vm.provider "virtualbox" do |v|
+    hxat.vm.provider "virtualbox" do |v|
         v.memory = "4096"
     end
   end
