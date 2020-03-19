@@ -9,6 +9,7 @@
           CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
+          PLAYREMOTE_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: migrate
@@ -24,6 +25,7 @@
           CATCHPY_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
+          PLAYREMOTE_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: collectstatic

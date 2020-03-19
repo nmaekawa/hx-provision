@@ -163,4 +163,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "4096"
     end
   end
+
+  # playremote node
+  config.vm.define "playremote" do |playremote|
+    playremote.vm.box = DEFAULT_VB
+    playremote.vm.hostname = "playremote.vm"
+    playremote.vm.network "private_network", ip: "10.222.0.10"
+
+    playremote.ssh.forward_agent = true
+    playremote.ssh.insert_key = false
+
+    playremote.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+    end
+  end
 end

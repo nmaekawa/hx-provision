@@ -7,6 +7,7 @@
           HXMIRADOR_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
+          PLAYREMOTE_DOTENV_PATH: '{{ service_dotenv_path }}'
       shell: >
           . {{ service_venv_dir }}/bin/activate &&
           python ./manage.py create_user --username {{ service_admin_user }} --password {{ service_admin_password }} --is_admin

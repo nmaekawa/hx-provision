@@ -1,0 +1,103 @@
+---
+
+# PLAYREMOTE VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "playremote"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+
+# dbserver config from environment
+service_db_name: "{{ lookup('env', 'PLAYREMOTE_DB_NAME') | default(service_name , true) }}"
+service_db_user: "{{ lookup('env', 'PLAYREMOTE_DB_USER') | default(service_name, true) }}"
+service_db_password: "{{ lookup('env', 'PLAYREMOTE_DB_PASSWORD') | default(service_name, true) }}"
+# hardcoded vagrant catchpy postgres inventory hostname...
+service_db_host: "{{ lookup('env', 'PLAYREMOTE_DB_HOST') | default('dbserver.vm', true) }}"
+service_db_port: "{{ lookup('env', 'PLAYREMOTE_DB_PORT') | default('5432', true) }}"
+
+# check in cloudformation for the device name and uncomment if extra-ebs
+ebs_device: /dev/xvdf
+ebs_mountpoint: /opt/hx
+
+rootdir: "{{ ebs_mountpoint }}"
+service_rootdir: "{{ rootdir }}/{{ service_name }}"
+service_venv_dir: "{{ service_rootdir }}/venv"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
+service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
+service_static_dir: "{{ service_rootdir }}/www"
+service_django_static_dir: "{{ service_static_dir }}/static"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_data_dir: "{{ service_rootdir }}/data"
+
+# specific to playremote
+service_gunicorn_port: "{{ lookup('env', 'PLAYREMOTE_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'PLAYREMOTE_GUNICORN_HOST') | default('127.0.0.1', true) }}"
+gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
+
+service_git_repo: "https://github.com/nmaekawa/{{ service_name }}.git"
+var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
+service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+    - "{{ service_rootdir }}"
+    - "{{ service_config_dir }}"
+    - "{{ service_data_dir }}"
+    - "{{ service_bin_dir }}"
+    - "{{ service_static_dir }}"
+    - "{{ service_django_static_dir }}"
+
+# specific to webapp_install role
+service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
+# django admin user to be created
+service_admin_user: "{{ lookup('env', 'PLAYREMOTE_ADMIN_USER') | default('user', true) }}"
+service_admin_email: "{{ lookup('env', 'PLAYREMOTE_ADMIN_EMAIL') | default('user@user.com', true) }}"
+service_admin_password: "{{ lookup('env', 'PLAYREMOTE_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: '{{ service_name }}.settings.dev'
+# env vars defined in service_dotenv_path file
+service_environment:
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'PLAYREMOTE_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  PLAYREMOTE_DJANGO_SECRET_KEY: "{{ lookup('env', 'PLAYREMOTE_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
+  PLAYREMOTE_STATIC_ROOT: "{{ service_django_static_dir }}"
+  PLAYREMOTE_DB_NAME: "{{ service_db_name }}"
+  PLAYREMOTE_DB_USER: "{{ service_db_user }}"
+  PLAYREMOTE_DB_PASSWORD: "{{ service_db_password }}"
+  PLAYREMOTE_DB_HOST: "{{ service_db_host }}"
+  PLAYREMOTE_DB_PORT: "{{ service_db_port }}"
+
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ service_user }}'
+
+# for nmaekawa.apt
+apt_required_packages_playremote:
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
+    - 'nginx'
+    - 'supervisor'
+    - 'libpq-dev'
+    - 'postgresql-client'
+
+
+# PROXY VARS
+# ----------------------------------------------------------------------------------
+
+enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
+static_dir: '{{service_static_dir }}'
+nginx_ssl_dest_dir: '/etc/ssl/certs'
+cert_dns: 'playremote'  # this name must match pattern for ssl cert names
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+
+
+
