@@ -30,6 +30,8 @@ cert_dns: 'www2'  # this name must match pattern for ssl cert names
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
-
+static_dir_srt: '{{ static_dir_root }}/srt'
+nginx_non_ssl_port_srt: 5080
+nginx_ssl_port_srt: 5443
 
 
