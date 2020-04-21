@@ -33,13 +33,7 @@
         mode: '0755'
         state: directory
 
-    - name: config nginx
-      include_role:
-        name: nginx
-      vars:
-        nginx_template_path: roles/nginx/templates/nginx_www2_srt.j2
       # TODO: restore srt files into srt static root
-
     - name: unarchive www2 content tar.gz
       unarchive:
         src: '{{ www2_content_tar_gz_path }}'

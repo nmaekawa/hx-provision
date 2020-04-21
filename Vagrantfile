@@ -164,6 +164,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  # www2 node
+  config.vm.define "www2" do |www2|
+    www2.vm.box = DEFAULT_VB
+    www2.vm.hostname = "www2.vm"
+    www2.vm.network "private_network", ip: "10.55.0.11"
+
+    www2.ssh.forward_agent = true
+    www2.ssh.insert_key = false
+
+    www2.vm.provider "virtualbox" do |v|
+        v.memory = "1024"
+    end
+  end
+
   # playremote node
   config.vm.define "playremote" do |playremote|
     playremote.vm.box = DEFAULT_VB
