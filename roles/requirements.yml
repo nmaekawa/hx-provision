@@ -33,7 +33,7 @@
       name: nmaekawa.cloudwatch
 
     - src: git+https://github.com/nmaekawa/ansible-role-postgres.git
-      version: "1.0.1"
+      version: "2.0.0"
       name: nmaekawa.postgres
 
     - src: git+https://github.com/nmaekawa/ansible-role-extra-ebs.git
