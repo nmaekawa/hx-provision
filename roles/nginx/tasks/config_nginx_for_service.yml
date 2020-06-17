@@ -66,8 +66,8 @@
         src: /etc/nginx/sites-available/{{ enable_ssl | ternary('ssl', 'nonssl') }}_{{ service_name }}
         dest: /etc/nginx/sites-enabled/{{ service_name }}
         state: link
-      notify: reload nginx
 
+    - include_tasks: config_gzip.yml
 
     - name: restart nginx
       service:

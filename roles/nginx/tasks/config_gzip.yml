@@ -1,0 +1,60 @@
+---
+
+    - name: set gzip on
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip on;'
+        line: '        gzip on;'
+        backup: yes
+
+    - name: tell proxies to cache both gzipped and regular versions
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_vary'
+        line: '        gzip_vary on;'
+        backup: yes
+
+    - name: do not compress anything smaller than
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_min_length'
+        line: '        gzip_min_length 1024;'
+        insertafter: 'gzip_vary'
+        backup: yes
+
+    - name: compress even for clients via proxy
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_proxied'
+        line: '        gzip_proxied any;'
+        backup: yes
+
+    - name: gzip_comp_level
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_comp_level'
+        line: '        gzip_comp_level 6;'
+        backup: yes
+
+    - name: gzip_buffers
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_buffers'
+        line: '        gzip_buffers 16 8K;'
+        backup: yes
+
+    - name: types of file to compress
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_types'
+        line: '        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;'
+        backup: yes
+
+    - name: disable for ie versions 1-6
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: 'gzip_disable'
+        line: '        gzip_disable "MSIE [1-6]\.";'
+        insertafter: 'gzip_types'
+        backup: yes
+
