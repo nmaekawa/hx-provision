@@ -1,6 +1,12 @@
 ---
 #
 # assumes common_play.yml already applied to all involved inventory
+# assumes postgres hxat database and acct already created
+# assumes postgres hxat in rds, so need to pg_dump from hxat
+#
+# required for prod when using rds:
+# ALWAYS ADD -e project_name=<project_name> to ansible-playbook extra args
+# e.g. -e project_name=hxat
 #
 
 - import_playbook: common_play.yml
@@ -75,6 +81,12 @@
 
 - import_playbook: route53_play.yml
   when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
+
+- import_playbook: rds_dbdump_play.yml
+  vars:
+    project_name: '{{ service_name }}'
+  when: ec2_tag_cluster == 'prod'
+
 
 
 

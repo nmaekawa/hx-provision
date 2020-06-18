@@ -15,6 +15,7 @@ service_db_password: "{{ lookup('env', 'HXAT_DB_PASSWORD') | default(service_nam
 # hardcoded vagrant hxat postgres inventory hostname...
 service_db_host: "{{ lookup('env', 'HXAT_DB_HOST') | default('dbserver.vm', true) }}"
 service_db_port: "{{ lookup('env', 'HXAT_DB_PORT') | default('5432', true) }}"
+service_db_backup_local_retention_in_days: 7
 
 # check in cloudformation for the device name
 ebs_device: /dev/xvdf
@@ -32,6 +33,7 @@ service_django_static_dir: "{{ service_static_dir }}/static"
 service_config_dir: "{{ service_rootdir }}/conf"
 service_bin_dir: "{{ service_rootdir }}/bin"
 service_data_dir: "{{ service_rootdir }}/data"
+service_backup_dir: "{{ service_data_dir }}/backup"
 
 service_gunicorn_port: "{{ lookup('env', 'HXAT_GUNICORN_PORT') | default('8236', true) }}"
 service_gunicorn_host: "{{ lookup('env', 'HXAT_GUNICORN_HOST') | default('127.0.0.1', true) }}"
@@ -53,6 +55,7 @@ service_dirs_to_create:
     - "{{ service_rootdir }}"
     - "{{ service_config_dir }}"
     - "{{ service_data_dir }}"
+    - "{{ service_backup_dir }}"
     - "{{ service_bin_dir }}"
     - "{{ service_static_dir }}"
     - "{{ service_django_static_dir }}"

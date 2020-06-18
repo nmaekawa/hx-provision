@@ -1,0 +1,79 @@
+#!/bin/bash
+
+set -e
+
+#
+# functions
+#
+usage()
+{
+    cat << EOF
+usage: $0 --db <db_name> --outdir <backup-dir> --days <retention-in-days>
+    performs a data dump of all databases into backup dir and remove dumps that
+    are older than "retention-in-days" days.
+
+    --db      database name to be dumped
+    --outdir  dir to store datadumps, dir must exist
+    --days    how many days to keep datadumps, default is 7 days
+
+EOF
+}
+
+LOCAL_RETENTION_IN_DAYS=7
+
+while [ "$1" != "" ]; do
+    case $1 in
+        --db )          shift
+                        DB_NAME=$1
+                        ;;
+        --outdir )      shift
+                        BACKUP_DIR=$1
+                        ;;
+        --days )        shift
+                        LOCAL_RETENTION_IN_DAYS=$1
+                        ;;
+        -h | --help )   usage
+                        exit
+                        ;;
+        * )             usage
+                        exit 1
+    esac
+    shift
+done
+
+if [ -z "$BACKUP_DIR" ] || ! [[ "$LOCAL_RETENTION_IN_DAYS" =~ ^[0-9]+$ ]] || [ -z "$DB_NAME" ]
+then
+    usage
+    exit 1
+fi
+
+NOW=$(date +"%m-%d-%Y-at-%H-%M-%S")
+
+echo "$(date +"%F %T") pg_dump -U {{ service_db_user }} -n public -Fc ${DB_NAME} > ${BACKUP_DIR}/${NOW}_${DB_NAME}.pgdump"
+
+# dump db
+PGPASSWORD='{{ service_db_password }}' pg_dump -U {{ service_db_user }} -h {{ service_db_host }} -p {{ service_db_port }} -n public -Fc "${DB_NAME}" > "${BACKUP_DIR}/${NOW}_${DB_NAME}.pgdump"
+
+if [ $? -ne 0 ]; then
+    echo "Error: dumping ${NOW}_${DB_NAME}.pgdump"
+    exit 10
+fi
+
+
+echo "$(date +"%F %T") remove old backups:"
+find ${BACKUP_DIR} \
+    -type f \
+    -name "*.pgdump" \
+    -mtime +${LOCAL_RETENTION_IN_DAYS} \
+    -print
+
+# delete local backups older than LOCAL_RETENTION_DAYS days
+find ${BACKUP_DIR} \
+    -type f \
+    -name "*.pgdump" \
+    -mtime +${LOCAL_RETENTION_IN_DAYS} \
+    -delete
+
+echo "$(date +"%F %T") pg_dump DONE"
+exit 0
+

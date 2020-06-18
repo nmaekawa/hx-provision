@@ -2,6 +2,10 @@
 #
 # assumes ec2 instance has the `ebs_device` volume already attached.
 # assumes postgres catchpy database and acct already created
+# assumes postgres catchpy in rds, so need to pg_dump from catchpy
+#
+# required for prod when using rds:
+# run rds_dbdump_play.yml in order to have pgdumps backup on top of ami snapshots
 #
 
 - import_playbook: common_play.yml
@@ -61,6 +65,7 @@
       vars:
         nginx_template_path: roles/nginx/templates/nginx_catchpy.j2
 
+
   # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
 - import_playbook: cloudwatch_scripts_play.yml
   when: ec2_tag_cluster == 'prod'
@@ -70,6 +75,5 @@
 
 - import_playbook: route53_play.yml
   when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
-
 
 

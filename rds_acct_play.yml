@@ -1,0 +1,15 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/{{ project_name }}_vars.yml
+
+  tasks:
+    - name: create service db ({{ service_db_name }})
+      # simulate create db if not exists in https://stackoverflow.com/a/18389184
+      shell: echo "SELECT 'CREATE DATABASE {{ service_db_name }}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{ service_db_name }}')\gexec" | psql --host={{ service_db_host }} --port={{ service_db_port }} --username=postgres
+
+    - name: create service user ({{ service_db_user }})
+      shell: psql -c "CREATE USER {{ service_db_user }} WITH PASSWORD '{{ service_db_password }}'; GRANT ALL PRIVILEGES ON DATABASE {{ service_db_name }} TO {{ service_db_user }}" --host={{ service_db_host }} --port={{ service_db_port }} --username=postgres
+
+
