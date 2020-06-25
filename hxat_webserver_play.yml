@@ -71,6 +71,16 @@
       vars:
         nginx_template_path: roles/nginx/templates/nginx_hxat.j2
 
+    - name: cronjob to clear sessions
+      cron:
+        name: 'clear django sessions'
+        user: '{{ service_user }}'
+        hour: '7'
+        minute: '0'
+        state: present
+        job: >
+          {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
+
 
   # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
 - import_playbook: cloudwatch_scripts_play.yml
@@ -81,11 +91,6 @@
 
 - import_playbook: route53_play.yml
   when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
-
-- import_playbook: rds_dbdump_play.yml
-  vars:
-    project_name: '{{ service_name }}'
-  when: ec2_tag_cluster == 'prod'
 
 
 
