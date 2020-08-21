@@ -40,7 +40,7 @@ server {
     ssl_stapling            on;
     ssl_stapling_verify     on;
     # verify chain of trust of OCSP reponse using root CA and intermediate certs
-    ssl_trusted_certificate {{ nginx_ssl_dest_dir }}/{{ cert_dns }}_root_interm.crt;
+    ssl_trusted_certificate {{ nginx_ssl_dest_dir }}/{{ cert_dns }}_interm.crt;
     {% endif %}
 
     error_page 404 /404.html;

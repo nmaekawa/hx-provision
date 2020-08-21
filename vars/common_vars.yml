@@ -7,8 +7,11 @@ my_remote_user: "{{ use_aws | ternary('ubuntu', 'vagrant') }}"
 # used in testing ONLY
 prod_domain: "{{ lookup('env', 'HX_PROD_DNS') | default('harvardx.harvard.edu', true) }}"
 devo_domain: "{{ lookup('env', 'HX_DEVO_DNS') | default('harvardx.harvard.edu', true) }}"
+vagrant_domain: "vm"
 org_public_domain: "{% if ec2_tag_cluster in ['prod', 'demo'] %}\
                  {{ prod_domain }}\
+            {% elif ec2_tag_cluster == 'vagrant'  %}\
+                 {{ vagrant_domain }}\
             {% else %}\
                  {{ devo_domain }}\
             {% endif %}"
@@ -54,6 +57,8 @@ webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
         {{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_public_domain }}\
     {% endif %}"
 
+# harvardx domain == NOT self-signed
+is_harvardx_domain: "{{ webserver_dns is defined and ((webserver_dns | regex_search('harvardx.harvard.edu')) == 'harvardx.harvard.edu') }}"
 
 # cloudwatch stuff
 cloudwatch_namespace_prefix: 'HX/CustomMetrics'

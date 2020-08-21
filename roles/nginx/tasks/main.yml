@@ -1,3 +1,54 @@
 ---
 
-    - include_tasks: config_nginx_for_service.yml
+    - name: install nginx
+      apt:
+        name: nginx
+        state: present
+
+    - include_tasks: define_log_format.yml
+
+    - name: drop nginx site config for {{ service_name }}
+      template:
+        src: "{{ nginx_template_path }}"
+        dest: "/etc/nginx/sites-available/{{ service_name }}"
+        backup: yes
+
+
+    - include_tasks: config_ssl_certs.yml
+
+
+    # disabled default site
+    - name: ensure default site is disabled
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+
+    # nginx need these when upstream doesn't respond
+    - name: create crude 500 error page
+      shell: echo "<html><body>500 server error</body></html>" > "{{ static_dir }}/50x.html"
+      args:
+        creates: "{{ static_dir }}/50x.html"
+
+    - name: create crude 404 error page
+      shell: echo "<html><body>404 not found</body></html>" > "{{ static_dir }}/404.html"
+      args:
+        creates: "{{ static_dir }}/404.html"
+
+
+    - name: ensure {{ service_name }} site is enabled
+      file:
+        src: /etc/nginx/sites-available/{{ service_name }}
+        dest: /etc/nginx/sites-enabled/{{ service_name }}
+        state: link
+
+
+    - include_tasks: config_connections_nofiles.yml
+
+    - include_tasks: config_gzip.yml
+
+    - name: restart nginx
+      service:
+          name: nginx
+          state: restarted
+

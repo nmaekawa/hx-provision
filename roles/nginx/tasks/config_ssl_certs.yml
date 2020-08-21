@@ -1,0 +1,79 @@
+# assumes webserver_dns is defined
+---
+
+    - name: compose the cert filename
+      set_fact:
+        cert_partial_filename: "{{ (ec2_tag_cluster in ['prod', 'vagrant']) | ternary('', 'all_') }}{{ cert_dns }}_{{ org_public_domain | replace('.', '_') }}"
+      when: cert_partial_filename is not defined
+
+    - name: generate CSR and PRIVATE keys in service host
+      command: >
+        openssl req -newkey rsa:2048 -nodes
+           -keyout {{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key
+           -out {{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.csr
+           -subj "/C=US/ST=Massachusetts/L=Cambridge/O=Longfellow House/OU=Headquarter/CN={{ webserver_dns }}"
+      when: not is_harvardx_domain
+
+    - name: copy ssl PRIVATE_key to service host
+      copy:
+        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}.key"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key"
+        mode: 0600
+      when: is_harvardx_domain
+
+    - name: generate ssl CERT to service host
+      openssl_certificate:
+        path: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
+        privatekey_path: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key"
+        csr_path: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.csr"
+        provider: selfsigned
+        mode: 0644
+      when: not is_harvardx_domain
+
+    - name: copy ssl CERT dir to service host
+      copy:
+        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
+        mode: 0644
+      when: is_harvardx_domain
+
+    # TODO: this changes every renew? then overwrite
+    - name: copy ssl INTERMEDIATE certs dir to service host
+      copy:
+        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}_interm.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_interm.crt"
+        mode: 0640
+      when: is_harvardx_domain
+
+    - name: generate diffie-hellman params 2048bits
+      openssl_dhparam:
+        path: "{{ nginx_ssl_dest_dir }}/dhparam.crt"
+        state: present
+        size: 2048
+        force: no
+        mode: 0640
+
+    - name: link ssl CERT to correct file
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt"
+        state: link
+
+    - name: link ssl KEY to correct file
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}.key"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key"
+        state: link
+
+    - name: link ssl INTERMEDIATE to correct file
+      file:
+        src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_interm.crt"
+        dest: "{{ nginx_ssl_dest_dir }}/{{ cert_dns }}_interm.crt"
+        state: link
+      when: is_harvardx_domain
+
+    - name: restart nginx
+      service:
+          name: nginx
+          state: restarted
+
