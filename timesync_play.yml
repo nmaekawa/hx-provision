@@ -14,31 +14,34 @@
       - vars/common_vars.yml
 
   tasks:
-    #- name: check timesync
-    #    shell: |
-    #      timedatectl | grep 'NTP sync' | awk '{print $3}'
-    #    register: timesync
+    - name: check timesync
+      shell: |
+        timedatectl | grep 'NTP sync' | awk '{print $3}'
+      register: timesync
 
-    #  - debug:
-    #      var: timesync
+    - debug:
+        var: timesync
 
-    #  - fail:
-    #      msg: 'already timesyncd'
-    #    when: timesync.stdout == 'yes'
+    - fail:
+        msg: 'already timesyncd'
+      when: timesync.stdout == 'yes'
 
-      - name: stop timesync
-        command: timedatectl set-ntp no
+    - name: stop timesync
+      command: timedatectl set-ntp no
+      when: timesync.stdout != 'yes'
 
-      - name: add aws time server
-        lineinfile:
-          path: /etc/systemd/timesyncd.conf
-          regexp: '^NTP='
-          insertafter: '^#NTP='
-          line: 'NTP=169.254.169.123'
+    - name: add aws time server
+      lineinfile:
+        path: /etc/systemd/timesyncd.conf
+        regexp: '^NTP='
+        insertafter: '^#NTP='
+        line: 'NTP=169.254.169.123'
+      when: timesync.stdout != 'yes'
 
-      - name: restart timesync
-        systemd:
-          name: systemd-timesyncd
-          state: restarted
-          enabled: yes
+    - name: restart timesync
+      systemd:
+        name: systemd-timesyncd
+        state: restarted
+        enabled: yes
+      when: timesync.stdout != 'yes'
 
