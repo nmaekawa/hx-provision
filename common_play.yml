@@ -24,6 +24,26 @@
         when: ansible_version.full < "2.8.0"
 
 
+      - name: stop timesync
+        command: timedatectl set-ntp no
+        when: timesync.stdout != 'yes'
+
+      - name: add aws time server
+        lineinfile:
+          path: /etc/systemd/timesyncd.conf
+          regexp: '^NTP='
+          insertafter: '^#NTP='
+          line: 'NTP=169.254.169.123'
+        when: timesync.stdout != 'yes'
+
+      - name: restart timesync
+        systemd:
+          name: systemd-timesyncd
+          state: restarted
+          enabled: yes
+        when: timesync.stdout != 'yes'
+
+
       - include_role:
           name: external/jmcvetta.passwordless_sudo
 
