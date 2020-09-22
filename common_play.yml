@@ -24,9 +24,14 @@
         when: ansible_version.full < "2.8.0"
 
 
+      - name: check timesync
+        shell: |
+            timedatectl | grep 'NTP sync' | awk '{print $3}'
+        register: timesync
+
       - name: stop timesync
         command: timedatectl set-ntp no
-        when: timesync.stdout != 'yes'
+        when: timesync.stdout != 'yes' and ec2_tag_cluster != 'vagrant'
 
       - name: add aws time server
         lineinfile:
@@ -34,14 +39,14 @@
           regexp: '^NTP='
           insertafter: '^#NTP='
           line: 'NTP=169.254.169.123'
-        when: timesync.stdout != 'yes'
+        when: timesync.stdout != 'yes' and ec2_tag_cluster != 'vagrant'
 
       - name: restart timesync
         systemd:
           name: systemd-timesyncd
           state: restarted
           enabled: yes
-        when: timesync.stdout != 'yes'
+        when: timesync.stdout != 'yes' and ec2_tag_cluster != 'vagrant'
 
 
       - include_role:
