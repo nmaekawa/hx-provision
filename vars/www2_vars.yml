@@ -9,9 +9,17 @@ users_enabled: yes
 users_to_install:
     - 'nmaekawa'
     - 'lduarte'
+    - 'hxops'
 
 # for nmaekawa.apt
 apt_required_packages:
+    - 'build-essential'
+    - 'libffi-dev'
+    - 'openssl'
+    - 'libcurl4-openssl-dev'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
     - 'nginx'
 
 www2_content_tar_gz_path: '{{ lookup("env", "WWW2_CONTENT_TAR_GZ_PATH") | mandatory }}'
