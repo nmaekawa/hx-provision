@@ -191,4 +191,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "4096"
     end
   end
+
+  # fnup node  (hbso files&uploads)
+  config.vm.define "fnup" do |fnup|
+    fnup.vm.box = DEFAULT_VB
+    fnup.vm.hostname = "fnup.vm"
+    fnup.vm.network "private_network", ip: "10.55.0.21"
+
+    fnup.ssh.forward_agent = true
+    fnup.ssh.insert_key = false
+
+    fnup.vm.provider "virtualbox" do |v|
+        v.memory = "1024"
+    end
+  end
 end
