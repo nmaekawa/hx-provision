@@ -7,14 +7,9 @@
 
     - include_tasks: define_log_format.yml
 
-    - name: drop nginx site config for {{ service_name }}
-      template:
-        src: "{{ nginx_template_path }}"
-        dest: "/etc/nginx/sites-available/{{ service_name }}"
-        backup: yes
+    - include_tasks: config_connections_nofiles.yml
 
-
-    - include_tasks: config_ssl_certs.yml
+    - include_tasks: config_gzip.yml
 
 
     # disabled default site
@@ -36,16 +31,22 @@
         creates: "{{ static_dir }}/404.html"
 
 
+    - name: drop nginx site config for {{ service_name }}
+      template:
+        src: "{{ nginx_template_path }}"
+        dest: "/etc/nginx/sites-available/{{ service_name }}"
+        backup: yes
+
+
+    - include_tasks: config_ssl_certs.yml
+
+
     - name: ensure {{ service_name }} site is enabled
       file:
         src: /etc/nginx/sites-available/{{ service_name }}
         dest: /etc/nginx/sites-enabled/{{ service_name }}
         state: link
 
-
-    - include_tasks: config_connections_nofiles.yml
-
-    - include_tasks: config_gzip.yml
 
     - name: restart nginx
       service:
