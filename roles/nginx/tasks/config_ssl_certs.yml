@@ -9,23 +9,23 @@
     - name: generate CSR and PRIVATE keys in service host
       command: >
         openssl req -newkey rsa:2048 -nodes
-           -keyout {{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.key
-           -out {{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.csr
+           -keyout {{ target_certs_dir }}/{{ cert_partial_filename }}.key
+           -out {{ target_certs_dir }}/{{ cert_partial_filename }}.csr
            -subj "/C=US/ST=Massachusetts/L=Cambridge/O=HX/OU=Headquarter/CN={{ webserver_dns }}"
       when: not is_harvard_domain
 
     - name: copy ssl PRIVATE_key to service host
       copy:
         src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}.key"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.key"
+        dest: "{{ target_certs_dir }}/{{ cert_partial_filename }}.key"
         mode: 0600
       when: is_harvard_domain
 
     - name: generate ssl CERT to service host
       openssl_certificate:
-        path: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_bundle.crt"
-        privatekey_path: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.key"
-        csr_path: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.csr"
+        path: "{{ target_certs_dir }}/{{ cert_partial_filename }}_bundle.crt"
+        privatekey_path: "{{ target_certs_dir }}/{{ cert_partial_filename }}.key"
+        csr_path: "{{ target_certs_dir }}/{{ cert_partial_filename }}.csr"
         provider: selfsigned
         mode: 0644
       when: not is_harvard_domain
@@ -33,7 +33,7 @@
     - name: copy ssl CERT dir to service host
       copy:
         src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}_bundle.crt"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ target_certs_dir }}/{{ cert_partial_filename }}_bundle.crt"
         mode: 0644
       when: is_harvard_domain
 
@@ -41,13 +41,13 @@
     - name: copy ssl INTERMEDIATE certs dir to service host
       copy:
         src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}_interm.crt"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_interm.crt"
+        dest: "{{ target_certs_dir }}/{{ cert_partial_filename }}_interm.crt"
         mode: 0640
       when: is_harvard_domain
 
     - name: generate diffie-hellman params 2048bits
       openssl_dhparam:
-        path: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/dhparam.crt"
+        path: "{{ target_certs_dir }}/dhparam.crt"
         state: present
         size: 2048
         force: no
@@ -55,20 +55,20 @@
 
     - name: link ssl CERT to correct file
       file:
-        src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ service_cert_name }}.crt"
+        src: "{{ target_certs_dir }}/{{ cert_partial_filename }}_bundle.crt"
+        dest: "{{ target_certs_dir }}/{{ service_cert_name }}.crt"
         state: link
 
     - name: link ssl KEY to correct file
       file:
-        src: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.key"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ service_cert_name }}.key"
+        src: "{{ target_certs_dir }}/{{ cert_partial_filename }}.key"
+        dest: "{{ target_certs_dir }}/{{ service_cert_name }}.key"
         state: link
 
     - name: link ssl INTERMEDIATE to correct file
       file:
-        src: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_interm.crt"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ service_cert_name }}_interm.crt"
+        src: "{{ target_certs_dir }}/{{ cert_partial_filename }}_interm.crt"
+        dest: "{{ target_certs_dir }}/{{ service_cert_name }}_interm.crt"
         state: link
       when: is_harvard_domain
 

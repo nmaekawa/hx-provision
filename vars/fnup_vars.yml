@@ -38,7 +38,6 @@ enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
 static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root }}/html'
-nginx_ssl_dest_dir: '/etc/ssl/certs'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 

@@ -3,5 +3,6 @@
 static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root}}/html'
 
+target_certs_dir: '/etc/ssl/certs'
 
 

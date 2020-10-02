@@ -99,7 +99,6 @@ apt_required_packages_catchpy:
 
 enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 static_dir: '{{ service_static_dir }}'
-nginx_ssl_dest_dir: '/etc/ssl/certs'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
