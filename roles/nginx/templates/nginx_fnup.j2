@@ -35,7 +35,7 @@ server {
     # HSTS (63072000 ~2y)
     add_header Strict-Transport-Security "max-age=63072000" always;
 
-    {% if (is_harvardx_domain) %}
+    {% if (is_harvard_domain) %}
     # OCSP stapling
     ssl_stapling            on;
     ssl_stapling_verify     on;
@@ -123,7 +123,7 @@ server {
     # HSTS (63072000 ~2y)
     add_header Strict-Transport-Security "max-age=63072000" always;
 
-    {% if (is_harvardx_domain) %}
+    {% if (is_harvard_domain) %}
     # OCSP stapling
     ssl_stapling            on;
     ssl_stapling_verify     on;

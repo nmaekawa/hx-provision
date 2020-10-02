@@ -66,7 +66,7 @@ webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
     {% endif %}"
 
 # harvardx domain == NOT self-signed
-is_harvardx_domain: "{{ webserver_dns is defined and ((webserver_dns | regex_search('harvardx.harvard.edu')) == 'harvardx.harvard.edu') }}"
+is_harvard_domain: "{{ webserver_dns is defined and ((webserver_dns | regex_search('harvardx.harvard.edu')) == 'harvardx.harvard.edu') }}"
 
 # cloudwatch stuff
 cloudwatch_namespace_prefix: 'HX/CustomMetrics'
