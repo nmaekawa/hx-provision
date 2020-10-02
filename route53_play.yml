@@ -15,7 +15,7 @@
         route53:
             state: present
             zone: '{{ org_public_domain }}'
-            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_public_domain }}'
+            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
             type: A
             ttl: 300
             value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
@@ -38,7 +38,7 @@
         route53:
             state: present
             zone: '{{ org_public_domain }}'
-            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_public_domain }}'
+            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
             type: A
             ttl: 300
             value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
@@ -61,7 +61,7 @@
         route53:
             state: present
             zone: '{{ org_public_domain }}'
-            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_public_domain }}'
+            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
             type: A
             ttl: 300
             value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
@@ -84,7 +84,7 @@
         route53:
             state: present
             zone: '{{ org_public_domain }}'
-            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_public_domain }}'
+            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
             type: A
             ttl: 300
             value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
@@ -107,7 +107,7 @@
         route53:
             state: present
             zone: '{{ org_public_domain }}'
-            record: '{{ cluster_name }}.{{ cert_dns }}.{{ org_public_domain }}'
+            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
             type: A
             ttl: 300
             value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'

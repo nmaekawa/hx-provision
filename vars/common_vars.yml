@@ -42,19 +42,27 @@ local_certs_dir: '{{ lookup("env", "LOCAL_CERTS_DIR") | default("/Volumes/magic_
 
 
 # webserver dns used for django apps, hx varnish, and nginx configs
-# - based on instance tags and definitions from role-specific var files
+# - based on instance tags and definitions from service-specific var files
 #   e.g. vars/hxprezi_vars.yml
 # - in some cases, prod has a subdomain; e.g. live.hxarc.{{ org_public_domain # }}
+# - in some cases, the dns name does not match the service name, in this case,
+#   define cert_name in service-specific var file
+#   e.g. hxprezi dns is mirador.hx.h.e
+service_cert_name: "{% if cert_name is defined and cert_name != '' %}\
+        {{ cert_name }}\
+    {% else %}\
+        {{ service_name | mandatory }}\
+    {% endif %}"
 webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
         {% if hx_prod_subdomain is defined and hx_prod_subdomain|length > 0 %}\
-            {{ hx_prod_subdomain }}.{{ cert_dns }}.{{ org_public_domain }}\
+            {{ hx_prod_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }}\
         {% else %}\
-            {{ cert_dns }}.{{ org_public_domain }}\
+            {{ service_cert_name }}.{{ org_public_domain }}\
         {% endif %}\
     {% elif ec2_tag_cluster == 'vagrant' %}\
         {{ vagrant_webserver_dns }}\
     {% else %}\
-        {{ ec2_tag_cluster }}.{{ cert_dns }}.{{ org_public_domain }}\
+        {{ ec2_tag_cluster }}.{{ service_cert_name }}.{{ org_public_domain }}\
     {% endif %}"
 
 # harvardx domain == NOT self-signed

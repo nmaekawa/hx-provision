@@ -3,7 +3,7 @@
 
     - name: compose the cert filename
       set_fact:
-        cert_partial_filename: "{{ (ec2_tag_cluster in ['prod', 'vagrant']) | ternary('', 'all_') }}{{ cert_dns }}_{{ org_public_domain | replace('.', '_') }}"
+        cert_partial_filename: "{{ (ec2_tag_cluster in ['prod', 'vagrant']) | ternary('', 'all_') }}{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
       when: cert_partial_filename is not defined
 
     - name: generate CSR and PRIVATE keys in service host
@@ -16,7 +16,7 @@
 
     - name: copy ssl PRIVATE_key to service host
       copy:
-        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}.key"
+        src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}.key"
         dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.key"
         mode: 0600
       when: is_harvardx_domain
@@ -32,7 +32,7 @@
 
     - name: copy ssl CERT dir to service host
       copy:
-        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}_bundle.crt"
+        src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}_bundle.crt"
         dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_bundle.crt"
         mode: 0644
       when: is_harvardx_domain
@@ -40,7 +40,7 @@
     # TODO: this changes every renew? then overwrite
     - name: copy ssl INTERMEDIATE certs dir to service host
       copy:
-        src: "{{ local_certs_dir }}/{{ cert_dns }}/{{ cert_partial_filename }}_interm.crt"
+        src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}_interm.crt"
         dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_interm.crt"
         mode: 0640
       when: is_harvardx_domain
@@ -56,19 +56,19 @@
     - name: link ssl CERT to correct file
       file:
         src: "{{ nginx_ssl_dest_dir }}/{{ cert_partial_filename }}_bundle.crt"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_dns }}.crt"
+        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ service_cert_name }}.crt"
         state: link
 
     - name: link ssl KEY to correct file
       file:
         src: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}.key"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_dns }}.key"
+        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ service_cert_name }}.key"
         state: link
 
     - name: link ssl INTERMEDIATE to correct file
       file:
         src: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_partial_filename }}_interm.crt"
-        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ cert_dns }}_interm.crt"
+        dest: "{{ nginx_ssl_dest_dir | default('/etc/ssl/certs', true) }}/{{ service_cert_name }}_interm.crt"
         state: link
       when: is_harvardx_domain
 

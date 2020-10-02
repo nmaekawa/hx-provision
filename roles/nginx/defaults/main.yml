@@ -1,7 +1,7 @@
 ---
 
-static_dir: '/var/www/html'
+static_dir_root: '/var/www'
+static_dir: '{{ static_dir_root}}/html'
 
-include_static_manifest: 'false'
 
 

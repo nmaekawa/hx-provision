@@ -18,8 +18,8 @@ server {
     server_name         {{ webserver_dns }};
     {% endif %}
 
-    ssl_certificate     {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt;
-    ssl_certificate_key {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key;
+    ssl_certificate     {{ nginx_ssl_dest_dir }}/{{ service_cert_name }}.crt;
+    ssl_certificate_key {{ nginx_ssl_dest_dir }}/{{ service_cert_name }}.key;
     ssl_session_timeout 1d;
     ssl_session_cache   shared:SSL:10m;  # 10Mb ~40000s sessions
     ssl_session_tickets off;
@@ -40,7 +40,7 @@ server {
     ssl_stapling            on;
     ssl_stapling_verify     on;
     # verify chain of trust of OCSP reponse using root CA and intermediate certs
-    ssl_trusted_certificate {{ nginx_ssl_dest_dir }}/{{ cert_dns }}_interm.crt;
+    ssl_trusted_certificate {{ nginx_ssl_dest_dir }}/{{ service_cert_name }}_interm.crt;
     {% endif %}
 
     root {{ static_dir }};
@@ -71,8 +71,8 @@ server {
     server_name         {{ webserver_dns }};
     {% endif %}
 
-    ssl_certificate     {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.crt;
-    ssl_certificate_key {{ nginx_ssl_dest_dir }}/{{ cert_dns }}.key;
+    ssl_certificate     {{ nginx_ssl_dest_dir }}/{{ service_cert_name }}.crt;
+    ssl_certificate_key {{ nginx_ssl_dest_dir }}/{{ service_cert_name }}.key;
     ssl_session_timeout 1d;
     ssl_session_cache   shared:SSL:10m;  # 10Mb ~40000s sessions
     ssl_session_tickets off;
@@ -93,7 +93,7 @@ server {
     ssl_stapling            on;
     ssl_stapling_verify     on;
     # verify chain of trust of OCSP reponse using root CA and intermediate certs
-    ssl_trusted_certificate {{ nginx_ssl_dest_dir }}/{{ cert_dns }}_interm.crt;
+    ssl_trusted_certificate {{ nginx_ssl_dest_dir }}/{{ service_cert_name }}_interm.crt;
     {% endif %}
 
     root {{ static_dir_srt }};

@@ -173,7 +173,7 @@ hx_image_port: '{{ varnish_instances.hx.frontend.port }}'
 # - you can change this in the playbook, in **vars for include_role**
 static_dir: '{{ service_static_dir }}'
 nginx_ssl_dest_dir: '/etc/ssl/certs'
-cert_dns: 'images'  # this name must match pattern for ssl cert names
+cert_name: 'images'  # this name must match pattern for ssl cert names
 # special case for vagrant
 vagrant_webserver_dns: 'images.vm'
 
