@@ -1,16 +1,3 @@
-# based on config:
-# generated 2020-08-19, Mozilla Guideline v5.6, nginx 1.14.0, OpenSSL 1.1.1, intermediate configuration
-# https://ssl-config.mozilla.org/#server=nginx&version=1.14.0&config=intermediate&openssl=1.1.1&guideline=5.6
-
-server {
-    listen       {{ nginx_non_ssl_port }} default_server;
-    listen       [::]:{{ nginx_non_ssl_port }} default_server;
-    {% if webserver_dns is defined and webserver_dns != '' %}
-    server_name  {{ webserver_dns }};
-    {% endif %}
-    return  301  https://$host$request_uri;
-}
-
 server {
     listen              {{ nginx_ssl_port }} ssl http2;
     listen              [::]:{{ nginx_ssl_port }} ssl http2;
@@ -43,9 +30,13 @@ server {
     ssl_trusted_certificate {{ target_certs_dir }}/{{ service_cert_name }}_interm.crt;
     {% endif %}
 
+    root {{ static_dir }};
+    autoindex off;
+
+    {% block error_page %}
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
-    root {{ static_dir }};
+    {% endblock %}
 
     {% block index_location %}
     location = / {
