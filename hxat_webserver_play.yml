@@ -69,7 +69,7 @@
       include_role:
         name: nginx
       vars:
-        nginx_template_path: roles/nginx/templates/nginx_hxat.j2
+        nginx_template_path: roles/nginx/templates/proxy.j2
 
     - name: cronjob to clear sessions
       cron:

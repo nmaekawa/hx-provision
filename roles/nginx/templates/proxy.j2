@@ -1,0 +1,25 @@
+
+{% extends "strict_ssl_base.j2" %}
+
+
+{% block custom_location %}
+
+    {% if service_upload_max_size is defined and service_upload_max_size != '' %}
+    client_max_body_size {{ service_upload_max_size }};
+    {% endif %}
+
+    location / {
+        try_files $uri $uri/ @proxy_to_app;
+    }
+
+    location @proxy_to_app {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $http_host;
+        proxy_read_timeout {{ gunicorn_timeout_seconds }};
+        proxy_connect_timeout {{ gunicorn_timeout_seconds }};
+        proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
+    }
+
+{% endblock %}
