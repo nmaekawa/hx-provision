@@ -5,4 +5,7 @@ static_dir: '{{ static_dir_root}}/html'
 
 target_certs_dir: '/etc/ssl/certs'
 
+nginx_nonssl_port: 80
+nginx_ssl_port: 443
+
 
