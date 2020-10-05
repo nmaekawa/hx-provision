@@ -23,7 +23,7 @@ apt_required_packages:
     - 'nginx'
 
 www2_content_tar_gz_path: '{{ lookup("env", "WWW2_CONTENT_TAR_GZ_PATH") | mandatory }}'
-www2_proxy_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
+redirect_error_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
 
 
 # PROXY VARS

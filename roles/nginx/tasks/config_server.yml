@@ -1,0 +1,40 @@
+---
+# needs the below to be defined
+#
+# from vars/<service>_vars.yml
+# service_server_name
+# nginx_ssl_port
+# nginx_nonssl_port
+#
+# from vars/<service>_vars.yml
+# service_name
+#
+# from <playbook>_play.yml:
+# nginx_template_path
+#
+# from common_vars.yml:
+# service_cert_name  | depends on cert_name from vars/<service>_vars.yml
+# org_public_domain
+# is_harvard_domain
+# local_certs_dir
+#
+# from gather_facts:
+# ec2_tag_cluster
+#
+# from roles/nginx/defaults/main.yml:
+# target_certs_dir
+#
+    - include_tasks: config_ssl_certs.yml
+
+    - name: drop nginx site config for {{ item.service_server_name }}
+      template:
+        src: "{{ item.nginx_template_path }}"
+        dest: "/etc/nginx/sites-available/{{ item.service_server_name }}"
+        backup: yes
+
+    - name: ensure {{ item.service_server_name }} site is enabled
+      file:
+        src: /etc/nginx/sites-available/{{ item.service_server_name }}
+        dest: /etc/nginx/sites-enabled/{{ item.service_server_name }}
+        state: link
+

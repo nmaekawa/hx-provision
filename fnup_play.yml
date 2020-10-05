@@ -2,7 +2,7 @@
 #
 # assumes common_play.yml already applied to all involved inventory
 #
-- import_playbook: common_play.yml
+#- import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_fnup", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -25,15 +25,32 @@
       file:
         path: "{{ static_dir }}"
         group: www-data
-        mode: "0775"
+        owner: www-data
         recurse: yes
+        state: directory
+
+    - name: dir for webdav tmp
+      file:
+        path: "{{ static_dir_root }}/tmp"
+        group: www-data
+        owner: www-data
+        mode: 0775
         state: directory
 
     - name: config nginx
       include_role:
         name: nginx
       vars:
-        nginx_template_path: roles/nginx/templates/nginx_fnup.j2
+        nginx_servers:
+          - nginx_template_path: roles/nginx/templates/cors.j2
+            service_server_name: '{{ service_name }}_cors'
+            nginx_nonssl_port: 80
+            nginx_ssl_port: 443
+          - nginx_template_path: roles/nginx/templates/webdav_server.j2
+            service_server_name: '{{ service_name }}_webdav'
+            nginx_nonssl_port: 5080
+            nginx_ssl_port: 5443
+
 
     - name: set cronjob for s3 sync bak(static_dir->s3)
       cron:
@@ -44,11 +61,19 @@
         job: >
             /usr/bin/aws s3 sync
             "{{ static_dir }}"
-            "s3://{{ s3_sync_bucket_name }}/{{ s3_sync_prefix }}"
+            "s3://{{ s3_sync_bucket_name }}/{{ ec2_tag_cluster}}/{{ s3_sync_prefix }}"
             2>&1 | logger -t "[s3 sync]"
       vars:
         s3_sync_bucket_name: '{{ s3_backup_bucket_name }}'
         s3_sync_prefix: 'fnup'
         source_s3_sync_dir: '{{ static_dir }}'
-      when: use_aws
+      when: use_aws and ec2_tag_cluster == 'prod'
 
+      #
+      # have to create password file with htpasswd
+      # in {{ auth_basic_user_filepath }}
+      #
+      # note: when www2 with srt in different static_dir, have to move static_dir into
+      # the nginx_servers dict
+      #
+      #

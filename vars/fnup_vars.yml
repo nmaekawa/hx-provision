@@ -28,8 +28,6 @@ apt_required_packages:
 # bak cronjob
 cronjob_owner: 'www-data'
 
-# redirect in case of errors
-www2_proxy_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
 
 # PROXY VARS
 # ----------------------------------------------------------------------------------
@@ -38,7 +36,9 @@ enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
 static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root }}/html'
-valid_referers_server_names: '*.vpal.harvard.edu *.harvardx.harvard.edu *.hxtech.org'
+valid_referers_server_names: '*.vpal.harvard.edu *.harvardx.harvard.edu *.hxtech.org *.myhbx.org *.edx.org'
+cert_name: 'static'
+auth_basic_user_filepath: '/etc/nginx/.passwords.list'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 

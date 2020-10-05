@@ -72,8 +72,4 @@
         state: link
       when: is_harvard_domain
 
-    - name: restart nginx
-      service:
-          name: nginx
-          state: restarted
 

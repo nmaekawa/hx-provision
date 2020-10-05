@@ -3,8 +3,8 @@
 # https://ssl-config.mozilla.org/#server=nginx&version=1.14.0&config=intermediate&openssl=1.1.1&guideline=5.6
 
 server {
-    listen       {{ item.nginx_nonssl_port }} default_server;
-    listen       [::]:{{ item.nginx_nonssl_port }} default_server;
+    listen       {{ item.nginx_nonssl_port }};
+    listen       [::]:{{ item.nginx_nonssl_port }};
     {% if webserver_dns is defined and webserver_dns != '' %}
     server_name  {{ webserver_dns }};
     {% endif %}
@@ -44,44 +44,23 @@ server {
     {% endif %}
 
     root {{ static_dir }};
-    autoindex off;
 
     {% block error_page %}
-    {% if redirect_error_to is defined and redirect_error_to != '' %}
-    error_page 404 =301 {{ redirect_error_to }};
-    {% else %}
     error_page 404 /404.html;
-    {% endif %}
     error_page 500 502 503 504 /50x.html;
     {% endblock %}
 
-    {% block index_location %}
-    location = / {
-        index 404.html;
-    }
-    {% endblock %}
+    # auth
+    auth_basic            "private";
+    auth_basic_user_file  {{ auth_basic_user_filepath }};
+    # webdav
+    dav_methods       PUT DELETE MKCOL COPY MOVE;
+    dav_ext_methods   PROPFIND OPTIONS;
+    dav_access        group:rw all:r;
 
-    {% block custom_location %}
-    {% endblock %}
+    autoindex on;
+    client_body_temp_path  {{ static_dir_root }}/tmp;
+    client_max_body_size   0;
+    create_full_put_path   on;
 
-    {% block robots_location %}
-    location = /robots.txt {
-        allow all;
-        log_not_found off;
-        access_log off;
-    }
-    location = /favicon.ico {
-        log_not_found off;
-        access_log off;
-    }
-    {% endblock %}
-
-    {% block error_location %}
-    location /404.html {
-        internal;
-    }
-    location /50x.html {
-        internal;
-    }
-    {% endblock %}
 }
