@@ -20,11 +20,14 @@ apt_required_packages:
     - 'python3-pip'
     - 'python3-dev'
     - 'python3-setuptools'
-    - 'nginx'
+    - 'awscli'
+    - 'jq'
 
 www2_content_tar_gz_path: '{{ lookup("env", "WWW2_CONTENT_TAR_GZ_PATH") | mandatory }}'
 redirect_error_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
 
+# bak cronjob
+cronjob_owner: 'www-data'
 
 # PROXY VARS
 # ----------------------------------------------------------------------------------

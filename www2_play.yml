@@ -2,7 +2,7 @@
 #
 # assumes common_play.yml already applied to all involved inventory
 #
-#- import_playbook: common_play.yml
+- import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_www2", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -26,17 +26,22 @@
       include_role:
         name: nginx
       vars:
-        nginx_template_path: roles/nginx/templates/nginx_www2.j2
+        nginx_servers:
+          - nginx_template_path: roles/nginx/templates/cors.j2
+            service_server_name: '{{ service_name }}_cors'
+            nginx_nonssl_port: 80
+            nginx_ssl_port: 443
+          - nginx_template_path: roles/nginx/templates/webdav_server.j2
+            service_server_name: '{{ service_name }}_webdav'
+            nginx_nonssl_port: 6080
+            nginx_ssl_port: 6443
+          - nginx_template_path: roles/nginx/templates/cors.j2
+            local_static_dir: '{{ static_dir_root }}/srt'
+            service_server_name: '{{ service_name }}_srt_cors'
+            nginx_nonssl_port: 5080
+            nginx_ssl_port: 5443
 
-    - name: create srt static dir
-      file:
-        path: '{{ static_dir_srt }}'
-        owner: root
-        group: root
-        mode: '0755'
-        state: directory
 
-      # TODO: restore srt files into srt static root
     - name: unarchive www2 content tar.gz
       unarchive:
         src: '{{ www2_content_tar_gz_path }}'
@@ -46,4 +51,47 @@
         remote_src: no
         extra_opts:
           - '-m'
+      when: ec2_tag_cluster != 'prod'
+
+
+    - name: run initial s3 sync for www2 certs, pull from s3 bak
+      #become: yes
+      #become_user: 'www-data'
+      shell: >
+          /usr/bin/aws s3 sync
+          "s3://{{ s3_sync_bucket_name }}/{{ ec2_tag_cluster }}/{{ s3_sync_prefix }}"
+          "{{ source_s3_sync_dir }}/"
+          2>&1 | logger -t "[s3 sync INITIAL]"
+      vars:
+        s3_sync_bucket_name: '{{ s3_backup_bucket_name }}'
+        s3_sync_prefix: 'www2'
+        source_s3_sync_dir: '{{ static_dir }}'
+      when: ec2_tag_cluster == 'prod'
+
+
+    - name: workaround for srt static content
+      file:
+        src: '{{ static_dir }}/srts'
+        dest: '{{ static_dir_root }}/srt'
+        owner: www-data
+        group: www-data
+        state: link
+
+
+    - name: set cronjob for s3 sync bak(static_dir->s3)
+      cron:
+        name: "s3 sync for {{ source_s3_sync_dir }}"
+        user: "{{ cronjob_owner | mandatory}}"
+        special_time: daily
+        state: present
+        job: >
+            /usr/bin/aws s3 sync
+            "{{ source_s3_sync_dir }}"
+            "s3://{{ s3_sync_bucket_name }}/{{ ec2_tag_cluster}}/{{ s3_sync_prefix }}"
+            2>&1 | logger -t "[s3 sync]"
+      vars:
+        s3_sync_bucket_name: '{{ s3_backup_bucket_name }}'
+        s3_sync_prefix: 'www2'
+        source_s3_sync_dir: '{{ static_dir }}'
+      when: use_aws and ec2_tag_cluster == 'prod'
 

@@ -20,10 +20,8 @@ apt_required_packages:
     - 'python3-pip'
     - 'python3-dev'
     - 'python3-setuptools'
-    - 'nginx-full'
     - 'awscli'
     - 'jq'
-    - 'apache2-utils'
 
 # bak cronjob
 cronjob_owner: 'www-data'
@@ -38,7 +36,6 @@ static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root }}/html'
 valid_referers_server_names: '*.vpal.harvard.edu *.harvardx.harvard.edu *.hxtech.org *.myhbx.org *.edx.org'
 cert_name: 'static'
-auth_basic_user_filepath: '/etc/nginx/.passwords.list'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
