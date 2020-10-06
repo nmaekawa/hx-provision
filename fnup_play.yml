@@ -17,10 +17,6 @@
     - include_role:
         name: external/nmaekawa.apt
 
-        #- include_role:
-        #name: external/nmaekawa.extra-ebs
-        #when: use_aws
-
     - name: allow writes in html root
       file:
         path: "{{ static_dir }}"
