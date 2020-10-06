@@ -9,13 +9,16 @@
     # from https://enable-cors.org/server_nginx.html
     #
     location / {
+        {% if local_static_dir is defined and local_static_dir != '' %}
+        root {{ local_static_dir }};
+        {% endif %}
         {% if valid_referers_server_names is defined and valid_referers_server_names != '' %}
         valid_referers server_names
                 {{ valid_referers_server_names }};
-        {% endif %}
         if ($invalid_referer) {
             return 403;
         }
+        {% endif %}
 
         try_files $uri =404;
 

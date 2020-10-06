@@ -1,8 +1,10 @@
 ---
 
-    - name: install nginx
+    - name: install nginx and pkg to webdav, auth
       apt:
-        name: nginx
+        pkg:
+          - 'nginx-full'
+          - 'apache2-utils'
         state: present
 
     - include_tasks: define_log_format.yml
