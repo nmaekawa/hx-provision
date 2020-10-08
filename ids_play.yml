@@ -57,11 +57,12 @@
         include_role:
             name: nginx
         vars:
-            enable_ssl: False  # should always be False for mock ids
-            static_dir: '{{ service_static_dir }}'
-            nginx_template_path: roles/nginx/templates/nginx_ids.j2
-            vagrant_webserver_dns: 'ids.vm'
-            hx_host: '{{ ec2_private_ip_address }}'
+          nginx_servers:
+            - nginx_template_path: roles/nginx/templates/nginx_ids.j2
+              vagrant_webserver_dns: 'ids.vm'
+              service_server_name: 'ids'
+              static_dir: '{{ service_static_dir }}'
+
 
 
 

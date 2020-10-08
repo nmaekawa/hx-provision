@@ -13,7 +13,7 @@
       name: nmaekawa.apt
 
     - src: git+https://github.com/geerlingguy/ansible-role-varnish.git
-      version: "3.0.0"
+      version: "3.3.0"
       name: geerlingguy.varnish
 
     - src: git+https://github.com/nmaekawa/ansible-role-virtualenv.git
