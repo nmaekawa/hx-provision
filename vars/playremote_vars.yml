@@ -38,9 +38,10 @@ service_gunicorn_port: "{{ lookup('env', 'PLAYREMOTE_GUNICORN_PORT') | default('
 service_gunicorn_host: "{{ lookup('env', 'PLAYREMOTE_GUNICORN_HOST') | default('127.0.0.1', true) }}"
 gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 
-service_git_repo: "https://github.com/nmaekawa/{{ service_name }}.git"
+service_git_repo: "git@github.com:HarvardX/playremote.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
 service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
+service_git_deploy_key_file: "{{ lookup('env', 'GIT_DEPLOY_KEY_FILE') }}"
 
 # easier to create dirs with this dict
 service_dirs_to_create:

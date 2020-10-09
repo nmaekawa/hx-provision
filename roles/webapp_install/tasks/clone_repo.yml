@@ -1,8 +1,10 @@
 ---
     - name: git | clone repository
+      become: yes
       become_user: '{{ service_user }}'
       git:
           repo: '{{ service_git_repo }}'
+          accept_hostkey: yes
           update: yes
           clone: yes
           force: yes
