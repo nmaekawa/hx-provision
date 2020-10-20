@@ -16,8 +16,8 @@ db_backup_dir: "{{ db_rootdir }}/backup"
 db_log_dir: "/var/log/postgresql"  # keep logs in expected location
 db_bin_dir: "{{ db_rootdir }}/bin"
 
-db_backup_local_retention_in_days: 7
-db_log_retention_in_days: 90       # keep local log for longer
+db_backup_local_retention_in_days: "{{ lookup('env', 'DB_BAK_RETENTION_IN_DAYS') | default('7', true) }}"
+db_log_retention_in_days: "{{ lookup('env', 'DB_LOG_RETENTION_IN_DAYS') | default('90', true) }}"
 
 # this is for instances postgres client only
 db_backup_user: postgres

@@ -49,13 +49,13 @@ fi
 
 NOW=$(date +"%m-%d-%Y-at-%H-%M-%S")
 
-echo "$(date +"%F %T") pg_dump -U {{ service_db_user }} -n public -Fc ${DB_NAME} > ${BACKUP_DIR}/${NOW}_${DB_NAME}.pgdump"
+echo "$(date +"%F %T") pg_dump -U {{ service_db_user }} -n public ${DB_NAME} | gzip > ${BACKUP_DIR}/${NOW}_${DB_NAME}.sql.gz"
 
 # dump db
-PGPASSWORD='{{ service_db_password }}' pg_dump -U {{ service_db_user }} -h {{ service_db_host }} -p {{ service_db_port }} -n public -Fc "${DB_NAME}" > "${BACKUP_DIR}/${NOW}_${DB_NAME}.pgdump"
+PGPASSWORD='{{ service_db_password }}' pg_dump -U {{ service_db_user }} -h {{ service_db_host }} -p {{ service_db_port }} -n public "${DB_NAME}" | gzip > "${BACKUP_DIR}/${NOW}_${DB_NAME}.sql.gz"
 
 if [ $? -ne 0 ]; then
-    echo "Error: dumping ${NOW}_${DB_NAME}.pgdump"
+    echo "Error: dumping ${NOW}_${DB_NAME}.sql.gz"
     exit 10
 fi
 
@@ -63,14 +63,14 @@ fi
 echo "$(date +"%F %T") remove old backups:"
 find ${BACKUP_DIR} \
     -type f \
-    -name "*.pgdump" \
+    -name "*.sql.gz" \
     -mtime +${LOCAL_RETENTION_IN_DAYS} \
     -print
 
 # delete local backups older than LOCAL_RETENTION_DAYS days
 find ${BACKUP_DIR} \
     -type f \
-    -name "*.pgdump" \
+    -name "*.sql.gz" \
     -mtime +${LOCAL_RETENTION_IN_DAYS} \
     -delete
 
