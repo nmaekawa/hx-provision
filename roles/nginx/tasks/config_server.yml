@@ -26,15 +26,26 @@
 #
     - include_tasks: config_ssl_certs.yml
 
-    - name: drop nginx site config for {{ item.service_server_name }}
+    - name: ensure location dirs exist
+      file:
+        path: '{{ location.root }}{{ location.prefix }}'
+        group: www-data
+        owner: www-data
+        mode: 0775
+        state: directory
+      loop: '{{ server.locations }}'
+      loop_control:
+        loop_var: location
+
+    - name: drop nginx site config for {{ server.service_server_name }}
       template:
-        src: "{{ item.nginx_template_path }}"
-        dest: "/etc/nginx/sites-available/{{ item.service_server_name }}"
+        src: "{{ server.nginx_template_path }}"
+        dest: "/etc/nginx/sites-available/{{ server.service_server_name }}"
         backup: yes
 
-    - name: ensure {{ item.service_server_name }} site is enabled
+    - name: ensure {{ server.service_server_name }} site is enabled
       file:
-        src: /etc/nginx/sites-available/{{ item.service_server_name }}
-        dest: /etc/nginx/sites-enabled/{{ item.service_server_name }}
+        src: /etc/nginx/sites-available/{{ server.service_server_name }}
+        dest: /etc/nginx/sites-enabled/{{ server.service_server_name }}
         state: link
 

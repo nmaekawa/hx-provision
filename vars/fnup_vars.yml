@@ -27,10 +27,8 @@ apt_required_packages:
 cronjob_owner: 'www-data'
 
 
-# PROXY VARS
+# NGINX VARS
 # ----------------------------------------------------------------------------------
-
-enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 
 static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root }}/html'
@@ -38,5 +36,30 @@ valid_referers_server_names: '*.vpal.harvard.edu *.harvardx.harvard.edu *.hxtech
 cert_name: 'static'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+# beware that order of location matter in nginx matching rules!
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/webserver.j2
+    service_server_name: '{{ service_name }}_static'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - prefix: '/calendar'
+        root: '{{ static_dir }}'
+        is_webdav: 'no'
+      - prefix: '/fnup'
+        root: '{{ static_dir }}'
+        valid_referers_server_name: valid_referers_server_names
+        is_webdav: 'no'
+
+  - nginx_template_path: roles/nginx/templates/webserver.j2
+    service_server_name: '{{ service_name }}_webdav'
+    nginx_nonssl_port: 5080
+    nginx_ssl_port: 5443
+    locations:
+      - prefix: '/'
+        root: '{{ static_dir }}'
+        auth_basic_user_filepath: '{{ auth_basic_user_filepath }}'
+        is_webdav: 'yes'
 
 

@@ -3,8 +3,8 @@
 # https://ssl-config.mozilla.org/#server=nginx&version=1.14.0&config=intermediate&openssl=1.1.1&guideline=5.6
 
 server {
-    listen       {{ item.nginx_nonssl_port }};
-    listen       [::]:{{ item.nginx_nonssl_port }};
+    listen       {{ server.nginx_nonssl_port }};
+    listen       [::]:{{ server.nginx_nonssl_port }};
     {% if webserver_dns is defined and webserver_dns != '' %}
     server_name  {{ webserver_dns }};
     {% endif %}
@@ -12,8 +12,8 @@ server {
 }
 
 server {
-    listen              {{ item.nginx_ssl_port }} ssl http2;
-    listen              [::]:{{ item.nginx_ssl_port }} ssl http2;
+    listen              {{ server.nginx_ssl_port }} ssl http2;
+    listen              [::]:{{ server.nginx_ssl_port }} ssl http2;
     {% if webserver_dns is defined and webserver_dns != '' %}
     server_name         {{ webserver_dns }};
     {% endif %}

@@ -1,5 +1,8 @@
 ---
 #
+# MAKE SURE TO USE PYTHON3 IN TARGET SERVER
+# ansible-playbook -e ansible_python_interpreter=/usr/bin/python3
+#
 # assumes common_play.yml already applied to all involved inventory
 #
 #- import_playbook: common_play.yml
@@ -36,17 +39,6 @@
     - name: config nginx
       include_role:
         name: nginx
-      vars:
-        nginx_servers:
-          - nginx_template_path: roles/nginx/templates/cors.j2
-            service_server_name: '{{ service_name }}_cors'
-            nginx_nonssl_port: 80
-            nginx_ssl_port: 443
-          - nginx_template_path: roles/nginx/templates/webdav_server.j2
-            service_server_name: '{{ service_name }}_webdav'
-            nginx_nonssl_port: 5080
-            nginx_ssl_port: 5443
-
 
     - name: set cronjob for s3 sync bak(static_dir->s3)
       cron:

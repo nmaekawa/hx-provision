@@ -36,6 +36,8 @@
     - name: config server
       include_tasks: config_server.yml
       loop: '{{ nginx_servers }}'
+      loop_control:
+        loop_var: server
 
 
     - name: restart nginx
