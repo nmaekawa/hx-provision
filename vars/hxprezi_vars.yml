@@ -97,8 +97,6 @@ apt_required_packages_hxprezi:
 # PROXY VARS
 # ----------------------------------------------------------------------------------
 
-enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
-
 # att: service_static_dir and the actual static_dir for nginx config might be
 # different if proxy is to be in separate instance than the service(loris)
 # - you can change this in the playbook, in **vars for include_role**
@@ -107,6 +105,20 @@ cert_name: 'oculus'  # this name must match pattern for ssl cert names
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
+# beware that order of location matter in nginx matching rules!
+# for now, webdav servers should always have location '/'
+# for now, do not set webdav and static location in same nginx server
+# beware that nginx role concats location.root + location.prefix to create
+#   the directory where static files should exist
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+    service_server_name: '{{ service_name }}_proxy'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - prefix: '/manifests/'
+        root: '{{ static_dir }}'
+        getonly: 'yes'
 
 
 
