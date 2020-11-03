@@ -1,0 +1,27 @@
+
+    location {{ location.prefix }} {
+        {% if location.root is defined and location.root != '' %}
+        root {{ location.root }};
+        {% endif %}
+        {% if location.valid_referers_server_names is defined and location.valid_referers_server_names != '' %}
+        valid_referers server_names
+                {{ location.valid_referers_server_names }};
+        if ($invalid_referer) {
+            return 403;
+        }
+        {% endif %}
+
+        # auth
+        auth_basic            "private";
+        auth_basic_user_file  {{ location.auth_basic_user_filepath }};
+        # webdav
+        dav_methods       PUT DELETE MKCOL COPY MOVE;
+        dav_ext_methods   PROPFIND OPTIONS;
+        dav_access        group:rw all:r;
+
+        autoindex on;
+        client_body_temp_path  {{ static_dir_root }}/tmp;
+        client_max_body_size   0;
+        create_full_put_path   on;
+    }
+

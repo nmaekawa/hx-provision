@@ -1,0 +1,16 @@
+
+{% extends "strict_ssl_base.j2" %}
+
+
+{% block custom_location %}
+
+    {% for location in server.locations %}
+        {% if location.is_webdav is defined and location.is_webdav == 'yes' %}
+            {% include 'templates/webdav_location_block.j2' %}
+        {% else %}
+            {% include 'templates/cors_location_block.j2' %}
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
+
