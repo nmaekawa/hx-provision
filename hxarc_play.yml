@@ -82,12 +82,6 @@
     - name: config nginx
       include_role:
         name: nginx
-      vars:
-        nginx_servers:
-          - nginx_template_path: roles/nginx/templates/proxy.j2
-            service_server_name: '{{ service_name }}'
-            nginx_nonssl_port: 80
-            nginx_ssl_port: 443
 
     - name: drop index to redirect to edge
       template:

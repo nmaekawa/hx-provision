@@ -172,13 +172,8 @@ cronjob_owner: '{{ service_user }}'
 
 # PROXY VARS
 # ---------------------------------------------------------------------------
-enable_ssl: '{{ use_aws }}'
 
 static_dir: "{{ service_static_dir }}"
-# special case for vagrant
-
-# allow really huge uploads
-service_upload_max_size: "1000M"
 
 # special case for vagrant
 vagrant_webserver_dns: "{{ inventory_hostname }}"
@@ -187,6 +182,22 @@ vagrant_webserver_dns: "{{ inventory_hostname }}"
 # e.g. live.hxarc.harvardx.harvard.edu
 hx_prod_subdomain: "live"
 cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+
+# beware that order of location matter in nginx matching rules!
+# for now, webdav servers should always have location '/'
+# for now, do not set webdav and static location in same nginx server
+# beware that nginx role concats location.root + location.prefix to create
+#   the directory where static files should exist
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+    service_server_name: '{{ service_name }}_proxy'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    # allow really huge uploads
+    service_upload_max_size: "1000M"
+    locations:
+      - prefix: '/'
+        root: '{{ static_dir }}'
 
 
 
