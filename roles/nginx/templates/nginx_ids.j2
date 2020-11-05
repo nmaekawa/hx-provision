@@ -9,10 +9,10 @@
     }
 
     location / {
-        try_files $uri @proxy_to_app;
+        try_files $uri @ids_proxy;
     }
 
-    location @proxy_to_app {
+    location @ids_proxy {
 
         rewrite full/full /404.html last;     # do not server originals
         rewrite ^(.*)native(.*)$ $1default$2; # support iiif 1.0
@@ -22,8 +22,8 @@
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Host $http_host;
-        proxy_read_timeout {{ gunicorn_timeout_seconds }};
-        proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
+        proxy_read_timeout {{ server.locations[0].gunicorn_timeout_seconds }};
+        proxy_pass http://{{ server.locations[0].service_gunicorn_host }}:{{ server.locations[0].service_gunicorn_port }};
     }
 
 

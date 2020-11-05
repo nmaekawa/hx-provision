@@ -1,0 +1,42 @@
+
+server {
+    listen {{ nginx_non_ssl_port | default(80) }};
+    listen [::]:{{ nginx_non_ssl_port | default(80) }};
+    {% if webserver_dns is defined and webserver_dns != '' %}
+    server_name {{ webserver_dns }};
+    {% endif %}
+
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    root {{ static_dir }};
+
+    {% block index_location %}
+    location = / {
+        index 404.html;
+    }
+    {% endblock %}
+
+    {% block custom_location %}
+    {% endblock %}
+
+    {% block robots_location %}
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+    location = /favicon.ico {
+        log_not_found off;
+        access_log off;
+    }
+    {% endblock %}
+
+    {% block error_location %}
+    location /404.html {
+        internal;
+    }
+    location /50x.html {
+        internal;
+    }
+    {% endblock %}
+}

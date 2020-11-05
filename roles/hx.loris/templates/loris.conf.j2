@@ -40,7 +40,7 @@ max_size_above_full = 200
 
 # override the default path to info.json file
 {% if vagrant_webserver_dns is defined and vagrant_webserver_dns == 'ids.vm' %}
-proxy_path='http://{{ vagrant_webserver_dns }}
+proxy_path='http://{{ vagrant_webserver_dns }}'
 {% else %}
 proxy_path='https://{{ webserver_dns }}/'
 {% endif %}

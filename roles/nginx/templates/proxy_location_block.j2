@@ -14,10 +14,12 @@
         rewrite ^(.*)default$ $1default.jpg;  # ensure format present for iiif 2.0
 
     {% endif %}
+    {% if location.prefix == '/' %}
         try_files $uri $uri/ @{{ location.name | default('proxy_to_app', true) }};
     }
 
     location @{{ location.name | default('proxy_to_app', true) }} {
+    {% endif %}
     {% if location.is_websockets is defined and location.is_websockets == 'yes' %}
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
