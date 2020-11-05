@@ -25,13 +25,6 @@
     - name: setup proxy
       include_role:
           name: nginx
-      vars:
-        nginx_servers:
-          - nginx_template_path: roles/nginx/templates/nginx_loris.j2
-            service_server_name: '{{ service_name }}'
-            nginx_nonssl_port: 80
-            nginx_ssl_port: 443
-            static_dir: '{{ service_static_dir }}'
 
   # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
 - import_playbook: cloudwatch_scripts_play.yml

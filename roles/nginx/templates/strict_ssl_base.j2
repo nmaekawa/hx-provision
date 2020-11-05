@@ -55,6 +55,10 @@ server {
     error_page 500 502 503 504 /50x.html;
     {% endblock %}
 
+    {% if server.service_upload_max_size is defined and server.service_upload_max_size != '' %}
+    client_max_body_size {{ server.service_upload_max_size }};
+    {% endif %}
+
     {% block custom_location %}
     {% endblock %}
 

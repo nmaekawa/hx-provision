@@ -107,8 +107,11 @@ nginx_servers:
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
-      - prefix: '/'
+      - name: '{{ service_name }}_proxy'
+        prefix: '/'
         root: '{{ static_dir }}'
-
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ service_gunicorn_host }}'
+        service_gunicorn_port: '{{ service_gunicorn_port }}'
 
 

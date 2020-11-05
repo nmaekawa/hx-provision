@@ -10,6 +10,7 @@
     - include_tasks: define_log_format.yml
 
     - include_tasks: config_connections_nofiles.yml
+      when: websockets is defined
 
     - include_tasks: config_gzip.yml
 

@@ -28,7 +28,7 @@
 
     - name: ensure location dirs exist
       file:
-        path: '{{ location.root }}{{ location.prefix }}'
+        path: '{{ location.path | default("/var/www/", true) }}'
         group: www-data
         owner: www-data
         mode: 0775

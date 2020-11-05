@@ -50,10 +50,12 @@ nginx_servers:
     locations:
       - prefix: '/calendar'
         root: '{{ static_dir }}'
+        path: '{{ static_dir }}/calendar'
         is_webdav: 'no'
       - prefix: '/fnup'
         root: '{{ static_dir }}'
         valid_referers_server_name: valid_referers_server_names
+        path: '{{ static_dir }}/fnup'
         is_webdav: 'no'
 
   - nginx_template_path: roles/nginx/templates/webserver.j2

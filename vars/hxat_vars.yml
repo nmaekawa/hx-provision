@@ -40,7 +40,7 @@ service_gunicorn_port: "{{ lookup('env', 'HXAT_GUNICORN_PORT') | default('8236',
 service_gunicorn_host: "{{ lookup('env', 'HXAT_GUNICORN_HOST') | default('127.0.0.1', true) }}"
 gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 
-# below configures hxat as asgi django app;
+# below configures nginx to support websockets, when hxat has asgi django app;
 # comment for wsgi-only django app
 websockets:
   nginx:
@@ -50,8 +50,8 @@ websockets:
     soft_nproc: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NPROC') | default(65535, true) }}"
     soft_nofile: "{{ lookup('env', 'SYSTEM_LIMIT_SOFT_NOFILE') | default(65535, true) }}"
   service_daphne:
-    host: "localhost"
-    port: "8555"
+    host: 'localhost'
+    port: '8555'
     socket_dir: "{{ service_run_dir }}/daphne"
 
 service_git_repo: "https://github.com/lduarte1991/{{ service_name }}.git"
@@ -93,7 +93,7 @@ service_environment:
   X_FRAME_ALLOWED_SITES: "{{ lookup('env', 'X_FRAME_ALLOWED_SITES') | default(['0.0.0.0:8000'], true) }}"
   ORGANIZATION: "HARVARDX"
 
-  ANNOTATION_DB_URL: "{{ lookup('env', 'ANNOTATION_DB_URL') | default('http://catchpy.vm/annos', true) }}"
+  ANNOTATION_DB_URL: "{{ lookup('env', 'ANNOTATION_DB_URL') | default('https://catchpy.vm/annos', true) }}"
   ANNOTATION_DB_KEY: "{{ lookup('env', 'ANNOTATION_DB_KEY') | default('annotation_db_key', true) }}"
   ANNOTATION_DB_SECRET: "{{ lookup('env', 'ANNOTATION_DB_SECRET') | default('annotation_db_secret', true) }}"
 
@@ -134,10 +134,29 @@ apt_required_packages_hxat:
 # PROXY VARS
 # ----------------------------------------------------------------------------------
 
-enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
 static_dir: '{{ service_static_dir }}'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+# beware that order of location matter in nginx matching rules!
+# for now, webdav servers should always have location '/'
+# for now, do not set webdav and static location in same nginx server
+# beware that nginx role concats location.root + location.prefix to create
+#   the directory where static files should exist
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+    service_server_name: '{{ service_name }}_proxy'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - name: '{{ service_name }}_proxy'
+        prefix: '/'
+        root: '{{ static_dir }}'
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ websockets.service_daphne.host }}'
+        service_gunicorn_port: '{{ websockets.service_daphne.port }}'
+        service_daphne_socket_dir: '{{ websockets.service_daphne.socket_dir }}'
+        is_websockets: 'yes'
 
 
 # REDIS VARS

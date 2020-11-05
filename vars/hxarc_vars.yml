@@ -196,8 +196,12 @@ nginx_servers:
     # allow really huge uploads
     service_upload_max_size: "1000M"
     locations:
-      - prefix: '/'
+      - name: '{{ service_name }}_proxy'
+        prefix: '/'
         root: '{{ static_dir }}'
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ service_gunicorn_host }}'
+        service_gunicorn_port: '{{ service_gunicorn_port }}'
 
 
 

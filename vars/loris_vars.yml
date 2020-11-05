@@ -157,8 +157,6 @@ varnish_instances:
 # PROXY VARS
 # -------------------------------------------------------------
 
-enable_ssl: '{{ ec2_tag_cluster != "vagrant" }}'
-
 # to be overwritten when aws cluster; used when forward proxying to libraries
 #proxy_dns_resolver: '8.8.8.8' # google resolver
 
@@ -176,10 +174,30 @@ cert_name: 'images'  # this name must match pattern for ssl cert names
 # special case for vagrant
 vagrant_webserver_dns: 'images.vm'
 
-# for nmaekawa.apt
-apt_required_packages_proxy:
-    - 'nginx'
-
-
-
+# beware that order of location matter in nginx matching rules!
+# for now, webdav servers should always have location '/'
+# for now, do not set webdav and static location in same nginx server
+# beware that nginx role concats location.root + location.prefix to create
+#   the directory where static files should exist
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+    service_server_name: '{{ service_name }}_proxy'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - name: 'ids_proxy'
+        prefix: '~ ^/ids/'
+        root: '{{ service_static_dir }}'
+        getonly: 'yes'
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ ids_image_host }}'
+        service_gunicorn_port: '{{ ids_image_port }}'
+      - name: 'hx_proxy'
+        prefix: '~ ^/iiif/'
+        root: '{{ service_static_dir }}'
+        getonly: 'yes'
+        add_rewrites: 'yes'
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ hx_image_host }}'
+        service_gunicorn_port: '{{ hx_image_port }}'
 

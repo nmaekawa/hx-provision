@@ -4,45 +4,10 @@
 
 {% block custom_location %}
 
-    {% if server.service_upload_max_size is defined and server.service_upload_max_size != '' %}
-    client_max_body_size {{ server.service_upload_max_size }};
-    {% endif %}
-
-    location {{ server.locations[0].prefix }} {
-        {% if server.locations[0].getonly is defined and server.locations[0].getonly == 'yes' %}
-        limit_except GET {  # restrict requests to get/head
-            deny all;
-        }
-        {% endif %}
-        try_files $uri $uri/ @proxy_to_app;
-    }
-
-    {% if websockets is defined and websockets.service_daphne is defined %}
-    location @proxy_to_app {
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_redirect off;
-
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header Host $http_host;
-        proxy_read_timeout {{ gunicorn_timeout_seconds }};
-        proxy_connect_timeout {{ gunicorn_timeout_seconds }};
-        proxy_pass http://{{ websockets.service_daphne.host }}:{{ websockets.service_daphne.port }};
-    }
-    {% else %}
-    location @proxy_to_app {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header Host $http_host;
-        proxy_hide_header x-hx-custom1;
-        proxy_read_timeout {{ gunicorn_timeout_seconds }};
-        proxy_connect_timeout {{ gunicorn_timeout_seconds }};
-        proxy_pass http://{{ service_gunicorn_host }}:{{ service_gunicorn_port }};
-    }
-    {% endif %}
+    {% for location in server.locations %}
+    {% include 'templates/proxy_location_block.j2' %}
+    {% endfor %}
 
 {% endblock %}
+
+
