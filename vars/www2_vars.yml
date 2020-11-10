@@ -20,10 +20,10 @@ apt_required_packages:
     - 'python3-pip'
     - 'python3-dev'
     - 'python3-setuptools'
+    - 'python3-passlib'
     - 'awscli'
     - 'jq'
 
-www2_content_tar_gz_path: '{{ lookup("env", "WWW2_CONTENT_TAR_GZ_PATH") | mandatory }}'
 redirect_error_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
 
 # bak cronjob
@@ -42,6 +42,8 @@ vagrant_webserver_dns: '{{ inventory_hostname }}'
 # for now, do not set webdav and static location in same nginx server
 # beware that nginx role concats location.root + location.prefix to create
 #   the directory where static files should exist
+nginx_auth_basic_user_dir: '/etc/nginx'
+webdav_user_dir: '{{ local_certs_dir }}/{{ service_cert_name }}'
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/webserver.j2
     service_server_name: '{{ service_name }}_static'
@@ -62,8 +64,12 @@ nginx_servers:
     locations:
       - prefix: '/'
         root: '{{ static_dir }}'
-        auth_basic_user_filepath: '{{ auth_basic_user_filepath }}'
         is_webdav: 'yes'
-
+        auth_basic_user_filepath: '{{ nginx_auth_basic_user_dir }}/.{{ service_name }}_creds'
+        webdav_users: "{% if ec2_tag_cluster == 'vagrant' %}\
+              [{'usr': 'user', 'pwd': 'password'}]\
+          {% else %}\
+              {{ lookup('file', webdav_user_dir + '/.' + service_name + '_creds') | from_json }}\
+          {% endif %}"
 
 

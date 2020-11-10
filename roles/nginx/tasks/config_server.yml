@@ -37,6 +37,17 @@
       loop_control:
         loop_var: location
 
+    - name: create webdav password fie
+      htpasswd:
+        path: "{{ item.0.auth_basic_user_filepath }}"
+        name: "{{ item.1.usr }}"
+        password: "{{ item.1.pwd }}"
+        owner: root
+        group: www-data
+        mode: 0640
+        state: present
+      loop: "{{ q('subelements', '{{ server.locations }}', 'webdav_users', {'skip_missing': True}) }}"
+
     - name: drop nginx site config for {{ server.service_server_name }}
       template:
         src: "{{ server.nginx_template_path }}"

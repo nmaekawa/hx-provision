@@ -10,9 +10,11 @@
 - hosts: '{{ target_hosts | default("tag_service_fnup", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
+  vars:
+    local_fnup_path_tar_gz: /Volumes/Projects/Dev_Team/backups/fnup_vagrant_sample.tar.gz
   vars_files:
-      - vars/common_vars.yml
-      - vars/fnup_vars.yml
+    - vars/common_vars.yml
+    - vars/fnup_vars.yml
   handlers:
     - include_tasks: handlers/main.yml
 
@@ -57,11 +59,24 @@
         source_s3_sync_dir: '{{ static_dir }}'
       when: use_aws and ec2_tag_cluster == 'prod'
 
-      #
-      # have to create password file with htpasswd
-      # in {{ auth_basic_user_filepath }}
-      #
-      # note: when www2 with srt in different static_dir, have to move static_dir into
-      # the nginx_servers dict
-      #
-      #
+    - name: restore backup from s3
+      shell: >
+        /usr/bin/aws s3 sync
+        "s3://{{ s3_sync_bucket_name }}/{{ ec2_tag_cluster }}/{{ s3_sync_prefix }}"
+        "{{ static_dir }}"
+        2>&1 | logger -t "[s3 backup initial restore]"
+      vars:
+        s3_sync_bucket_name: '{{ s3_backup_bucket_name }}'
+        s3_sync_prefix: 'fnup'
+        source_s3_sync_dir: '{{ static_dir }}'
+        when: use_aws and ec2_tag_cluster == 'prod'
+
+    - name: unarchive local fnup backup tar.gz
+      unarchive:
+        src: '{{ local_fnup_path_tar_gz }}'
+        dest: '{{ static_dir }}'
+        owner: 'www-data'
+        group: 'www-data'
+      when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
+
+

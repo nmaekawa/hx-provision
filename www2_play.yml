@@ -7,6 +7,8 @@
 - hosts: '{{ target_hosts | default("tag_service_www2", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
+  vars:
+    local_www2_path_tar_gz: /Volumes/Projects/Dev_Team/backups/www2_vagrant_sample.tar.gz
   vars_files:
       - vars/common_vars.yml
       - vars/www2_vars.yml
@@ -14,29 +16,12 @@
     - include_tasks: handlers/main.yml
 
   tasks:
-    - debug:
-        var: www2_content_tar_gz_path
-    - debug:
-        var: www2_proxy_to
-
     - include_role:
         name: external/nmaekawa.apt
 
     - name: config nginx
       include_role:
         name: nginx
-
-    - name: unarchive www2 content tar.gz
-      unarchive:
-        src: '{{ www2_content_tar_gz_path }}'
-        dest: '/var/www'
-        owner: 'root'
-        group: 'root'
-        remote_src: no
-        extra_opts:
-          - '-m'
-      when: ec2_tag_cluster != 'prod'
-
 
     - name: run initial s3 sync for www2 certs, pull from s3 bak
       shell: >
@@ -56,7 +41,7 @@
         state: directory
         recurse: yes
         owner: www-data
-        state: www-data
+        group: www-data
 
     - name: set cronjob for s3 sync bak(static_dir->s3)
       cron:
@@ -74,4 +59,13 @@
         s3_sync_prefix: 'www2'
         source_s3_sync_dir: '{{ static_dir }}'
       when: use_aws and ec2_tag_cluster == 'prod'
+
+
+    - name: unarchive local fnup backup tar.gz
+      unarchive:
+        src: '{{ local_www2_path_tar_gz }}'
+        dest: '{{ static_dir }}'
+        owner: 'www-data'
+        group: 'www-data'
+      when: ec2_tag_cluster != 'prod' and ( local_www2_path_tar_gz is defined )
 
