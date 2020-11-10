@@ -193,6 +193,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "hxarc" do |hxarc|
     hxarc.vm.box = DEFAULT_VB
     hxarc.vm.hostname = "hxarc.vm"
+    hxarc.dns.patterns = [/^hxarc.vm$/]
     hxarc.vm.network "private_network", ip: "10.8.44.11"
 
     hxarc.ssh.forward_agent = true
@@ -228,6 +229,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "fnup" do |fnup|
     fnup.vm.box = DEFAULT_VB
     fnup.vm.hostname = "fnup.vm"
+    fnup.dns.patterns = [/^fnup.vm$/]
     fnup.vm.network "private_network", ip: "10.8.10.21"
 
     fnup.ssh.forward_agent = true
