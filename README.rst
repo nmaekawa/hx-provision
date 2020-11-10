@@ -18,11 +18,11 @@ disclaimer
 requirements
 ============
 
-* vagrant_ 2.2.5 or later
-  * install dns plugin landrush_: ``$> vagrant plugin install landrush``
+* vagrant_ 2.2.13 or later
+  * install dns plugin vagrant-dns_: ``$> vagrant plugin install vagrant-dns``
 
-* virtualbox_ 6.0 or later
-* ansible_ 2.8.0 or later (see below)
+* virtualbox_ 6.1 or later
+* ansible_ 2.9.8 or later (see below)
 
 
 setup
@@ -49,6 +49,12 @@ We usually set a virtualenv for ansible and other python packages.
 
     # set vagrant insecure key in your env
     (venv) $> ssh-add ~/.vagrant.d/insecure_private_key
+
+    # register vagrant-dns as a resolver
+    (venv) $> vagrant dns --install
+
+    # run vagrant-dns server
+    (venv> $> vagrant dns --start
 
 
 vagrant instances
@@ -114,7 +120,7 @@ To learn which playbooks are relevant for each project, see the hxwiki_.
 .. _vagrant: https://www.vagrantup.com
 .. _ansible: https://www.ansible.com
 .. _virtualbox: https://www.virtualbox.org
-.. _landrush: https://github.com/vagrant-landrush/landrush
+.. _vagrant-dns: https://github.com/BerlinVagrant/vagrant-dns
 .. _hxwiki: https://github.com/nmaekawa/hx-provision/wiki
 
 
