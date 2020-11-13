@@ -57,7 +57,7 @@ nginx_servers:
         is_webdav: 'no'
       - prefix: '/'
         root: '{{ static_dir }}'
-        valid_referers_server_names: valid_referers_server_names
+        valid_referers_server_names: '{{ valid_referers_server_names }}'
         path: '{{ static_dir }}'
         is_webdav: 'no'
 

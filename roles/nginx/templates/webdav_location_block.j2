@@ -4,7 +4,7 @@
         root {{ location.root }};
         {% endif %}
         {% if location.valid_referers_server_names is defined and location.valid_referers_server_names != '' %}
-        valid_referers server_names
+        valid_referers
                 {{ location.valid_referers_server_names }};
         if ($invalid_referer) {
             return 403;
