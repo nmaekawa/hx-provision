@@ -37,21 +37,36 @@
       loop_control:
         loop_var: location
 
-    - name: create webdav password fie
+    - name: create webdav password file for VAGRANT
       htpasswd:
-        path: "{{ item.0.auth_basic_user_filepath }}"
-        name: "{{ item.1.usr }}"
-        password: "{{ item.1.pwd }}"
+        path: "{{ location.auth_basic_user_filepath | default('/etc/nginx/.passwords_list', true) }}"
+        name: 'user'
+        password: 'password'
         owner: root
         group: www-data
         mode: 0640
         state: present
-      loop: "{{ q('subelements', '{{ server.locations }}', 'webdav_users', {'skip_missing': True}) }}"
+      when: ec2_tag_cluster == 'vagrant' and location.is_webdav == 'yes'
+      loop: '{{ server.locations }}'
+      loop_control:
+        loop_var: location
+
+    - name: COPY webdav password file
+      copy:
+        src: '{{ location.source_auth_basic_user_filepath }}'
+        dest: '{{ location.auth_basic_user_filepath }}'
+        owner: 'root'
+        group: 'www-data'
+        mode: 0640
+      when: ec2_tag_cluster != 'vagrant' and location.is_webdav == 'yes'
+      loop: '{{ server.locations }}'
+      loop_control:
+        loop_var: location
 
     - name: drop nginx site config for {{ server.service_server_name }}
       template:
-        src: "{{ server.nginx_template_path }}"
-        dest: "/etc/nginx/sites-available/{{ server.service_server_name }}"
+        src: '{{ server.nginx_template_path }}'
+        dest: '/etc/nginx/sites-available/{{ server.service_server_name }}'
         backup: yes
 
     - name: ensure {{ server.service_server_name }} site is enabled

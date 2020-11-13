@@ -5,7 +5,7 @@
 #
 # assumes common_play.yml already applied to all involved inventory
 #
-#- import_playbook: common_play.yml
+- import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_fnup", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -69,7 +69,7 @@
         s3_sync_bucket_name: '{{ s3_backup_bucket_name }}'
         s3_sync_prefix: 'fnup'
         source_s3_sync_dir: '{{ static_dir }}'
-        when: use_aws and ec2_tag_cluster == 'prod'
+      when: use_aws and ec2_tag_cluster == 'prod'
 
     - name: unarchive local fnup backup tar.gz
       unarchive:

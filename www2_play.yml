@@ -61,7 +61,7 @@
       when: use_aws and ec2_tag_cluster == 'prod'
 
 
-    - name: unarchive local fnup backup tar.gz
+    - name: unarchive local www2 backup tar.gz
       unarchive:
         src: '{{ local_www2_path_tar_gz }}'
         dest: '{{ static_dir }}'
