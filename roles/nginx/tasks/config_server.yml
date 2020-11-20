@@ -46,7 +46,7 @@
         group: www-data
         mode: 0640
         state: present
-      when: ec2_tag_cluster == 'vagrant' and location.is_webdav == 'yes'
+      when: ec2_tag_cluster == 'vagrant' and location.is_webdav is defined and location.is_webdav == 'yes'
       loop: '{{ server.locations }}'
       loop_control:
         loop_var: location
@@ -58,7 +58,7 @@
         owner: 'root'
         group: 'www-data'
         mode: 0640
-      when: ec2_tag_cluster != 'vagrant' and location.is_webdav == 'yes'
+      when: ec2_tag_cluster != 'vagrant' and location.is_webdav is defined and location.is_webdav == 'yes'
       loop: '{{ server.locations }}'
       loop_control:
         loop_var: location
