@@ -6,15 +6,6 @@
           venv_path: "{{ service_venv_dir }}"
           venv_user: "{{ service_user }}"
           venv_group: "{{ service_group }}"
-          venv_python_version: 2
-
-
-    - name: venv | pip install requirements
-      become_user: "{{ service_user }}"
-      pip:
-          name: "{{ item.name }}"
-          version: "{{ item.version }}"
-          virtualenv: "{{ service_venv_dir }}"
-      with_items: "{{ service_python_dependencies }}"
+          venv_python_version: 3
 
 

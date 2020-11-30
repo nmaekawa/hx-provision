@@ -93,18 +93,6 @@ service_dirs_to_create:
     - '{{ service_images_dir }}'
 
 
-# python packages to install
-service_python_dependencies:
-    - {"name": "Pillow",     "version": "4.3.0"}
-    - {"name": "Werkzeug",   "version": "0.12.2"}
-    - {"name": "gunicorn",   "version": "19.7.1"}
-    - {"name": "configobj",  "version": "5.0.0"}
-    - {"name": "requests",   "version": "2.11.0"}
-    - {"name": "responses",  "version": "0.3.0"}
-    - {"name": "boto",       "version": "2.40.0"}
-
-
-
 # for nmaekawa.apt
 apt_required_packages_loris:
     - 'python3-pip'

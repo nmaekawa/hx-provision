@@ -3,6 +3,8 @@
 # assumes common_play.yml already applied to all involved inventory
 #
 
+#- import_playbook: common_play.yml
+
 - hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
@@ -36,7 +38,7 @@
       - vars/loris_vars.yml
   vars:
     loris_git_repo: 'https://github.com/loris-imageserver/loris.git'
-    loris_git_version: 'v2.3.3'
+    loris_git_version: 'v3.1.0'
 
   handlers:
     - include: handlers/main.yml
