@@ -3,6 +3,8 @@
 # assumes common_play.yml already applied to all involved inventory
 #
 
+#- import_playbook: common_play.yml
+
 - hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
