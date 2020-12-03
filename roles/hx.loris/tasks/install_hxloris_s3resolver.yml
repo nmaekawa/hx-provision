@@ -1,0 +1,13 @@
+---
+
+#
+# beware when installing hxloris and its boto3/botocore requirements
+# cause they can be mutually exclusive from requests, a dependency of loris
+#
+    - name: pip install hxloris s3resolver from source
+      become_user: '{{ service_user }}'
+      pip:
+        name: 'git+https://github.com/nmaekawa/hxloris.git@master'
+        virtualenv: '{{ service_venv_dir }}'
+
+

@@ -7,18 +7,20 @@
           state: directory
       with_items: '{{ service_dirs_to_create }}'
 
-      #- include_tasks: roles/hx.loris/tasks/python_dependencies.yml
     - include_tasks: roles/hx.loris/tasks/venv.yml
     - include_tasks: roles/hx.loris/tasks/install_loris.yml
     - include_tasks: roles/hx.loris/tasks/config_loris.yml
 
+    - include_tasks: roles/hx.loris/tasks/install_hxloris_s3resolver.yml
+      when: loris_use_s3resolver
+
     - include_tasks: roles/hx.loris/tasks/aws_creds.yml
-      when: ec2_tag_cluster == 'vagrant' and ( loris_s3_bucket_prefix is defined )
+      when: ec2_tag_cluster == 'vagrant' and loris_use_s3resolver
 
     - include_tasks: roles/hx.loris/tasks/setup_gunicorn.yml
 
     - include_tasks: roles/hx.loris/tasks/copy_images.yml
-      when: ec2_tag_cluster == 'vagrant' and ( local_image_sample_path_tar_gz is defined )
+      when: ec2_tag_cluster == 'vagrant' and not loris_use_s3resolver and ( local_image_sample_path_tar_gz is defined )
 
     - name: restart service
       supervisorctl:

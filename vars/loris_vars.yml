@@ -64,8 +64,25 @@ service_tmp_dir: '{{ service_data_dir }}/tmp'
 service_cache_dir: '{{ service_data_dir }}/cache'
 service_images_dir: '{{ service_data_dir }}/images'
 
-# uncomment below if you want loris to use s3resolver
-#loris_s3_bucket_prefix: 's3//images_bucket/images_prefix'
+# to have loris use s3resolver (hxloris.s3resolver.S3Resolver), instead of the
+# default FSResorver, define `loris_s3resolver` with the s3bucket_map as
+# explained in hxloris readme: https://github.com/nmaekawa/hxloris
+default_bucket_map: '{"s3bucket": {"bucket": "my-s3-bucket", "key_prefix": "loris/images"}}'
+loris_s3resolver:
+  resolver_impl: 'hxloris.s3resolver.S3Resolver'
+  s3bucket_map: "{{ lookup('env', 'LORIS_S3BUCKET_MAP') | default(default_bucket_map, true) }}"
+
+loris_use_s3resolver: true
+
+# it is also possible to configure a step to pre-populate  the image source
+# dir: the playbooks can copy image source files from a local tar.gz file, or
+# do an s3 sync with an s3 bucket.
+#loris_download_source_from_s3: "{{ lookup('env', 'LORIS_DOWNLOAD_SOURCE_FROM_S3') }}"
+loris_download_source_from_tar_gz: "{{ lookup('env', 'LORIS_DOWNLOAD_SOURCE_FROM_TAR_GZ') }}"
+
+# the same goes for the loris cache processed images
+#loris_download_cache_from_s3: "{{ lookup('env', 'LORIS_DOWNLOAD_CACHE_FROM_S3') }}"
+#loris_download_cache_from_tar_gz: "{{ lookup('env', 'LORIS_DOWNLOAD_CACHE_FROM_TAR_GZ') }}"
 
 # how gunicorn exposes access to loris-hx
 # hack for vagrant, didn't figure why 2 ip addr
