@@ -7,7 +7,7 @@
     - name: pip install hxloris s3resolver from source
       become_user: '{{ service_user }}'
       pip:
-        name: 'git+https://github.com/nmaekawa/hxloris.git@master'
+        name: '{{ loris_s3resolver.resolver_git_pip_install }}'
         virtualenv: '{{ service_venv_dir }}'
 
 

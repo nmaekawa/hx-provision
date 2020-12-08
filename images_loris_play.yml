@@ -3,7 +3,7 @@
 # assumes common_play.yml already applied to all involved inventory
 #
 
-#- import_playbook: common_play.yml
+- import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_loris", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -82,7 +82,7 @@
             s3_sync_bucket_name: '{{ s3_source_bucket_name }}'
             s3_sync_prefix: 'images'
             target_s3_sync_dir: '{{ service_images_dir }}'
-        when: ec2_tag_cluster == 'prod'
+        when: ec2_tag_cluster == 'prod' and not loris_use_s3resolver
 
 
       - name: run initial s3 sync for images
@@ -93,7 +93,7 @@
             "s3://{{ s3_source_bucket_name }}/images"
             "{{ service_images_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
-        when: ec2_tag_cluster == 'prod'
+        when: ec2_tag_cluster == 'prod' and not loris_use_s3resolver
 
       - name: run initial s3 sync for loris cache
         become: yes
@@ -103,7 +103,7 @@
             "s3://{{ s3_source_bucket_name }}/loris-cache"
             "{{ service_cache_dir }}"
             2>&1 | logger -t "[s3 sync INITIAL]"
-        when: ec2_tag_cluster == 'prod'
+        when: ec2_tag_cluster == 'prod' and not loris_use_s3resolver
 
 
 
