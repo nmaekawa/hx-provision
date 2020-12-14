@@ -1,0 +1,104 @@
+---
+#
+# assumes common_play.yml already applied to all involved inventory
+#
+
+#- import_playbook: common_play.yml
+
+- hosts: '{{ target_hosts | default("tag_service_mediamanager", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      local_user:
+          name: '{{ service_name }}'
+          authorized: []
+  vars_files:
+      - vars/common_vars.yml
+      - vars/mediamanager_vars.yml
+
+  tasks:
+      - include_role:
+          name: external/nmaekawa.apt
+        vars:
+          apt_other_packages: "{{ apt_required_packages_mediamanager }}"
+
+      - include_role:
+          name: external/Stouts.users
+        vars:
+          users_users: '{{ [local_user] }}'
+
+
+- hosts: '{{ target_hosts | default("tag_service_mediamanager", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/mediamanager_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
+
+  tasks:
+      - name: install webapp
+        include_role:
+            name: webapp_install
+
+      - name: run migration and collectstatic
+        include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
+
+      - name: create django admin user
+        include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
+
+      - name: config nginx
+        include_role:
+            name: nginx
+
+- hosts: '{{ target_hosts | default("tag_service_mediamanager", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+      - vars/common_vars.yml
+      - vars/mediamanager_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
+
+  tasks:
+      - name: install redis
+        include_role:
+            name: external/geerlingguy.redis
+
+
+  # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
+- import_playbook: cloudwatch_scripts_play.yml
+  when: ec2_tag_cluster == 'prod'
+
+- import_playbook: nginx_backup_play.yml
+  when: ec2_tag_cluster == 'prod'
+
+- import_playbook: route53_play.yml
+  when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
+
+
+- hosts: '{{ target_hosts | default("tag_service_mediamanager", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+    project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+    service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+    cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+    cloudwatch_namespace: '{{ cloudwatch_namespace_prefix }}/{{ project_name }}'
+  vars_files:
+    - vars/common_vars.yml
+    - vars/mediamanager_vars.yml
+
+  tasks:
+    - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_backup_cronjob.yml
+      vars:
+        cronjob_owner: root
+        s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
+        file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
+        files_to_backup:
+          - '{{ service_db_path }}'
+      when: ec2_tag_cluster == 'prod'
+

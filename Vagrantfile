@@ -138,6 +138,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  # mediamanager node
+  config.vm.define "mediamanager" do |mediamanager|
+    mediamanager.vm.box = DEFAULT_VB
+    mediamanager.vm.hostname = "mediamanager.vm"
+    mediamanager.dns.patterns = [/^mediamanager.vm$/]
+    mediamanager.vm.network "private_network", ip: "10.8.0.18"
+
+    mediamanager.ssh.forward_agent = true
+    mediamanager.ssh.insert_key = false
+
+    mediamanager.vm.provider "virtualbox" do |v|
+        v.memory = "1024"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
   # catchpy postgres
   config.vm.define "dbserver" do |dbserver|
     dbserver.vm.box = DEFAULT_VB
@@ -245,6 +263,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ]
     end
   end
+
 
   # playremote node
   config.vm.define "playremote" do |playremote|

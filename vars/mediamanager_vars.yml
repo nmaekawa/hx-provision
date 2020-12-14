@@ -1,0 +1,132 @@
+---
+
+# MEDIAMANAGER VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "mediamanager"
+service_user: "{{ service_name }}"
+service_group: "{{ service_name }}"
+
+# dbserver config from environment
+service_db_name: "{{ lookup('env', 'MEDIAMANAGER_DB_NAME') | default(service_name , true) }}"
+service_db_user: "{{ lookup('env', 'MEDIAMANAGER_DB_USER') | default(service_name, true) }}"
+service_db_password: "{{ lookup('env', 'MEDIAMANAGER_DB_PASSWORD') | default(service_name, true) }}"
+# hardcoded vagrant catchpy postgres inventory hostname...
+service_db_host: "{{ lookup('env', 'MEDIAMANAGER_DB_HOST') | default('dbserver.vm', true) }}"
+service_db_port: "{{ lookup('env', 'MEDIAMANAGER_DB_PORT') | default('5432', true) }}"
+service_db_backup_local_retention_in_days: 15
+
+# check in cloudformation for the device name and uncomment if extra-ebs
+ebs_device: /dev/xvdf
+ebs_mountpoint: /opt/hx
+
+rootdir: "{{ ebs_mountpoint }}"
+service_rootdir: "{{ rootdir }}/{{ service_name }}"
+service_venv_dir: "{{ service_rootdir }}/venv"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
+service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
+service_static_dir: "{{ service_rootdir }}/www"
+service_django_static_dir: "{{ service_static_dir }}/static"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_data_dir: "{{ service_rootdir }}/data"
+service_backup_dir: "{{ service_data_dir }}/backup"
+
+service_gunicorn_port: "{{ lookup('env', 'MEDIAMANAGER_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'MEDIAMANAGER_GUNICORN_HOST') | default('127.0.0.1', true) }}"
+gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
+
+service_git_repo: "https://github.com/nmaekawa/{{ service_name }}.git"
+var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
+service_git_revision: "{{ lookup('env', var_service_git_revision) | default('setup', true) }}"
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+    - "{{ service_rootdir }}"
+    - "{{ service_config_dir }}"
+    - "{{ service_data_dir }}"
+    - "{{ service_backup_dir }}"
+    - "{{ service_bin_dir }}"
+    - "{{ service_static_dir }}"
+    - "{{ service_django_static_dir }}"
+
+# specific to webapp_install role
+service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
+
+# specific to hximg mediamanager and loris
+default_bucket_json_map: '{"s3bucket": {"bucket": "my-s3-bucket", "key_prefix": "loris/images"}}'
+loris_s3bucket_map: "{{ lookup('env', 'LORIS_S3BUCKET_MAP') | default(default_bucket_json_map, true) | from_json }}"
+loris_s3_urlplaceholder: "{{ lookup('env', 'LORIS_S3BUCKET_MAP') | default(default_bucket_json_map, true) | from_json | list }}"
+loris_s3bucket: "{{ loris_s3bucket_map[loris_s3_urlplaceholder[0]].bucket }}"
+loris_s3keyprefix: "{{ loris_s3bucket_map[loris_s3_urlplaceholder[0]].key_prefix  }}"
+
+# django admin user to be created
+service_admin_user: "{{ lookup('env', 'MEDIAMANAGER_ADMIN_USER') | default('user', true) }}"
+service_admin_email: "{{ lookup('env', 'MEDIAMANAGER_ADMIN_EMAIL') | default('user@user.com', true) }}"
+service_admin_password: "{{ lookup('env', 'MEDIAMANAGER_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: 'media_management_api.settings.aws'
+# env vars defined in service_dotenv_path file
+service_environment:
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'MEDIAMANAGER_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  MEDIAMANAGER_DJANGO_SECRET_KEY: "{{ lookup('env', 'MEDIAMANAGER_SECRET_KEY') | default('vai reduzir as ilusoes a po', true) }}"
+  MEDIAMANAGER_STATIC_ROOT: "{{ service_django_static_dir }}"
+  MEDIAMANAGER_DB_NAME: "{{ service_db_name }}"
+  MEDIAMANAGER_DB_USER: "{{ service_db_user }}"
+  MEDIAMANAGER_DB_PASSWORD: "{{ service_db_password }}"
+  MEDIAMANAGER_DB_HOST: "{{ service_db_host }}"
+  MEDIAMANAGER_DB_PORT: "{{ service_db_port }}"
+  MEDIAMANAGER_S3_BUCKET: "{{ loris_s3bucket }}"
+  MEDIAMANAGER_S3_KEY_PREFIX: "{{ loris_s3keyprefix }}"
+  MEDIAMANAGER_IIIF_IMAGE_SERVER_URL: "{{ webserver_dns }}"
+
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - '{{ service_user }}'
+
+# for nmaekawa.apt
+apt_required_packages_mediamanager:
+    - 'libpq-dev'
+    - 'gcc'
+    - 'musl-dev'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
+    - 'nginx'
+    - 'supervisor'
+    - 'postgresql-client'
+
+
+# PROXY VARS
+# ----------------------------------------------------------------------------------
+
+static_dir: '{{service_static_dir }}'
+cert_name: 'oculus'  # this name must match pattern for ssl cert names
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+# beware that order of location matter in nginx matching rules!
+# for now, webdav servers should always have location '/'
+# for now, do not set webdav and static location in same nginx server
+# beware that nginx role concats location.root + location.prefix to create
+#   the directory where static files should exist
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+    service_server_name: '{{ service_name }}_proxy'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - name: '{{ service_name }}_proxy'
+        prefix: '/'
+        root: '{{ static_dir }}'
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ service_gunicorn_host }}'
+        service_gunicorn_port: '{{ service_gunicorn_port }}'
+
+
