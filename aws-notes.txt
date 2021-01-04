@@ -1,0 +1,3 @@
+reasoning for ssh timeout set to 60s in ansible.cfg
+https://stackoverflow.com/questions/39533532/ansible-timeout-12s-waiting-for-privilege-escalation-prompt
+
