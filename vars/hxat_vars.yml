@@ -41,7 +41,7 @@ service_gunicorn_host: "{{ lookup('env', 'HXAT_GUNICORN_HOST') | default('127.0.
 gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 
 # below configures nginx to support websockets, when hxat has asgi django app;
-# comment for wsgi-only django app
+# check nginx_servers var for websocket detail config
 websockets:
   nginx:
     worker_connections: "{{ lookup('env', 'NGINX_WORKER_CONNECTIONS') | default(16384, true) }}"

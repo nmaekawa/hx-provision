@@ -56,8 +56,6 @@
     - name: install webapp
       include_role:
         name: webapp_install
-      vars:
-        wsgi_module: 'annotationsx'  # when wsgi module doesn't share same name as service_name
 
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
