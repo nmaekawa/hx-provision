@@ -54,6 +54,10 @@
 
       - include_role:
           name: external/nmaekawa.apt
+        # install acl pkg for become_user; see:
+        # https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary
+        vars:
+          apt_other_packages: ["acl"]
 
       - include_role:
           name: external/Stouts.users

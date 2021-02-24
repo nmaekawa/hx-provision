@@ -2,17 +2,20 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = "2"
-DEFAULT_VB = "bento/ubuntu-18.04"
+#DEFAULT_VB = "bento/ubuntu-18.04"
+DEFAULT_VB = "geerlingguy/ubuntu1804"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # vagrant dns; requires `vagrant plugin install vagrant-dns`
   config.dns.tld = "vm"
+  VagrantDNS::Config.logger = Logger.new("dns.log")
+  VagrantDNS::Config.auto_run = false
 
   # reverse proxy node
   config.vm.define "images" do |images|
     images.vm.box = DEFAULT_VB
-    images.vm.hostname = "images.vm"
+    images.vm.hostname = "images"
     images.dns.patterns = [/^images.vm$/]
     images.vm.network "private_network", ip: "10.8.0.10"
 
@@ -30,7 +33,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # loris image server node
   config.vm.define "loris" do |loris|
     loris.vm.box = DEFAULT_VB
-    loris.vm.hostname = "loris.vm"
+    loris.vm.hostname = "loris"
     loris.dns.patterns = [/^loris.vm$/]
     loris.vm.network "private_network", ip: "10.8.0.8"
 
@@ -48,7 +51,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # ids image server node
   config.vm.define "ids" do |ids|
     ids.vm.box = DEFAULT_VB
-    ids.vm.hostname = "ids.vm"
+    ids.vm.hostname = "ids"
     ids.dns.patterns = [/^ids.vm$/]
     ids.vm.network "private_network", ip: "10.8.0.9"
 
@@ -66,7 +69,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # hxprezi node
   config.vm.define "hxprezi" do |hxprezi|
     hxprezi.vm.box = DEFAULT_VB
-    hxprezi.vm.hostname = "hxprezi.vm"
+    hxprezi.vm.hostname = "hxprezi"
     hxprezi.dns.patterns = [/^hxprezi.vm$/]
     hxprezi.vm.network "private_network", ip: "10.8.0.14"
 
@@ -84,7 +87,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # mirador-lti node
   config.vm.define "mirador" do |mirador|
     mirador.vm.box = DEFAULT_VB
-    mirador.vm.hostname = "mirador.vm"
+    mirador.vm.hostname = "mirador"
     mirador.dns.patterns = [/^mirador.vm$/]
     mirador.vm.network "private_network", ip: "10.8.0.15"
 
@@ -102,7 +105,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # ids-varnish node
   config.vm.define "idsvarnish" do |idsvarnish|
     idsvarnish.vm.box = DEFAULT_VB
-    idsvarnish.vm.hostname = "idsvarnish.vm"
+    idsvarnish.vm.hostname = "idsvarnish"
     idsvarnish.dns.patterns = [/^idsvarnish.vm$/]
     idsvarnish.vm.network "private_network", ip: "10.8.0.16"
 
@@ -120,7 +123,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # hx-varnish node
   config.vm.define "hxvarnish" do |hxvarnish|
     hxvarnish.vm.box = DEFAULT_VB
-    hxvarnish.vm.hostname = "hxvarnish.vm"
+    hxvarnish.vm.hostname = "hxvarnish"
     hxvarnish.dns.patterns = [/^hxvarnish.vm$/]
     hxvarnish.vm.network "private_network", ip: "10.8.0.17"
 
@@ -138,7 +141,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # catchpy postgres
   config.vm.define "dbserver" do |dbserver|
     dbserver.vm.box = DEFAULT_VB
-    dbserver.vm.hostname = "dbserver.vm"
+    dbserver.vm.hostname = "dbserver"
     dbserver.dns.patterns = [/^dbserver.vm$/]
     dbserver.vm.network "private_network", ip: "10.8.50.31"
 
@@ -156,7 +159,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # catchpy webserver
   config.vm.define "catchpy" do |catchpy|
     catchpy.vm.box = DEFAULT_VB
-    catchpy.vm.hostname = "catchpy.vm"
+    catchpy.vm.hostname = "catchpy"
     catchpy.dns.patterns = [/^catchpy.vm$/]
     catchpy.vm.network "private_network", ip: "10.8.50.41"
 
@@ -174,7 +177,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # hxat  webserver
   config.vm.define "hxat" do |hxat|
     hxat.vm.box = DEFAULT_VB
-    hxat.vm.hostname = "hxat.vm"
+    hxat.vm.hostname = "hxat"
     hxat.dns.patterns = [/^hxat.vm$/]
     hxat.vm.network "private_network", ip: "10.8.50.51"
 
@@ -192,7 +195,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # hxarc node
   config.vm.define "hxarc" do |hxarc|
     hxarc.vm.box = DEFAULT_VB
-    hxarc.vm.hostname = "hxarc.vm"
+    hxarc.vm.hostname = "hxarc"
     hxarc.dns.patterns = [/^hxarc.vm$/]
     hxarc.vm.network "private_network", ip: "10.8.44.11"
 
@@ -210,7 +213,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # www2 node
   config.vm.define "www2" do |www2|
     www2.vm.box = DEFAULT_VB
-    www2.vm.hostname = "www2.vm"
+    www2.vm.hostname = "www2"
     www2.dns.patterns = [/^www2.vm$/]
     www2.vm.network "private_network", ip: "10.8.10.11"
 
@@ -228,7 +231,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # fnup node  (hbso files&uploads)
   config.vm.define "fnup" do |fnup|
     fnup.vm.box = DEFAULT_VB
-    fnup.vm.hostname = "fnup.vm"
+    fnup.vm.hostname = "fnup"
     fnup.dns.patterns = [/^fnup.vm$/]
     fnup.vm.network "private_network", ip: "10.8.10.21"
 
@@ -246,7 +249,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # playremote node
   config.vm.define "playremote" do |playremote|
     playremote.vm.box = DEFAULT_VB
-    playremote.vm.hostname = "playremote.vm"
+    playremote.vm.hostname = "playremote"
     playremote.dns.patterns = [/^playremote.vm$/]
     playremote.vm.network "private_network", ip: "10.8.20.10"
 
@@ -264,7 +267,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # eedev  webserver
   config.vm.define "eedev" do |eedev|
     eedev.vm.box = DEFAULT_VB
-    eedev.vm.hostname = "eedev.vm"
+    eedev.vm.hostname = "eedev"
     eedev.dns.patterns = [/^eedev.vm$/]
     eedev.vm.network "private_network", ip: "10.10.10.10"
 
