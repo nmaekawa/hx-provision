@@ -4,3 +4,5 @@ images/*
 *.gz
 *.tar
 *.retry
+
+.python-version

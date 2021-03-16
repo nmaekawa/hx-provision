@@ -64,7 +64,7 @@
     - name: drop script to perform data backups
       template:
         src: roles/webapp_install/templates/cronjob_db_backup.sh.j2
-        dest: "{{ db_bin_dir }}/pg_datadump_{{ service_name }}.sh"
+        dest: "{{ db_bin_dir }}/pg_datadump_{{ service_db_name }}.sh"
         owner: "{{ db_backup_user }}"
         group: "{{ db_backup_group }}"
         mode: 0754
@@ -72,23 +72,23 @@
 
     - name: cronjob for data backup
       cron:
-        name: "daily postgres data dump for {{ service_name }}"
+        name: "daily postgres data dump for {{ service_db_name }}"
         user: "{{ db_backup_user }}"
-        hour: "6"  # this is UTC, so ~2am EDT or ~1am EST
-        minute: "0"
+        hour: "{{ lookup('env', 'DBBAK_DATA_CRON_HOUR') | default('6', true) }}"  # this is UTC, so ~2am EDT or ~1am EST
+        minute: "{{ lookup('env', 'DBBAK_DATA_CRON_MIN') | default('0', true) }}"
         state: present
         job: >
-          {{ db_bin_dir }}/pg_datadump_{{ service_name }}.sh --db "{{ service_db_name }}"
+          {{ db_bin_dir }}/pg_datadump_{{ service_db_name }}.sh --db "{{ service_db_name }}"
           --outdir "{{ db_backup_dir }}/{{ service_name }}"
           --days {{ service_db_backup_local_retention_in_days }} 2>&1 | logger -t "[db backup]"
       when: ec2_tag_cluster == "prod"
 
     - name: install s3 cronjob for db dumps
       cron:
-        name: "s3 sync for db dumps"
+        name: "s3 sync for db dumps: {{ service_db_name }}"
         user: "{{ db_backup_user }}"
-        hour: "6"     # this is UTC, so ~2am EDT or ~1am EST
-        minute: "30"  # check when dumps are performed to schedule after that
+        hour: "{{ lookup('env', 'DBBAK_SYNC_CRON_HOUR') | default('6', true) }}"  # this is UTC, so ~2am EDT or ~1am EST
+        minute: "{{ lookup('env', 'DBBAK_SYNC_CRON_MIN') | default('45', true) }}"  # check when dumps fininh to schedule after that
         state: present
         job: >
           /usr/bin/aws s3 sync

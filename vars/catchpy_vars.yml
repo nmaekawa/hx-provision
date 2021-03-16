@@ -101,6 +101,21 @@ static_dir: '{{ service_static_dir }}'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
+
+
+
+# -----------MULTI-CATCHPY ---------------------------------------------------------
+# for local services, in prod, we use the wildcard cert with this subdomain
+# e.g. live.hxarc.harvardx.harvard.edu
+# but in this case, we have a second catchpy using the wildcard cert:
+# rhetoric.catchpy.harvardx.harvard.edu
+#hx_prod_subdomain: "rhetoric"
+#cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+# -----------MULTI-CATCHPY ---------------------------------------------------------
+
+
+
+
 # beware that order of location matter in nginx matching rules!
 # for now, webdav servers should always have location '/'
 # for now, do not set webdav and static location in same nginx server
