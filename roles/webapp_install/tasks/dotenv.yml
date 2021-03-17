@@ -14,6 +14,6 @@
           dest: "{{ service_dotenv_path }}"
           owner: "{{ service_user }}"
           group: "{{ service_group }}"
-          mode: 0744
+          mode: 0640
           backup: yes
 
