@@ -112,7 +112,7 @@ vagrant_webserver_dns: '{{ inventory_hostname }}'
 #   the directory where static files should exist
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/proxy_server.j2
-    service_server_name: '{{ service_name }}_proxy'
+    cfg_filename: '{{ service_name }}_proxy'
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:

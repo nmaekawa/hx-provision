@@ -45,7 +45,7 @@ cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | repla
 # locations.path is going to be created by roles/nginx/tasks/config_server.yml
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/webserver.j2
-    service_server_name: '{{ service_name }}_static'
+    cfg_filename: '{{ service_name }}_static'
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
@@ -63,7 +63,7 @@ nginx_servers:
         is_webdav: 'no'
 
   - nginx_template_path: roles/nginx/templates/webserver.j2
-    service_server_name: '{{ service_name }}_webdav'
+    cfg_filename: '{{ service_name }}_webdav'
     nginx_nonssl_port: 5080
     nginx_ssl_port: 5443
     locations:
