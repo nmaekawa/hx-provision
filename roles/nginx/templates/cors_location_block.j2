@@ -4,16 +4,22 @@
     # from https://enable-cors.org/server_nginx.html
     #
     location {{ location.prefix }} {
-        {% if location.root is defined and location.root != '' %}
+{% if location.root is defined and location.root != '' %}
         root {{ location.root }};
-        {% endif %}
-        {% if location.valid_referers_server_names is defined and location.valid_referers_server_names != '' %}
+{% endif %}
+{% if location.valid_referers_server_names is defined and location.valid_referers_server_names != '' %}
         valid_referers
                 {{ location.valid_referers_server_names }};
         if ($invalid_referer) {
             return 403;
         }
-        {% endif %}
+{% endif %}
+{% if location.foisted_http_header is defined and location.foisted_http_header != '' and
+    location.foisted_http_header_value is defined and location.foisted_http_header_value != '' %}
+        if ($http_{{ location.foisted_http_header }} != "{{ location.foisted_http_header_value }}") {
+            return 401;
+        }
+{% endif %}
 
         try_files $uri =404;
         autoindex off;

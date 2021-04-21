@@ -12,6 +12,7 @@
   become: yes
   vars:
     local_fnup_path_tar_gz: /Volumes/Projects/Dev_Team/backups/fnup_vagrant_sample.tar.gz
+    local_vpail_path_tar_gz: /Volumes/Projects/Dev_Team/images/images_sample.tar.gz
   vars_files:
     - vars/common_vars.yml
     - vars/fnup_vars.yml
@@ -79,4 +80,12 @@
         group: 'www-data'
       when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
 
+      # TODO: REMOVE ME! when testing is done
+    - name: unarchive local vpail sample tar.gz
+      unarchive:
+        src: '{{ local_vpail_path_tar_gz }}'
+        dest: '{{ static_dir }}/cdn'
+        owner: 'www-data'
+        group: 'www-data'
+      when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
 

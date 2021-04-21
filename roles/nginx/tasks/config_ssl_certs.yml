@@ -1,10 +1,20 @@
-# assumes webserver_dns is defined
+# assumes it's running inside loop over nginx_servers
 ---
 
-    - name: compose the cert filename
+    #- name: compose the cert filename
+    #  set_fact:
+    #    cert_partial_filename: "{{ (ec2_tag_cluster in ['prod', 'vagrant']) | ternary('', 'all_') }}{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+    #  when: cert_partial_filename is not defined
+
+    - name: compose the cert filename, when devo
       set_fact:
-        cert_partial_filename: "{{ (ec2_tag_cluster in ['prod', 'vagrant']) | ternary('', 'all_') }}{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
-      when: cert_partial_filename is not defined
+        cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+      when: ec2_tag_cluster not in ['prod', 'vagrant'] and server.hx_subdomain is defined and server.hx_subdomain != ''
+
+    - name: compose the cert filename, when prod
+      set_fact:
+        cert_partial_filename: "{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+      when: ec2_tag_cluster in ['prod', 'vagrant'] and (server.hx_subdomain is not defined or server.hx_subdomain == '')
 
     - name: generate CSR and PRIVATE keys in service host
       command: >

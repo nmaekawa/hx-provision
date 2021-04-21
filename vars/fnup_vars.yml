@@ -33,13 +33,15 @@ cronjob_owner: 'www-data'
 
 static_dir_root: '/var/www'
 static_dir: '{{ static_dir_root }}/html'
-valid_referers_server_names: '*.vpal.harvard.edu *.harvardx.harvard.edu *.hxtech.org *.myhbx.org *.edx.org'
 cert_name: 'static'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
-# for now, webdav servers should always have location '/'
-# for now, do not set webdav and static location in same nginx server
+# for certain services, in prod, we use the wildcard cert with this subdomain
+# e.g. live.static.harvardx.harvard.edu
+hx_prod_subdomain: "live"
+cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+
 # locations.path is going to be created by roles/nginx/tasks/config_server.yml
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/webserver.j2
@@ -47,14 +49,17 @@ nginx_servers:
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
-      - prefix: '/calendar'
-        root: '{{ static_dir }}/vcal'
-        path: '{{ static_dir }}/vcal/calendar'
-        is_webdav: 'no'
       - prefix: '/courses'
         root: '{{ static_dir }}'
-        valid_referers_server_names: '{{ valid_referers_server_names }}'
         path: '{{ static_dir }}/courses'
+        foisted_http_header: '{{ lookup("env", "CF_HTTP_HEADER") | default("x_custom_header", true) }}'
+        foisted_http_header_value: '{{ lookup("env", "CF_HTTP_HEADER_VALUE") | default("VALUE", true) }}'
+        is_webdav: 'no'
+      - prefix: '/cdn'
+        root: '{{ static_dir }}'
+        path: '{{ static_dir }}/cdn'
+        foisted_http_header: '{{ lookup("env", "CF_HTTP_HEADER") | default("x_custom_header", true) }}'
+        foisted_http_header_value: '{{ lookup("env", "CF_HTTP_HEADER_VALUE") | default("VALUE", true) }}'
         is_webdav: 'no'
 
   - nginx_template_path: roles/nginx/templates/webserver.j2

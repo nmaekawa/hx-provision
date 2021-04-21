@@ -58,7 +58,6 @@
             name: nginx
         vars:
           vagrant_webserver_dns: 'ids.vm'
-          service_server_name: 'ids'
           nginx_servers:
             - nginx_template_path: roles/nginx/templates/nginx_ids.j2
               service_server_name: '{{ service_name }}_proxy'
