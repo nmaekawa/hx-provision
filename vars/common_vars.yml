@@ -53,16 +53,25 @@ service_cert_name: "{% if cert_name is defined and cert_name != '' %}\
     {% else %}\
         {{ service_name | mandatory }}\
     {% endif %}"
-webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
-        {% if hx_prod_subdomain is defined and hx_prod_subdomain|length > 0 %}\
-            {{ hx_prod_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }}\
-        {% else %}\
-            {{ service_cert_name }}.{{ org_public_domain }}\
-        {% endif %}\
-    {% elif ec2_tag_cluster == 'vagrant' %}\
+#
+#webserver_dns: "{% if ec2_tag_cluster == 'prod' %}\
+#        {% if hx_prod_subdomain is defined and hx_prod_subdomain|length > 0 %}\
+#            {{ hx_prod_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }}\
+#        {% else %}\
+#            {{ service_cert_name }}.{{ org_public_domain }}\
+#        {% endif %}\
+#    {% elif ec2_tag_cluster == 'vagrant' %}\
+#        {{ vagrant_webserver_dns }}\
+#    {% else %}\
+#        {{ ec2_tag_cluster }}.{{ service_cert_name }}.{{ org_public_domain }}\
+#    {% endif %}"
+#
+
+# subdomain is decided on a per nginx server basis, check specific service_vars.yml
+webserver_dns: "{% if ec2_tag_cluster == 'vagrant' %}\
         {{ vagrant_webserver_dns }}\
     {% else %}\
-        {{ ec2_tag_cluster }}.{{ service_cert_name }}.{{ org_public_domain }}\
+        {{ service_cert_name }}.{{ org_public_domain }}\
     {% endif %}"
 
 # harvardx domain == NOT self-signed

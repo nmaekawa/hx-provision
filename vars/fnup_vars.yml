@@ -46,6 +46,7 @@ cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | repla
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/webserver.j2
     cfg_filename: '{{ service_name }}_static'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
@@ -64,6 +65,7 @@ nginx_servers:
 
   - nginx_template_path: roles/nginx/templates/webserver.j2
     cfg_filename: '{{ service_name }}_webdav'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
     nginx_nonssl_port: 5080
     nginx_ssl_port: 5443
     locations:
@@ -72,5 +74,4 @@ nginx_servers:
         is_webdav: 'yes'
         auth_basic_user_filepath: '/etc/nginx/.{{ service_name }}_webdav_creds'
         source_auth_basic_user_filepath: '{{ local_certs_dir }}/{{ service_cert_name }}/{{ service_name }}_webdav_creds'
-
 

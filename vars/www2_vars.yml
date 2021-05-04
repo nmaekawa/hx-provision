@@ -43,6 +43,7 @@ vagrant_webserver_dns: '{{ inventory_hostname }}'
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/webserver.j2
     cfg_filename: '{{ service_name }}_static'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
@@ -57,6 +58,7 @@ nginx_servers:
 
   - nginx_template_path: roles/nginx/templates/webserver.j2
     cfg_filename: '{{ service_name }}_webdav'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
     nginx_nonssl_port: 5080
     nginx_ssl_port: 5443
     locations:

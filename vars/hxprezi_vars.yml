@@ -113,6 +113,7 @@ vagrant_webserver_dns: '{{ inventory_hostname }}'
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/proxy_server.j2
     cfg_filename: '{{ service_name }}_proxy'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
