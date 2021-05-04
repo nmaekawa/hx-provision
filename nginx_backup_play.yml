@@ -31,4 +31,5 @@
         files_to_backup:
           - /var/log/nginx/access.log.1
           - /var/log/nginx/error.log.1
+      when: ec2_tag_cluster == 'prod'
 

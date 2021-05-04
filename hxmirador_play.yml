@@ -3,7 +3,7 @@
 # assumes common_play.yml already applied to all involved inventory
 #
 
-#- import_playbook: common_play.yml
+- import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -70,13 +70,13 @@
 
   # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
 - import_playbook: cloudwatch_scripts_play.yml
-  when: ec2_tag_cluster == 'prod'
+
 
 - import_playbook: nginx_backup_play.yml
-  when: ec2_tag_cluster == 'prod'
+
 
 - import_playbook: route53_play.yml
-  when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
+
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxmirador", true) }}'

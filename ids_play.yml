@@ -22,11 +22,13 @@
           name: external/nmaekawa.apt
         vars:
           apt_other_packages: "{{ apt_required_packages_loris }}"
+        when: ec2_tag_cluster == 'vagrant'
 
       - include_role:
           name: external/Stouts.users
         vars:
           users_users: '{{ [local_user] }}'
+        when: ec2_tag_cluster == 'vagrant'
 
 
 
@@ -52,6 +54,7 @@
             vagrant_webserver_dns: 'ids.vm'
             local_image_sample_path_tar_gz: '/Volumes/Projects/Dev_Team/images/ids_images_sample.tar.gz'
             hx_host: '{{ ec2_private_ip_address }}'
+        when: ec2_tag_cluster == 'vagrant'
 
       - name: setup proxy
         include_role:
@@ -72,6 +75,7 @@
                   gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
                   service_gunicorn_host: '{{ hostvars[inventory_hostname].ec2_private_ip_address }}'
                   service_gunicorn_port: '{{ service_gunicorn_port }}'
+        when: ec2_tag_cluster == 'vagrant'
 
 
 

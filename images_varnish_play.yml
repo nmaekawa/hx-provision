@@ -38,7 +38,6 @@
 
   # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
 - import_playbook: cloudwatch_scripts_play.yml
-  when: ec2_tag_cluster == 'prod'
 
 
 - hosts: '{{ target_hosts | default("all", true) }}'
