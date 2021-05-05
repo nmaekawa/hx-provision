@@ -7,7 +7,7 @@ server {
     listen       [::]:{{ server.nginx_nonssl_port }};
 {% if webserver_dns is defined and webserver_dns != '' %}
 {% if server.hx_subdomain is defined and server.hx_subdomain != '' %}
-    server_name  {{ server.hx_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }}
+    server_name  {{ server.hx_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }};
 {% else %}
     server_name  {{ webserver_dns }};
 {% endif %}
@@ -20,7 +20,7 @@ server {
     listen              [::]:{{ server.nginx_ssl_port }} ssl http2;
 {% if webserver_dns is defined and webserver_dns != '' %}
 {% if server.hx_subdomain is defined and server.hx_subdomain != '' %}
-    server_name  {{ server.hx_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }}
+    server_name  {{ server.hx_subdomain }}.{{ service_cert_name }}.{{ org_public_domain }};
 {% else %}
     server_name         {{ webserver_dns }};
 {% endif %}
