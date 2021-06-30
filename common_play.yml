@@ -59,6 +59,22 @@
         vars:
           apt_other_packages: ["acl"]
 
+      # unattended-updates is installed by default by nmaekawa.apt but not properly
+      # configured... see:
+      # - https://haydenjames.io/how-to-enable-unattended-upgrades-on-ubuntu-debian/
+      # - http://disq.us/p/2c5x17d     (comment)
+      - name: unattended-updates to clean apt cache every 7 days
+        lineinfile:
+          path: /etc/apt/apt.conf.d/20auto-upgrades
+          regexp: 'AutocleanInterval'
+          line: 'APT::Periodic::AutocleanInterval "7";'
+
+      - name: unattended-updates to remove unused dependencies
+        lineinfile:
+          path: /etc/apt/apt.conf.d/50unattended-upgrades
+          regexp: 'Remove-Unused-Dependencies'
+          line: 'Unattendet-Upgrade::Remove-Unused-Dependencies "true";'
+
       - include_role:
           name: external/Stouts.users
         vars:
