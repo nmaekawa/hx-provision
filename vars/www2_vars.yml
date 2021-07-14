@@ -23,6 +23,7 @@ apt_required_packages:
     - 'python3-passlib'
     - 'awscli'
     - 'jq'
+    - 'unzip'
 
 redirect_error_to: '{{ lookup("env", "WWW2_PROXY_TO") | mandatory }}'
 
