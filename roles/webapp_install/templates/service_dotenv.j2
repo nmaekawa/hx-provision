@@ -11,24 +11,53 @@
 {% endif %}
 
 {% if webserver_dns is defined and service_name == 'hxmirador' %}
+{% if hx_subdomain is defined and hx_subdomain != '' %}
+HXMIRADOR_ALLOWED_HOSTS="{{ hx_subdomain }}.{{ webserver_dns }}"
+{% else %}
 HXMIRADOR_ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
 {% endif %}
 
 {% if webserver_dns is defined and service_name == 'hxarc' %}
+{% if hx_subdomain is defined and hx_subdomain != '' %}
+HXARC_ALLOWED_HOSTS="{{ hx_subdomain }}.{{ webserver_dns }}"
+{% else %}
 HXARC_ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
 {{ subproc_config_env }}
 {% endif %}
 
 {% if webserver_dns is defined and service_name == 'catchpy' %}
+{% if hx_subdomain is defined and hx_subdomain != '' %}
+CATCHPY_ALLOWED_HOSTS="{{ hx_subdomain }}.{{ webserver_dns }}"
+{% else %}
 CATCHPY_ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
 {% endif %}
 
 {% if webserver_dns is defined and service_name == 'hxat' %}
+{% if hx_subdomain is defined and hx_subdomain != '' %}
+ALLOWED_HOSTS="{{ hx_subdomain }}.{{ webserver_dns }}"
+{% else %}
 ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
+{% endif %}
+
+{% if webserver_dns is defined and service_name == 'hxydra' %}
+{% if hx_subdomain is defined and hx_subdomain != '' %}
+HXYDRA_ALLOWED_HOSTS="{{ hx_subdomain }}.{{ webserver_dns }}"
+{% else %}
+HXYDRA_ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
 {% endif %}
 
 {% if webserver_dns is defined and service_name == 'playremote' %}
+PlAYREMOTE_ALLOWED_HOSTS="{{ webserver_dns }}"
+{% if hx_subdomain is defined and hx_subdomain != '' %}
+PLAYREMOTE_ALLOWED_HOSTS="{{ hx_subdomain }}.{{ webserver_dns }}"
+{% else %}
 PLAYREMOTE_ALLOWED_HOSTS="{{ webserver_dns }}"
+{% endif %}
 {% endif %}
 
 

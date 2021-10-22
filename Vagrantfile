@@ -282,4 +282,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  # hxydra  webserver
+  config.vm.define "hxydra" do |hxydra|
+    hxydra.vm.box = DEFAULT_VB
+    hxydra.vm.hostname = "hxydra"
+    hxydra.dns.patterns = [/^hxydra.vm$/]
+    hxydra.vm.network "private_network", ip: "10.11.10.10"
+
+    hxydra.ssh.forward_agent = true
+    hxydra.ssh.insert_key = false
+
+    hxydra.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
 end

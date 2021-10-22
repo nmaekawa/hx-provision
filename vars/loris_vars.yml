@@ -162,6 +162,9 @@ cert_name: 'images'  # this name must match pattern for ssl cert names
 # special case for vagrant
 vagrant_webserver_dns: 'images.vm'
 
+# need this var for allowed_hosts in django
+hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
+
 # beware that order of location matter in nginx matching rules!
 # for now, webdav servers should always have location '/'
 # for now, do not set webdav and static location in same nginx server
@@ -170,7 +173,7 @@ vagrant_webserver_dns: 'images.vm'
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/proxy_server.j2
     cfg_filename: '{{ service_name }}_proxy'
-    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
+    hx_subdomain: '{{ hx_subdomain }}'
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:

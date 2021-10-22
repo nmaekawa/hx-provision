@@ -1,21 +1,21 @@
 ---
 
-# CATCHPY VARS
+# HXYDRA VARS
 # ----------------------------------------------------------------------------------
 
 # service vars
-service_name: "catchpy"
+service_name: "hxydra"
 service_user: "{{ service_name }}"
 service_group: "{{ service_name }}"
 
 # dbserver config from environment
-service_db_name: "{{ lookup('env', 'CATCHPY_DB_NAME') | default(service_name , true) }}"
-service_db_user: "{{ lookup('env', 'CATCHPY_DB_USER') | default(service_name, true) }}"
-service_db_password: "{{ lookup('env', 'CATCHPY_DB_PASSWORD') | default(service_name, true) }}"
-# hardcoded vagrant catchpy postgres inventory hostname...
-service_db_host: "{{ lookup('env', 'CATCHPY_DB_HOST') | default('dbserver.vm', true) }}"
-service_db_port: "{{ lookup('env', 'CATCHPY_DB_PORT') | default('5432', true) }}"
-service_db_backup_local_retention_in_days: 15
+service_db_name: "{{ lookup('env', 'HXYDRA_DB_NAME') | default(service_name , true) }}"
+service_db_user: "{{ lookup('env', 'HXYDRA_DB_USER') | default(service_name, true) }}"
+service_db_password: "{{ lookup('env', 'HXYDRA_DB_PASSWORD') | default(service_name, true) }}"
+# hardcoded vagrant hxydra postgres inventory hostname...
+service_db_host: "{{ lookup('env', 'HXYDRA_DB_HOST') | default('dbserver.vm', true) }}"
+service_db_port: "{{ lookup('env', 'HXYDRA_DB_PORT') | default('5432', true) }}"
+service_db_backup_local_retention_in_days: 7
 
 # check in cloudformation for the device name
 ebs_device: /dev/xvdf
@@ -34,14 +34,16 @@ service_config_dir: "{{ service_rootdir }}/conf"
 service_bin_dir: "{{ service_rootdir }}/bin"
 service_data_dir: "{{ service_rootdir }}/data"
 service_backup_dir: "{{ service_data_dir }}/backup"
+service_run_dir: "{{ service_rootdir }}/run"
 
-service_gunicorn_port: "{{ lookup('env', 'CATCHPY_GUNICORN_PORT') | default('8236', true) }}"
-service_gunicorn_host: "{{ lookup('env', 'CATCHPY_GUNICORN_HOST') | default('127.0.0.1', true) }}"
+service_gunicorn_port: "{{ lookup('env', 'HXYDRA_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'HXYDRA_GUNICORN_HOST') | default('127.0.0.1', true) }}"
 gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
 
-service_git_repo: "https://github.com/nmaekawa/{{ service_name }}.git"
+service_git_repo: "git@github.com:nmaekawa/{{ service_name }}.git"
 var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
-service_git_revision: "{{ lookup('env', var_service_git_revision) | default('master', true) }}"
+service_git_revision: "{{ lookup('env', var_service_git_revision) | default('model2', true) }}"
+service_git_deploy_key_file: "{{ lookup('env', 'GIT_DEPLOY_KEY_FILE') }}"
 
 # easier to create dirs with this dict
 service_dirs_to_create:
@@ -50,30 +52,27 @@ service_dirs_to_create:
     - "{{ service_data_dir }}"
     - "{{ service_backup_dir }}"
     - "{{ service_bin_dir }}"
+    - "{{ service_run_dir }}"
     - "{{ service_static_dir }}"
     - "{{ service_django_static_dir }}"
 
 # specific to webapp_install role
 service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
 # django admin user to be created
-service_admin_user: "{{ lookup('env', 'CATCHPY_ADMIN_USER') | default('user', true) }}"
-service_admin_email: "{{ lookup('env', 'CATCHPY_ADMIN_EMAIL') | default('user@user.com', true) }}"
-service_admin_password: "{{ lookup('env', 'CATCHPY_ADMIN_PASSWORD') | default('password', true) }}"
-service_default_django_settings: '{{ service_name }}.settings.dev'
+service_admin_user: "{{ lookup('env', 'HXYDRA_ADMIN_USER') | default('user', true) }}"
+service_admin_email: "{{ lookup('env', 'HXYDRA_ADMIN_EMAIL') | default('user@user.com', true) }}"
+service_admin_password: "{{ lookup('env', 'HXYDRA_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: '{{ wsgi_module }}.settings.base'
 # env vars defined in service_dotenv_path file
 service_environment:
-  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'CATCHPY_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
-  CATCHPY_DJANGO_SECRET_KEY: "{{ lookup('env', 'CATCHPY_DJANGO_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
-  CATCHPY_STATIC_ROOT: "{{ service_django_static_dir }}"
-  CATCHPY_DB_NAME: "{{ service_db_name }}"
-  CATCHPY_DB_USER: "{{ service_db_user }}"
-  CATCHPY_DB_PASSWORD: "{{ service_db_password }}"
-  CATCHPY_DB_HOST: "{{ service_db_host }}"
-  CATCHPY_DB_PORT: "{{ service_db_port }}"
-  CATCH_LOG_REQUEST_TIME: "true"
-  CATCH_LOG_SEARCH_TIME: "true"
-  CATCH_LOG_JWT: "true"
-  CATCH_LOG_JWT_ERROR: "true"
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXYDRA_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  DJANGO_SECRET_KEY: "{{ lookup('env', 'HXYDRA_DJANGO_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
+  HXYDRA_STATIC_ROOT: "{{ service_django_static_dir }}"
+  HXYDRA_DB_NAME: "{{ service_db_name }}"
+  HXYDRA_DB_USER: "{{ service_db_user }}"
+  HXYDRA_DB_PASSWORD: "{{ service_db_password }}"
+  HXYDRA_DB_HOST: "{{ service_db_host }}"
+  HXYDRA_DB_PORT: "{{ service_db_port }}"
 
 
 # for Stouts.users
@@ -84,7 +83,8 @@ users_to_install:
     - '{{ service_user }}'
 
 # for nmaekawa.apt
-apt_required_packages_catchpy:
+apt_required_packages_hxydra:
+    - 'unzip'
     - 'python3-pip'
     - 'python3-dev'
     - 'python3-setuptools'
@@ -100,19 +100,6 @@ apt_required_packages_catchpy:
 static_dir: '{{ service_static_dir }}'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
-
-
-
-
-# -----------MULTI-CATCHPY ---------------------------------------------------------
-# for local services, in prod, we use the wildcard cert with this subdomain
-# e.g. live.hxarc.harvardx.harvard.edu
-# but in this case, we have a second catchpy using the wildcard cert:
-# rhetoric.catchpy.harvardx.harvard.edu
-#hx_prod_subdomain: "rhetoric"
-#cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
-# -----------MULTI-CATCHPY ---------------------------------------------------------
-
 
 # need this var for allowed_hosts in django
 hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
@@ -135,6 +122,7 @@ nginx_servers:
         gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
         service_gunicorn_host: '{{ service_gunicorn_host }}'
         service_gunicorn_port: '{{ service_gunicorn_port }}'
+
 
 
 

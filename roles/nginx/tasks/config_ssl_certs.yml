@@ -16,13 +16,25 @@
         cert_partial_filename: "{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
       when: ec2_tag_cluster in ['prod', 'vagrant'] and (server.hx_subdomain is not defined or server.hx_subdomain == '')
 
-    - name: generate CSR and PRIVATE keys in service host
-      command: >
-        openssl req -newkey rsa:2048 -nodes
+    - name: generate CSR and PRIVATE keys in service host with hx_subdomain
+      command:
+        cmd: >
+          openssl req -newkey rsa:2048 -nodes
            -keyout {{ target_certs_dir }}/{{ cert_partial_filename }}.key
            -out {{ target_certs_dir }}/{{ cert_partial_filename }}.csr
-           -subj "/C=US/ST=Massachusetts/L=Cambridge/O=HX/OU=Headquarter/CN={{ webserver_dns }}"
-      when: not is_harvard_domain
+           -subj "/C=US/ST=Massachusetts/O=HX/OU=Headquarter/CN={{ server.hx_subdomain }}.{{ webserver_dns }}"
+        creates: "{{ target_certs_dir }}/{{ cert_partial_filename }}.csr"
+      when: not is_harvard_domain and (server.hx_subdomain is defined and server.hx_subdomain != '')
+
+    - name: generate CSR and PRIVATE keys in service host WITHOUT hx_subdomain
+      command:
+        cmd: >
+          openssl req -newkey rsa:2048 -nodes
+           -keyout {{ target_certs_dir }}/{{ cert_partial_filename }}.key
+           -out {{ target_certs_dir }}/{{ cert_partial_filename }}.csr
+           -subj "/C=US/ST=Massachusetts/O=HX/OU=Headquarter/CN={{ server.hx_subdomain }}.{{ webserver_dns }}"
+        creates: "{{ target_certs_dir }}/{{ cert_partial_filename }}.csr"
+      when: not is_harvard_domain and (server.hx_subdomain is not defined or server.hx_subdomain == '')
 
     - name: copy ssl PRIVATE_key to service host
       copy:

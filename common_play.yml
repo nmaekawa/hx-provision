@@ -16,12 +16,12 @@
 
   tasks:
       # https://stackoverflow.com/a/54143390
-      - name: link to python3
-        raw: |
-          if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
-            ln --symbolic /usr/bin/python3 /usr/bin/python
-          fi
-        when: ansible_version.full < "2.8.0"
+      #- name: link to python3
+      #  raw: |
+      #    if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
+      #      ln --symbolic /usr/bin/python3 /usr/bin/python
+      #    fi
+      #  when: ansible_version.full < "2.8.0"
 
 
       - name: check timesync
@@ -68,12 +68,14 @@
           path: /etc/apt/apt.conf.d/20auto-upgrades
           regexp: 'AutocleanInterval'
           line: 'APT::Periodic::AutocleanInterval "7";'
+        when: ec2_tag_cluster != 'vagrant'
 
       - name: unattended-updates to remove unused dependencies
         lineinfile:
           path: /etc/apt/apt.conf.d/50unattended-upgrades
           regexp: 'Remove-Unused-Dependencies'
-          line: 'Unattendet-Upgrade::Remove-Unused-Dependencies "true";'
+          line: 'Unattendet-Upgrade::Remov1e-Unused-Dependencies "true";'
+        when: ec2_tag_cluster != 'vagrant'
 
       - include_role:
           name: external/Stouts.users
