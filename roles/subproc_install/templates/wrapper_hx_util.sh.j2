@@ -27,6 +27,10 @@ echo "***** untar/ungzip input file ${input_file}"
 tar xf ${input_file} -C ${input_dir}
 
 echo
+echo "***** remove macos specific files from ${input_dir}/course"
+find ${input_dir}/course -name "._*" -print -exec rm {} \;
+
+echo
 echo "***** about to process input file ${input_file}"
 
 # run hx_util script
