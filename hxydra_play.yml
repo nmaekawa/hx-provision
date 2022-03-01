@@ -9,34 +9,35 @@
 # e.g. -e project_name=hxydra
 #
 
-#- import_playbook: common_play.yml
+- import_playbook: common_play.yml
 
-#- hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
-#  remote_user: "{{ my_remote_user }}"
-#  become: yes
-#  become_user: root
-#  vars:
-#    local_user:
-#      name: '{{ service_name }}'
-#      authorized: []
-#  vars_files:
-#    - vars/common_vars.yml
-#    - vars/hxydra_vars.yml
-#
-#  tasks:
-#    - include_role:
-#        name: external/nmaekawa.apt
-#      vars:
-#        apt_other_packages: "{{ apt_required_packages_hxydra }}"
-#
-#    - include_role:
-#        name: external/Stouts.users
-#      vars:
-#        users_users: '{{ [local_user] }}'
-#
-#    - include_role:
-#        name: external/nmaekawa.extra-ebs
-#      when: use_aws
+- hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+    local_user:
+      name: '{{ service_name }}'
+      groups: ['{{ service_group }}']
+      authorized: []
+  vars_files:
+    - vars/common_vars.yml
+    - vars/hxydra_vars.yml
+
+  tasks:
+    - include_role:
+        name: external/nmaekawa.apt
+      vars:
+        apt_other_packages: "{{ apt_required_packages_hxydra }}"
+
+    - include_role:
+        name: external/Stouts.users
+      vars:
+        users_users: '{{ [local_user] }}'
+
+    - include_role:
+        name: external/nmaekawa.extra-ebs
+      when: use_aws
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
@@ -67,19 +68,19 @@
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
 
-    #- name: config nginx
-    #  include_role:
-    #    name: nginx
+    - name: config nginx
+      include_role:
+        name: nginx
 
-    #- name: cronjob to clear sessions
-    #  cron:
-    #    name: 'clear django sessions'
-    #    user: '{{ service_user }}'
-    #    hour: '7'
-    #    minute: '0'
-    #    state: present
-    #    job: >
-    #      {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
+    - name: cronjob to clear sessions
+      cron:
+        name: 'clear django sessions'
+        user: '{{ service_user }}'
+        hour: '7'
+        minute: '0'
+        state: present
+        job: >
+          {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
 
 
 #- import_playbook: nginx_backup_play.yml
