@@ -8,6 +8,42 @@
       state: directory
     with_items: "{{ subproc_dirs_to_create }}"
 
+  - name: clone repo | copy deploy key
+    copy:
+      src: '{{ subproc_git_deploy_key_file | mandatory }}'
+      dest: '/home/{{ service_user }}/.ssh/id_rsa_{{ subproc_name }}'
+      owner: '{{ service_user }}'
+      group: '{{ service_group }}'
+      mode: 0600
+    when: subproc_git_deploy_key_file is defined and subproc_git_deploy_key_file != ''
+
+  - name: clone repo | clone repository with deploy key
+    become: yes
+    become_user: '{{ service_user }}'
+    git:
+      repo: 'git+{{ subproc_git_repo }}@{{ subproc_git_revision }}'
+      accept_hostkey: yes
+      update: yes
+      clone: yes
+      force: yes
+      version: '{{ subproc_git_revision }}'
+      dest: '{{ subproc_rootdir_base }}/{{ subproc_name }}/{{ subproc_name }}'
+      key_file: '/home/{{ service_user }}/.ssh/id_rsa_{{ subproc_name }}'
+    when: subproc_git_deploy_key_file is defined and subproc_git_deploy_key_file != ''
+
+  - name: clone repo | clone repository
+    become: yes
+    become_user: '{{ service_user }}'
+    git:
+      repo: '{{ subproc_git_repo }}'
+      accept_hostkey: yes
+      update: yes
+      clone: yes
+      force: yes
+      version: '{{ subproc_git_revision }}'
+      dest: '{{ subproc_rootdir_base }}/{{ subproc_name }}/{{ subproc_name }}'
+    when: not subproc_git_deploy_key_file is defined or subproc_git_deploy_key_file == ''
+
 
   - name: venv | create subproc venv
     include_role:
@@ -18,13 +54,21 @@
       venv_group: "{{ service_group }}"
       venv_python_version: 3
 
-
-  - name: venv | pip install SUBPROC from repo
+  - name: venv | pip install requirements
     become_user: "{{ service_user }}"
     pip:
+      chdir: "{{ subproc_rootdir_base }}/{{ subproc_name }}/{{ subproc_name }}"
       virtualenv: "{{ subproc_venv_dir }}"
-      name: 'git+{{ subproc_git_repo }}@{{ subproc_git_revision }}'
+      requirements: "{{ subproc_rootdir_base }}/{{ subproc_name }}/{{ subproc_name }}/requirements.txt"
       state: present
+
+  - name: venv | pip install service
+    become_user: "{{ service_user }}"
+    pip:
+      chdir: "{{ subproc_rootdir_base }}/{{ subproc_name }}/{{ subproc_name }}"
+      virtualenv: "{{ subproc_venv_dir }}"
+      name: '.'
+      editable: yes
 
 
   - name: wrapper | drop subprocess wrapper shell file

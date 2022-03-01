@@ -54,6 +54,18 @@ subproc_deps:
     subproc_wrapper_path: "{{ subproc_rootdir_base }}/hxann/bin/wrapper.sh"
     subproc_script_path: "{{ subproc_rootdir_base }}/hxann/venv/bin/hxann"
 
+  - name: "hx_make_new_run"
+    git_repo: "https://github.com/HarvardX/hx_make_new_run.git"
+    git_revision: "main"
+    git_deploy_key_file: "{{ lookup('env', 'HX_MAKE_NEW_RUN_GIT_DEPLOY_KEY_FILE') | default('../hx-certs/hxarc/hx_make_new_run_deploy', true) }}"
+    subproc_dirs_to_create:
+      - "{{ subproc_rootdir_base }}/hx_make_new_run"
+      - "{{ subproc_rootdir_base }}/hx_make_new_run/venv"
+      - "{{ subproc_rootdir_base }}/hx_make_new_run/bin"
+    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_hx_make_new_run.sh.j2"
+    subproc_wrapper_path: "{{ subproc_rootdir_base }}/hx_make_new_run/bin/wrapper.sh"
+    subproc_script_path: "{{ subproc_rootdir_base }}/hx_make_new_run/venv/bin/hx_make_new_run"
+
 subproc_config:
     hx_util:
       wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
@@ -76,6 +88,13 @@ subproc_config:
       output_basename: "result"
       output_ext: "json"
       exts_in_upload: [".csv"]
+    hx_make_new_run:
+      wrapper_path: "{{ subproc_deps[3].subproc_wrapper_path }}"
+      display_name: "archive"
+      display_label: "course export tarball"
+      output_basename: "result"
+      output_ext: "tar.gz"
+      exts_in_upload: [".tar.gz"]
 
 # hack to evaluate bash env var as json and sort out single/double quotes
 subproc_config_env: "HXARC_SUBPROCS='{{ subproc_config | to_json }}'"
