@@ -90,3 +90,11 @@ default_cronjob_scripts_dir: /usr/local/bin
 
 # django-app might have different name from default, service_name
 wsgi_module: '{{ service_name }}'
+
+
+######
+# to clone from private repos, add to your ansible.cfg
+#
+# [ssh_connection]
+# ssh_args=-o ForwardAgent=yes
+#

@@ -57,6 +57,7 @@
         subproc_name: '{{ subproc_deps_item.name }}'
         subproc_git_repo: '{{ subproc_deps_item.git_repo }}'
         subproc_git_revision: '{{ subproc_deps_item.git_revision }}'
+        subproc_git_deploy_key_file: '{{ subproc_deps_item.git_deploy_key_file | default("", true) }}'
         subproc_dirs_to_create: '{{ subproc_deps_item.subproc_dirs_to_create }}'
         subproc_venv_dir: '{{ subproc_rootdir_base }}/{{ subproc_deps_item.name }}/venv'
         subproc_bin_dir: '{{ subproc_rootdir_base }}/{{ subproc_deps_item.name }}/bin'
