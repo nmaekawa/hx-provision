@@ -337,3 +337,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 end
+
+#
+# for vagrant plugin dns
+# https://stackoverflow.com/a/70704094
+# https://www.virtualbox.org/manual/ch06.html#network_hostonly
+# $> cat /etc/vbox/networks.conf
+# * 10.0.0.0/8 192.168.0.0/16
+# * 2001::/64
+#

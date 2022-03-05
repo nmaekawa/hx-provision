@@ -94,7 +94,7 @@ subproc_config:
     hx_make_new_run:
       form_classname: "hxarc.apps.upload.forms.UploadFileForm"
       wrapper_path: "{{ subproc_deps[3].subproc_wrapper_path }}"
-      display_name: "archive"
+      display_name: "new run"
       display_label: "course export tarball"
       output_basename: "result"
       output_ext: "tar.gz"

@@ -29,7 +29,7 @@
     become: yes
     become_user: '{{ service_user }}'
     git:
-      repo: 'git+{{ subproc_git_repo }}@{{ subproc_git_revision }}'
+      repo: '{{ subproc_git_repo }}'
       accept_hostkey: yes
       update: yes
       clone: yes
