@@ -69,6 +69,7 @@ subproc_deps:
 subproc_config:
     hx_util:
       form_classname: "hxarc.apps.upload.forms.UploadFileForm"
+      form_template_path: "upload/upload_form.html"
       wrapper_path: "{{ subproc_deps[0].subproc_wrapper_path }}"
       display_name: "archive"
       display_label: "course export tarball"
@@ -77,6 +78,7 @@ subproc_config:
       exts_in_upload: [".tar.gz"]
     olxcleaner:
       form_classname: "hxarc.apps.upload.forms.UploadFileForm"
+      form_template_path: "upload/upload_form.html"
       wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
       display_name: "outline"
       display_label: "course export tarball"
@@ -85,6 +87,7 @@ subproc_config:
       exts_in_upload: [".tar.gz"]
     hxann:
       form_classname: "hxarc.apps.upload.forms.UploadFileForm"
+      form_template_path: "upload/upload_form.html"
       wrapper_path: "{{ subproc_deps[2].subproc_wrapper_path }}"
       display_name: "video annotation"
       display_label: "comma separated value file (.csv)"
@@ -92,7 +95,8 @@ subproc_config:
       output_ext: "json"
       exts_in_upload: [".csv"]
     hx_make_new_run:
-      form_classname: "hxarc.apps.upload.forms.UploadFileForm"
+      form_classname: "hxarc.apps.upload.forms.UploadNewRunForm"
+      form_template_path: "upload/upload_newrun_form.html"
       wrapper_path: "{{ subproc_deps[3].subproc_wrapper_path }}"
       display_name: "new run"
       display_label: "course export tarball"
