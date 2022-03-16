@@ -41,6 +41,10 @@ roles:
     #version: "1.0.0"
     #name: nmaekawa.extra-ebs
 
+  - src: git+https://github.com/geerlingguy/ansible-role-nodejs.git
+    version: "master"
+    name: geerlingguy.nodejs
+
 collections:
   - name: amazon.aws
 

@@ -284,7 +284,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxydra  webserver
   config.vm.define "hxydra" do |hxydra|
-    hxydra.vm.box = DEFAULT_VB
+    hxydra.vm.box = "geerlingguy/ubuntu2004"
     hxydra.vm.hostname = "hxydra"
     hxydra.dns.patterns = [/^hxydra.vm$/]
     hxydra.vm.network "private_network", ip: "10.11.10.10"

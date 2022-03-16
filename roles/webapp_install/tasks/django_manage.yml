@@ -10,11 +10,13 @@
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
           PLAYREMOTE_DOTENV_PATH: '{{ service_dotenv_path }}'
+          HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: migrate
           app_path: '{{ service_install_dir }}'
           virtualenv: '{{ service_venv_dir }}'
+      notify: restart webapp
 
 
     - name: django_manage | run collectstatic
@@ -26,6 +28,7 @@
           HXAT_DOTENV_PATH: '{{ service_dotenv_path }}'
           HXARC_DOTENV_PATH: '{{ service_dotenv_path }}'
           PLAYREMOTE_DOTENV_PATH: '{{ service_dotenv_path }}'
+          HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
 
       django_manage:
           command: collectstatic

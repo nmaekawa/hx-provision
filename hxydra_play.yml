@@ -50,6 +50,22 @@
     - include_tasks: handlers/main.yml
 
   tasks:
+    - include_role:
+        name: external/geerlingguy.nodejs
+      vars:
+        npm_config_unsafe_perm: "true"
+
+
+- hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  vars_files:
+    - vars/common_vars.yml
+    - vars/hxydra_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
+
+  tasks:
     - name: make sure .ssh exists for {{ service_user }}
       file:
         path: '/home/{{ service_user }}/.ssh'
@@ -62,11 +78,51 @@
       include_role:
         name: webapp_install
 
+    - name: clone ui
+      become: yes
+      become_user: '{{ service_user }}'
+      git:
+          repo: 'https://github.com/nmaekawa/hxydra-ui.git'
+          accept_hostkey: yes
+          update: yes
+          clone: yes
+          force: yes
+          version: 'integ'
+          dest: '{{ service_rootdir }}/hxydra-ui'
+
+    - name: build ui dist
+      become_user: '{{ service_user }}'
+      shell: >
+          npm install && npm run build
+      args:
+          chdir: '{{ service_rootdir }}/hxydra-ui/hxydra'
+
+    # TODO: fix hardcoded url
+    - name: add VUE url to .bashrc
+      become_user: "{{ service_user }}"
+      lineinfile:
+        path: /home/{{ service_user }}/.bashrc
+        line: "export VUE_APP_STATIC_URL=/"
+        backup: yes
+        state: present
+
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
 
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
+
+    - name: add django admin user to kondo auth groups
+      become_user: '{{ service_user }}'
+      environment:
+          HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
+      shell: >
+          . {{ service_venv_dir }}/bin/activate &&
+          python ./manage.py add_user_to_groups {{ service_admin_user }}
+      args:
+          chdir: '{{ service_install_dir }}'
+
+
 
     - name: config nginx
       include_role:
