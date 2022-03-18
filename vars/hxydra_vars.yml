@@ -74,6 +74,8 @@ service_environment:
   HXYDRA_DB_HOST: "{{ service_db_host }}"
   HXYDRA_DB_PORT: "{{ service_db_port }}"
   KONDO_VUE_ROOTDIR: "{{ service_rootdir }}/hxydra-ui/hxydra"
+  CAS_SERVER_URL: "https://www.pin1.harvard.edu/cas/"
+  USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default('false', true) }}"
 
 
 # for Stouts.users

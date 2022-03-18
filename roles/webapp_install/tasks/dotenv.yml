@@ -8,7 +8,6 @@
           state: present
 
       - name: dotenv | drop .env file
-        become_user: "{{ service_user }}"
         template:
           src: service_dotenv.j2
           dest: "{{ service_dotenv_path }}"
