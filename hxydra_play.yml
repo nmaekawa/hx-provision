@@ -93,13 +93,25 @@
       become: yes
       become_user: '{{ service_user }}'
       git:
-          repo: 'https://github.com/nmaekawa/hxydra-ui.git'
+          repo: 'https://github.com/lduarte1991/hxydra-ui.git'
           accept_hostkey: yes
           update: yes
           clone: yes
           force: yes
-          version: 'integ'
+          version: 'main'
           dest: '{{ service_rootdir }}/hxydra-ui'
+
+    - name: add .env to VUE kondo
+      become_user: "{{ service_user }}"
+      template:
+          src: roles/webapp_install/templates/service_dotenv.j2
+          dest: '{{ service_rootdir }}/hxydra-ui/hxydra/.env'
+          owner: "{{ service_user }}"
+          group: "{{ service_group }}"
+          mode: 0640
+          backup: yes
+      vars:
+        service_environment: "{{ service_vue_environment }}"
 
     - name: build ui dist
       become_user: '{{ service_user }}'
@@ -107,15 +119,6 @@
           npm install && npm run build
       args:
           chdir: '{{ service_rootdir }}/hxydra-ui/hxydra'
-
-    # TODO: fix hardcoded url
-    - name: add VUE url to .bashrc
-      become_user: "{{ service_user }}"
-      lineinfile:
-        path: /home/{{ service_user }}/.bashrc
-        line: "export VUE_APP_STATIC_URL=/"
-        backup: yes
-        state: present
 
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'

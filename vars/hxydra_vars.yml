@@ -76,6 +76,11 @@ service_environment:
   KONDO_VUE_ROOTDIR: "{{ service_rootdir }}/hxydra-ui/hxydra"
   CAS_SERVER_URL: "https://www.pin1.harvard.edu/cas/"
   USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default('false', true) }}"
+service_vue_environment:
+  NODE_ENV: 'production'
+  VUE_APP_STATIC_URL: '/'
+  VUE_APP_KONDO_API_URL: 'https://{{ hx_subdomain }}.{{ webserver_dns }}/kondo/v1/'
+  VUE_APP_KONDO_DOMAIN: 'https://{{ hx_subdomain }}.{{ webserver_dns }}'
 
 
 # for Stouts.users
@@ -104,8 +109,18 @@ static_dir: '{{ service_static_dir }}'
 # special case for vagrant
 vagrant_webserver_dns: '{{ inventory_hostname }}'
 
+# for local services, in prod, we use the wildcard cert with this subdomain
+# e.g. live.hxarc.harvardx.harvard.edu
+hx_prod_subdomain: "live"
+cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+
 # need this var for allowed_hosts in django
-hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
+hx_subdomain: "{% if ec2_tag_cluster == 'prod' %}\
+        live\
+    {% elif ec2_tag_cluster != 'vagrant' %}\
+        {{ ec2_tag_cluster }}\
+    {% endif %}"
+
 
 # beware that order of location matter in nginx matching rules!
 # for now, webdav servers should always have location '/'
