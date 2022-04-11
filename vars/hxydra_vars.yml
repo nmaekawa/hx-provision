@@ -79,8 +79,15 @@ service_environment:
 service_vue_environment:
   NODE_ENV: 'production'
   VUE_APP_STATIC_URL: '/'
-  VUE_APP_KONDO_API_URL: 'https://{{ hx_subdomain }}.{{ webserver_dns }}/kondo/v1/'
-  VUE_APP_KONDO_DOMAIN: 'https://{{ hx_subdomain }}.{{ webserver_dns }}'
+  VUE_APP_KONDO_API_URL: '{{ vue_app_kondo_domain }}/kondo/v1/'
+  VUE_APP_KONDO_DOMAIN: '{{ vue_app_kondo_domain }}'
+
+vue_app_kondo_domain: "{% if hx_subdomain is defined and hx_subdomain != '' %}\
+    https://{{ hx_subdomain }}.{{ webserver_dns }}\
+{% else %}\
+    https://{{ webserver_dns }}\
+{% endif %}"
+
 
 
 # for Stouts.users

@@ -123,6 +123,7 @@
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
 
+
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
 
@@ -183,12 +184,12 @@
         job: >
           {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
 
-
+#
 #- import_playbook: nginx_backup_play.yml
-
+#
 #- import_playbook: route53_play.yml
-
-  # install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
-  #- import_playbook: cloudwatch_scripts_play.yml
+#
+# install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
+#- import_playbook: cloudwatch_scripts_play.yml
 
 
