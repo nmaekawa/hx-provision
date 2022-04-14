@@ -176,7 +176,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxat  webserver
   config.vm.define "hxat" do |hxat|
-    hxat.vm.box = DEFAULT_VB
+    #hxat.vm.box = DEFAULT_VB
+    hxat.vm.box = "geerlingguy/ubuntu2004"
     hxat.vm.hostname = "hxat"
     hxat.dns.patterns = [/^hxat.vm$/]
     hxat.vm.network "private_network", ip: "10.8.50.51"
@@ -293,6 +294,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     hxydra.ssh.insert_key = false
 
     hxydra.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # issue tracker roundup: https://www.roundup-tracker.org/index.html
+  config.vm.define "roundup" do |roundup|
+    roundup.vm.box = "geerlingguy/ubuntu2004"
+    roundup.vm.hostname = "roundup"
+    roundup.dns.patterns = [/^roundup.vm$/]
+    roundup.vm.network "private_network", ip: "10.77.10.10"
+
+    roundup.ssh.forward_agent = true
+    roundup.ssh.insert_key = false
+
+    roundup.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
             "modifyvm", :id, "--natdnshostresolver1", "on",

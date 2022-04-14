@@ -53,6 +53,9 @@ server {
 
     root {{ static_dir }};
     autoindex off;
+{% if server.log_reqid is defined and server.log_reqid %}
+    access_log /var/log/nginx/access.log hx_combined_reqid;
+{% endif %}
 
     {% block error_page %}
     {% if redirect_error_to is defined and redirect_error_to != '' %}

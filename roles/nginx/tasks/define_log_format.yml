@@ -4,9 +4,16 @@
   - name: nginx_log | define log format to print upstream custom headers
     lineinfile:
       path: /etc/nginx/nginx.conf
-      regexp: 'log_format hx_combined'
+      regexp: 'log_format hx_combined '
       insertbefore: 'access_log /var/log/nginx/access.log'
       line: log_format hx_combined '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" [$request_time|$upstream_response_time|$upstream_http_x_hx_custom1]';
+
+  - name: nginx_log | define (reqid) log format to print upstream custom headers
+    lineinfile:
+      path: /etc/nginx/nginx.conf
+      regexp: 'log_format hx_combined_reqid'
+      insertbefore: 'access_log /var/log/nginx/access.log'
+      line: log_format hx_combined_reqid '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" [$request_time|$upstream_response_time|$upstream_http_x_hx_custom1][$request_id]';
 
   - name: nginx_log | config access.log to use custom format
     replace:

@@ -152,6 +152,7 @@ nginx_servers:
     hx_subdomain: '{{ hx_subdomain }}'
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
+    log_reqid: true
     locations:
       - name: '{{ service_name }}_proxy'
         prefix: '/'
