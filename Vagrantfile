@@ -195,7 +195,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxarc node
   config.vm.define "hxarc" do |hxarc|
-    hxarc.vm.box = DEFAULT_VB
+    hxarc.vm.box = "geerlingguy/ubuntu2004"
     hxarc.vm.hostname = "hxarc"
     hxarc.dns.patterns = [/^hxarc.vm$/]
     hxarc.vm.network "private_network", ip: "10.8.44.11"
@@ -312,6 +312,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     roundup.ssh.insert_key = false
 
     roundup.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # blockchain demo
+  config.vm.define "blockchain" do |blockchain|
+    blockchain.vm.box = "geerlingguy/ubuntu2004"
+    blockchain.vm.hostname = "blockchain"
+    blockchain.dns.patterns = [/^blockchain.vm$/]
+    blockchain.vm.network "private_network", ip: "10.77.10.77"
+
+    blockchain.ssh.forward_agent = true
+    blockchain.ssh.insert_key = false
+
+    blockchain.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
             "modifyvm", :id, "--natdnshostresolver1", "on",
