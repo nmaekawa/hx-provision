@@ -32,16 +32,16 @@ subproc_deps:
     subproc_wrapper_path: "{{ subproc_rootdir_base }}/hx_util/bin/wrapper.sh"
     subproc_script_path: "{{ subproc_rootdir_base }}/hx_util/venv/bin/hx_util"
 
-  - name: "olxcleaner"
-    git_repo: "https://github.com/jolyonb/olxcleaner.git"
-    git_revision: "master"
-    subproc_dirs_to_create:
-      - "{{ subproc_rootdir_base }}/olxcleaner"
-      - "{{ subproc_rootdir_base }}/olxcleaner/venv"
-      - "{{ subproc_rootdir_base }}/olxcleaner/bin"
-    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_olxcleaner.sh.j2"
-    subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
-    subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
+  #- name: "olxcleaner"
+  #  git_repo: "https://github.com/jolyonb/olxcleaner.git"
+  #  git_revision: "master"
+  #  subproc_dirs_to_create:
+  #    - "{{ subproc_rootdir_base }}/olxcleaner"
+  #    - "{{ subproc_rootdir_base }}/olxcleaner/venv"
+  #    - "{{ subproc_rootdir_base }}/olxcleaner/bin"
+  #  subproc_wrapper_template: "roles/subproc_install/templates/wrapper_olxcleaner.sh.j2"
+  #  subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
+  #  subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
 
   - name: "hxann"
     git_repo: "https://github.com/nmaekawa/hxann.git"
@@ -76,19 +76,20 @@ subproc_config:
       output_basename: "result"
       output_ext: "tar.gz"
       exts_in_upload: [".tar.gz"]
-    olxcleaner:
-      form_classname: "hxarc.apps.upload.forms.UploadFileForm"
-      form_template_path: "upload/upload_form.html"
-      wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
-      display_name: "outline"
-      display_label: "course export tarball"
-      output_basename: "result"
-      output_ext: "tar.gz"
-      exts_in_upload: [".tar.gz"]
+    #
+    #olxcleaner:
+    #  form_classname: "hxarc.apps.upload.forms.UploadFileForm"
+    #  form_template_path: "upload/upload_form.html"
+    #  wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
+    #  display_name: "outline"
+    #  display_label: "course export tarball"
+    #  output_basename: "result"
+    #  output_ext: "tar.gz"
+    #  exts_in_upload: [".tar.gz"]
     hxann:
       form_classname: "hxarc.apps.upload.forms.UploadFileForm"
       form_template_path: "upload/upload_form.html"
-      wrapper_path: "{{ subproc_deps[2].subproc_wrapper_path }}"
+      wrapper_path: "{{ subproc_deps[1].subproc_wrapper_path }}"
       display_name: "video annotation"
       display_label: "comma separated value file (.csv)"
       output_basename: "result"
@@ -97,7 +98,7 @@ subproc_config:
     hx_make_new_run:
       form_classname: "hxarc.apps.upload.forms.UploadNewRunForm"
       form_template_path: "upload/upload_newrun_form.html"
-      wrapper_path: "{{ subproc_deps[3].subproc_wrapper_path }}"
+      wrapper_path: "{{ subproc_deps[2].subproc_wrapper_path }}"
       display_name: "new run"
       display_label: "course export tarball"
       output_basename: "result"

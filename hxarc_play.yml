@@ -66,6 +66,7 @@
         subproc_script_path: '{{ subproc_deps_item.subproc_script_path }}'
         subproc_output_basename: '{{ subproc_config[subproc_deps_item.name]["output_basename"] }}'
         subproc_output_ext: '{{ subproc_config[subproc_deps_item.name]["output_ext"] }}'
+        subproc_input_data_filename: '{{ subproc_config[subproc_deps_item.name]["input_data_filename"] | default("hxarc_input_data.json", true) }}'
       loop: '{{ subproc_deps }}'
       loop_control:
         loop_var: subproc_deps_item

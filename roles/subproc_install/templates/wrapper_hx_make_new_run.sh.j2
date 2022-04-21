@@ -4,6 +4,7 @@ SCRIPT_VENV={{ subproc_venv_dir }}
 SCRIPT_FULLPATH={{ subproc_script_path }}
 SCRIPT_DIR=$(dirname ${SCRIPT_FULLPATH})
 SCRIPT_FILENAME=$(basename ${SCRIPT_FULLPATH})
+INPUT_DATA_FILENAME={{ subproc_input_data_filename }}
 
 # hack to get subproc's pkg version
 VENV_DIR=$(dirname $SCRIPT_FULLPATH)
@@ -22,20 +23,11 @@ input_file=${1}
 input_dir=$(dirname ${1})
 input_id=$(basename ${input_dir})  # assumes input file has a unique parent dir
 
-echo "***** untar/ungzip input file ${input_file}"
-# untar uploaded file
-tar xf ${input_file} -C ${input_dir}
-
-echo
-echo "***** remove macos specific files from ${input_dir}/course"
-find ${input_dir}/course -name "._*" -print -exec rm {} \;
-
-echo
 echo "***** about to process input file ${input_file}"
 
 # run hx_util script
 cd ${SCRIPT_DIR}
-${SCRIPT_VENV}/bin/python ${SCRIPT_FILENAME} ${input_dir}/course
+${SCRIPT_VENV}/bin/python ${SCRIPT_FILENAME} ${input_file} -f ${input_dir}/${INPUT_DATA_FILENAME}
 
 echo "***** done processing"
 echo
@@ -48,7 +40,7 @@ echo
 
 # move result to known location
 cp ${input_dir}/*.txt ${result_dir}
-cp ${input_dir}/*.gz ${result_dir}
+cp ${input_dir}/*.new.tar.gz ${result_dir}
 
 echo "***** generating tar.gz"
 echo
