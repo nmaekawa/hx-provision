@@ -75,7 +75,8 @@ service_environment:
   HXYDRA_DB_PORT: "{{ service_db_port }}"
   KONDO_VUE_ROOTDIR: "{{ service_rootdir }}/hxydra-ui/hxydra"
   CAS_SERVER_URL: "https://www.pin1.harvard.edu/cas/"
-  USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default('false', true) }}"
+  USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default('true', true) }}"
+  HXYDRA_BYPASS_AUTH: "{{ lookup('env', 'HXYDRA_BYPASS_AUTH') | default('false', true) }}"
 service_vue_environment:
   NODE_ENV: 'production'
   VUE_APP_STATIC_URL: '/'
@@ -88,6 +89,24 @@ vue_app_kondo_domain: "{% if hx_subdomain is defined and hx_subdomain != '' %}\
     https://{{ webserver_dns }}\
 {% endif %}"
 
+# kondo users for hkey
+kondo_users:
+  - netid: 'nam363'
+    is_admin: '--is_admin'
+  - netid: 'lfd776'
+    is_admin: '--is_admin'
+  - netid: 'jda752'
+    is_admin: '--is_admin'
+  - netid: 'vks629'
+    is_admin: '--not_admin'
+  - netid: 'jos3449'
+    is_admin: '--not_admin'
+  - netid: 'plg012'
+    is_admin: '--not_admin'
+  - netid: 'els214'
+    is_admin: '--not_admin'
+  - netid: 'mil5381'
+    is_admin: '--not_admin'
 
 
 # for Stouts.users
@@ -106,7 +125,6 @@ apt_required_packages_hxydra:
     - 'libpq-dev'
     - 'nginx'
     - 'supervisor'
-    - 'postgresql-client'
 
 
 # PROXY VARS

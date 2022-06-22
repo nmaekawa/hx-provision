@@ -52,7 +52,12 @@
     - include_role:
         name: external/geerlingguy.nodejs
       vars:
+        nodejs_version: "16.x"
         npm_config_unsafe_perm: "true"
+
+    - name: install redis
+      include_role:
+        name: external/geerlingguy.redis
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
@@ -61,18 +66,6 @@
   vars_files:
     - vars/common_vars.yml
     - vars/hxydra_vars.yml
-  vars:
-    kondo_users:
-      - netid: 'nam363'
-        is_admin: '--is_admin'
-      - netid: 'lfd776'
-        is_admin: '--is_admin'
-      - netid: 'jda752'
-        is_admin: '--is_admin'
-      - netid: 'vks629'
-        is_admin: '--not_admin'
-      - netid: 'jos3449'
-        is_admin: '--not_admin'
   handlers:
     - include_tasks: handlers/main.yml
 
@@ -183,6 +176,16 @@
         state: present
         job: >
           {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
+
+    - name: cronjob to refresh report cache
+      cron:
+        name: 'refresh kondo report cache'
+        user: '{{ service_user }}'
+        hour: '5'
+        minute: '0'
+        state: present
+        job: >
+          {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py refresh_report_cache 2>&1 | logger -t '[refresh kondo cache]'
 
 #
 #- import_playbook: nginx_backup_play.yml
