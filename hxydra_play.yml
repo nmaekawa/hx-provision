@@ -42,6 +42,8 @@
 - hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
+  vars:
+    postgres_version: 13
   vars_files:
     - vars/common_vars.yml
     - vars/hxydra_vars.yml
@@ -58,6 +60,9 @@
     - name: install redis
       include_role:
         name: external/geerlingguy.redis
+
+    - name: install pg client
+      include_tasks: roles/external/nmaekawa.postgres/tasks/pg_install_client.yml
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
@@ -116,11 +121,10 @@
     - name: run migration and collectstatic
       include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
 
-
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
 
-    - name: add django admin user to kondo auth groups
+    - name: add django admin user to kondo authz groups
       become_user: '{{ service_user }}'
       environment:
           HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
@@ -152,6 +156,7 @@
           python ./manage.py add_user_to_groups {{ kondo_users | map(attribute='netid') | join(' ') }}
       args:
           chdir: '{{ service_install_dir }}'
+
 
     - name: add seed db
       become_user: '{{ service_user }}'

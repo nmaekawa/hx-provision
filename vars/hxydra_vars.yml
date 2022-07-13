@@ -63,6 +63,9 @@ service_admin_user: "{{ lookup('env', 'HXYDRA_ADMIN_USER') | default('user', tru
 service_admin_email: "{{ lookup('env', 'HXYDRA_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXYDRA_ADMIN_PASSWORD') | default('password', true) }}"
 service_default_django_settings: '{{ wsgi_module }}.settings.base'
+
+use_hkey_default: "{{ ec2_tag_cluster == 'vagrant' | ternary('false', 'true') }}"
+bypass_auth_default: "{{ not (use_hkey_default) }}"
 # env vars defined in service_dotenv_path file
 service_environment:
   DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXYDRA_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
@@ -73,15 +76,17 @@ service_environment:
   HXYDRA_DB_PASSWORD: "{{ service_db_password }}"
   HXYDRA_DB_HOST: "{{ service_db_host }}"
   HXYDRA_DB_PORT: "{{ service_db_port }}"
+  HXYDRA_CACHE_TIMEOUT_IN_SECS: 0
   KONDO_VUE_ROOTDIR: "{{ service_rootdir }}/hxydra-ui/hxydra"
   CAS_SERVER_URL: "https://www.pin1.harvard.edu/cas/"
-  USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default('true', true) }}"
-  HXYDRA_BYPASS_AUTH: "{{ lookup('env', 'HXYDRA_BYPASS_AUTH') | default('false', true) }}"
+  USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default(use_hkey_default, true) }}"
+  HXYDRA_BYPASS_AUTH: "{{ lookup('env', 'HXYDRA_BYPASS_AUTH') | default(bypass_auth_default, true) }}"
+  DEBUG: "{{ ec2_tag_cluster == 'vagrant' | ternary('false', 'true') }}"
 service_vue_environment:
   NODE_ENV: 'production'
   VUE_APP_STATIC_URL: '/'
-  VUE_APP_KONDO_API_URL: '{{ vue_app_kondo_domain }}/kondo/v1/'
   VUE_APP_KONDO_DOMAIN: '{{ vue_app_kondo_domain }}'
+  VUE_APP_KONDO_API_URL: '{{ vue_app_kondo_domain }}/kondo/v1/'
 
 vue_app_kondo_domain: "{% if hx_subdomain is defined and hx_subdomain != '' %}\
     https://{{ hx_subdomain }}.{{ webserver_dns }}\
@@ -107,7 +112,6 @@ kondo_users:
     is_admin: '--not_admin'
   - netid: 'mil5381'
     is_admin: '--not_admin'
-
 
 # for Stouts.users
 users_enabled: yes
