@@ -77,16 +77,25 @@ service_environment:
   HXYDRA_DB_HOST: "{{ service_db_host }}"
   HXYDRA_DB_PORT: "{{ service_db_port }}"
   HXYDRA_CACHE_TIMEOUT_IN_SECS: 0
-  KONDO_VUE_ROOTDIR: "{{ service_rootdir }}/hxydra-ui/hxydra"
+  HXYDRA_VUE_ROOTDIR: "{{ service_rootdir }}/hxydra-ui/hxydra"
   CAS_SERVER_URL: "https://www.pin1.harvard.edu/cas/"
   USE_HKEY: "{{ lookup('env', 'USE_HKEY') | default(use_hkey_default, true) }}"
   HXYDRA_BYPASS_AUTH: "{{ lookup('env', 'HXYDRA_BYPASS_AUTH') | default(bypass_auth_default, true) }}"
-  DEBUG: "{{ ec2_tag_cluster == 'vagrant' | ternary('false', 'true') }}"
+  SF_USER: "{{ lookup('env', 'SF_USER') | default('user', true) }}"
+  SF_PASSWORD: "{{ lookup('env', 'SF_PASSWORD') | default('password', true) }}"
+  SF_ACCOUNT: "{{ lookup('env', 'SF_ACCOUNT') | default('account', true) }}"
+  SF_WAREHOUSE: "{{ lookup('env', 'SF_WAREHOUSE') | default('warehouse', true) }}"
+  SF_DATABASE: "{{ lookup('env', 'SF_DATABASE') | default('database', true) }}"
+  SF_SCHEMA: "{{ lookup('env', 'SF_SCHEMA') | default('schema', true) }}"
+  SF_VIEW: "{{ lookup('env', 'SF_VIEW') | default('view', true) }}"
+  SF_ROLE: "{{ lookup('env', 'SF_ROLE') | default('role', true) }}"
 service_vue_environment:
   NODE_ENV: 'production'
   VUE_APP_STATIC_URL: '/'
   VUE_APP_KONDO_DOMAIN: '{{ vue_app_kondo_domain }}'
   VUE_APP_KONDO_API_URL: '{{ vue_app_kondo_domain }}/kondo/v1/'
+  VUE_APP_EAGLEI_API_URL: '{{ vue_app_kondo_domain }}/eaglei/v1/'
+  VUE_APP_SHOW_CACHE_UI: false
 
 vue_app_kondo_domain: "{% if hx_subdomain is defined and hx_subdomain != '' %}\
     https://{{ hx_subdomain }}.{{ webserver_dns }}\
@@ -111,6 +120,17 @@ kondo_users:
   - netid: 'els214'
     is_admin: '--not_admin'
   - netid: 'mil5381'
+    is_admin: '--not_admin'
+
+# eaglei users for hkey
+eaglei_users:
+  - netid: 'nam363'
+    is_admin: '--is_admin'
+  - netid: 'lfd776'
+    is_admin: '--is_admin'
+  - netid: 'jda752'
+    is_admin: '--is_admin'
+  - netid: 'vks629'
     is_admin: '--not_admin'
 
 # for Stouts.users

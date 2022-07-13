@@ -9,7 +9,7 @@
 # e.g. -e project_name=hxydra
 #
 
-- import_playbook: common_play.yml
+#- import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_hxydra", true) }}'
   remote_user: "{{ my_remote_user }}"
@@ -96,10 +96,10 @@
           update: yes
           clone: yes
           force: yes
-          version: 'main'
+          version: '2022-06-01-eaglei'
           dest: '{{ service_rootdir }}/hxydra-ui'
 
-    - name: add .env to VUE kondo
+    - name: add .env to VUE hxydra
       become_user: "{{ service_user }}"
       template:
           src: roles/webapp_install/templates/service_dotenv.j2
@@ -124,13 +124,14 @@
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
 
-    - name: add django admin user to kondo authz groups
+    - name: add django admin user to hxydra authz groups
       become_user: '{{ service_user }}'
       environment:
           HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
       shell: >
           . {{ service_venv_dir }}/bin/activate &&
-          python ./manage.py add_user_to_groups {{ service_admin_user }}
+          python ./manage.py add_user2group --create --users {{ service_admin_user }}
+          --app hxydra
       args:
           chdir: '{{ service_install_dir }}'
 
@@ -147,16 +148,40 @@
       loop_control:
         loop_var: ku
 
+    - name: create eaglei users
+      become_user: '{{ service_user }}'
+      environment:
+          HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
+      shell: >
+          . {{ service_venv_dir }}/bin/activate &&
+          python ./manage.py create_user --username {{ eu.netid }} --password unusable_password {{ eu.is_admin }}
+      args:
+          chdir: '{{ service_install_dir }}'
+      loop: "{{ eaglei_users }}"
+      loop_control:
+        loop_var: eu
+
     - name: add kondo users to group kondo-editor
       become_user: '{{ service_user }}'
       environment:
           HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
       shell: >
           . {{ service_venv_dir }}/bin/activate &&
-          python ./manage.py add_user_to_groups {{ kondo_users | map(attribute='netid') | join(' ') }}
+          python ./manage.py add_user2group --users {{ kondo_users | map(attribute='netid') | join(' ') }}
+          --app kondo
       args:
           chdir: '{{ service_install_dir }}'
 
+    - name: add eaglei users to group eaglei-editor
+      become_user: '{{ service_user }}'
+      environment:
+          HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
+      shell: >
+          . {{ service_venv_dir }}/bin/activate &&
+          python ./manage.py add_user2group --users {{ eaglei_users | map(attribute='netid') | join(' ') }}
+          --app eaglei
+      args:
+          chdir: '{{ service_install_dir }}'
 
     - name: add seed db
       become_user: '{{ service_user }}'
