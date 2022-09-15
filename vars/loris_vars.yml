@@ -162,6 +162,11 @@ cert_name: 'images'  # this name must match pattern for ssl cert names
 # special case for vagrant
 vagrant_webserver_dns: 'images.vm'
 
+# for local services, in prod, we use the wildcard cert with this subdomain
+# e.g. live.hxarc.harvardx.harvard.edu
+hx_prod_subdomain: "loris"
+cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+
 # need this var for allowed_hosts in django
 hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
 
@@ -170,6 +175,32 @@ hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag
 # for now, do not set webdav and static location in same nginx server
 # beware that nginx role concats location.root + location.prefix to create
 #   the directory where static files should exist
+#nginx_servers:
+#  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+#    cfg_filename: '{{ service_name }}_proxy'
+#    hx_subdomain: '{{ hx_subdomain }}'
+#    nginx_nonssl_port: 80
+#    nginx_ssl_port: 443
+#    locations:
+#      - name: 'ids_proxy'
+#        prefix: '~ ^/ids/'
+#        root: '{{ service_static_dir }}'
+#        getonly: 'yes'
+#        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+#        service_gunicorn_host: '{{ ids_image_host }}'
+#        service_gunicorn_port: '{{ ids_image_port }}'
+#      - name: 'hx_proxy'
+#        prefix: '~ ^/iiif/'
+#        root: '{{ service_static_dir }}'
+#        getonly: 'yes'
+#        add_rewrites: 'yes'
+#        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+#        service_gunicorn_host: '{{ hx_image_host }}'
+#        service_gunicorn_port: '{{ hx_image_port }}'
+
+# 31aug22 naomi: reverse proxy for loris in prep to move iiif infrastructure to mps
+# this nginx is to be used with a cloudfront distribution and when provisioning with
+# ansible used -e hx_subdomain=loris
 nginx_servers:
   - nginx_template_path: roles/nginx/templates/proxy_server.j2
     cfg_filename: '{{ service_name }}_proxy'
@@ -177,19 +208,13 @@ nginx_servers:
     nginx_nonssl_port: 80
     nginx_ssl_port: 443
     locations:
-      - name: 'ids_proxy'
-        prefix: '~ ^/ids/'
-        root: '{{ service_static_dir }}'
-        getonly: 'yes'
-        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
-        service_gunicorn_host: '{{ ids_image_host }}'
-        service_gunicorn_port: '{{ ids_image_port }}'
-      - name: 'hx_proxy'
+      - name: '{{ service_name }}_proxy'
         prefix: '~ ^/iiif/'
         root: '{{ service_static_dir }}'
         getonly: 'yes'
         add_rewrites: 'yes'
         gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
-        service_gunicorn_host: '{{ hx_image_host }}'
-        service_gunicorn_port: '{{ hx_image_port }}'
+        service_gunicorn_host: '{{ service_gunicorn_host }}'
+        service_gunicorn_port: '{{ service_gunicorn_port }}'
+
 

@@ -33,7 +33,7 @@
 - import_playbook: nginx_backup_play.yml
 
 
-- import_playbook: route53_play.yml
+  #- import_playbook: route53_play.yml
 
 
 

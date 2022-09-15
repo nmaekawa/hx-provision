@@ -336,6 +336,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ]
     end
   end
+
+  # goaccess log analyzer https://goaccess.io/download#distro
+  config.vm.define "goaccess" do |goaccess|
+    goaccess.vm.box = "geerlingguy/ubuntu2004"
+    goaccess.vm.hostname = "goaccess"
+    goaccess.dns.patterns = [/^goaccess.vm$/]
+    goaccess.vm.network "private_network", ip: "10.77.20.10"
+
+    goaccess.ssh.forward_agent = true
+    goaccess.ssh.insert_key = false
+
+    goaccess.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
 end
 
 #
