@@ -16,7 +16,7 @@
   tasks:
     - name: check timesync
       shell: |
-        timedatectl | grep 'NTP sync' | awk '{print $3}'
+        timedatectl | grep 'synchronized' | awk '{print $4}'
       register: timesync
 
     - debug:
