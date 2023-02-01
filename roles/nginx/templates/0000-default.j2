@@ -1,0 +1,16 @@
+# from https://computableverse.com/blog/django-invalid-http-host-header
+
+server {
+    listen       {{ server.nginx_nonssl_port }} default_server;
+    listen       [::]:{{ server.nginx_nonssl_port }} default_server;
+    return  444;
+}
+
+server {
+    listen              {{ server.nginx_ssl_port }} ssl http2 default_server;
+    listen              [::]:{{ server.nginx_ssl_port }} ssl http2 default_server;
+    return 444;
+
+    ssl_certificate     {{ target_certs_dir }}/{{ service_cert_name }}.crt;
+    ssl_certificate_key {{ target_certs_dir }}/{{ service_cert_name }}.key;
+}

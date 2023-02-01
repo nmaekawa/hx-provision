@@ -75,3 +75,14 @@
         dest: /etc/nginx/sites-enabled/{{ server.cfg_filename }}
         state: link
 
+    - name: drop nginx default site to prevent django disallowed-hosts
+      template:
+        src: 0000-default.j2
+        dest: /etc/nginx/sites-available/0000-default
+
+    - name: ensure 0000-default site is enabled
+      file:
+        src: /etc/nginx/sites-available/0000-default
+        dest: /etc/nginx/sites-enabled/0000-default
+        state: link
+
