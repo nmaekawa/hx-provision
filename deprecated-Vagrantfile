@@ -2,7 +2,8 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = "2"
-DEFAULT_VB = "geerlingguy/ubuntu2004"
+#DEFAULT_VB = "bento/ubuntu-18.04"
+DEFAULT_VB = "geerlingguy/ubuntu1804"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -10,6 +11,78 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.dns.tld = "vm"
   VagrantDNS::Config.logger = Logger.new("dns.log")
   VagrantDNS::Config.auto_run = false
+
+  # reverse proxy node
+  config.vm.define "images" do |images|
+    images.vm.box = DEFAULT_VB
+    images.vm.hostname = "images"
+    images.dns.patterns = [/^images.vm$/]
+    images.vm.network "private_network", ip: "10.8.0.10"
+
+    images.ssh.forward_agent = true
+    images.ssh.insert_key = false
+
+    images.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # loris image server node
+  config.vm.define "loris" do |loris|
+    loris.vm.box = DEFAULT_VB
+    loris.vm.hostname = "loris"
+    loris.dns.patterns = [/^loris.vm$/]
+    loris.vm.network "private_network", ip: "10.8.0.8"
+
+    loris.ssh.forward_agent = true
+    loris.ssh.insert_key = false
+
+    loris.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # ids image server node
+  config.vm.define "ids" do |ids|
+    ids.vm.box = DEFAULT_VB
+    ids.vm.hostname = "ids"
+    ids.dns.patterns = [/^ids.vm$/]
+    ids.vm.network "private_network", ip: "10.8.0.9"
+
+    ids.ssh.forward_agent = true
+    ids.ssh.insert_key = false
+
+    ids.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # hxprezi node
+  config.vm.define "hxprezi" do |hxprezi|
+    hxprezi.vm.box = DEFAULT_VB
+    hxprezi.vm.hostname = "hxprezi"
+    hxprezi.dns.patterns = [/^hxprezi.vm$/]
+    hxprezi.vm.network "private_network", ip: "10.8.0.14"
+
+    hxprezi.ssh.forward_agent = true
+    hxprezi.ssh.insert_key = false
+
+    hxprezi.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
 
   # mirador-lti node
   config.vm.define "mirador" do |mirador|
@@ -22,6 +95,42 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     mirador.ssh.insert_key = false
 
     mirador.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # ids-varnish node
+  config.vm.define "idsvarnish" do |idsvarnish|
+    idsvarnish.vm.box = DEFAULT_VB
+    idsvarnish.vm.hostname = "idsvarnish"
+    idsvarnish.dns.patterns = [/^idsvarnish.vm$/]
+    idsvarnish.vm.network "private_network", ip: "10.8.0.16"
+
+    idsvarnish.ssh.forward_agent = true
+    idsvarnish.ssh.insert_key = false
+
+    idsvarnish.vm.provider "virtualbox" do |v|
+        v.memory = "1096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # hx-varnish node
+  config.vm.define "hxvarnish" do |hxvarnish|
+    hxvarnish.vm.box = DEFAULT_VB
+    hxvarnish.vm.hostname = "hxvarnish"
+    hxvarnish.dns.patterns = [/^hxvarnish.vm$/]
+    hxvarnish.vm.network "private_network", ip: "10.8.0.17"
+
+    hxvarnish.ssh.forward_agent = true
+    hxvarnish.ssh.insert_key = false
+
+    hxvarnish.vm.provider "virtualbox" do |v|
         v.memory = "1096"
         v.customize [
             "modifyvm", :id, "--natdnshostresolver1", "on",
@@ -138,6 +247,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  # playremote node
+  config.vm.define "playremote" do |playremote|
+    playremote.vm.box = DEFAULT_VB
+    playremote.vm.hostname = "playremote"
+    playremote.dns.patterns = [/^playremote.vm$/]
+    playremote.vm.network "private_network", ip: "10.8.20.10"
+
+    playremote.ssh.forward_agent = true
+    playremote.ssh.insert_key = false
+
+    playremote.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
   # eedev  webserver
   config.vm.define "eedev" do |eedev|
     eedev.vm.box = DEFAULT_VB
@@ -185,6 +312,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     roundup.ssh.insert_key = false
 
     roundup.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # blockchain demo
+  config.vm.define "blockchain" do |blockchain|
+    blockchain.vm.box = "geerlingguy/ubuntu2004"
+    blockchain.vm.hostname = "blockchain"
+    blockchain.dns.patterns = [/^blockchain.vm$/]
+    blockchain.vm.network "private_network", ip: "10.77.10.77"
+
+    blockchain.ssh.forward_agent = true
+    blockchain.ssh.insert_key = false
+
+    blockchain.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
             "modifyvm", :id, "--natdnshostresolver1", "on",
