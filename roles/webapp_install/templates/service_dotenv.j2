@@ -1,5 +1,7 @@
 {% for variable_name, value in service_environment.items() %}
+{% if value != 'VPAL_UNDEF' %}
 {{ variable_name }}="{{ value }}"
+{% endif %}
 {% endfor %}
 
 {% if ec2_tag_cluster != "vagrant" %}

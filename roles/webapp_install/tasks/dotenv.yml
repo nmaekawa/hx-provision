@@ -16,3 +16,13 @@
           mode: 0640
           backup: yes
 
+      - name: dotenv | drop hxat lti_dict file
+        copy:
+          src: "{{ lti_dict_local_filepath }}"
+          dest: "{{ lti_dict_remote_filepath }}"
+          owner: "{{ service_user }}"
+          group: "{{ service_group }}"
+          mode: 0640
+          backup: yes
+        when: service_name == "hxat"
+

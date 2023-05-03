@@ -76,7 +76,15 @@ service_admin_user: "{{ lookup('env', 'HXAT_ADMIN_USER') | default('user', true)
 service_admin_email: "{{ lookup('env', 'HXAT_ADMIN_EMAIL') | default('user@user.com', true) }}"
 service_admin_password: "{{ lookup('env', 'HXAT_ADMIN_PASSWORD') | default('password', true) }}"
 service_default_django_settings: '{{ wsgi_module }}.settings.base'
+
+# hxat specific: lti-dict json file
+lti_dict_filename: "lti_dict.json"
+lti_dict_local_filename: "{{ (ec2_tag_cluster in ['prod', 'demo']) | ternary('prod', 'devo') }}_{{ lti_dict_filename }}"
+lti_dict_local_filepath: "{{ lookup('env', 'LTI_DICT_FILEDIR') | default('../hx-dotenv/hxat', true) }}/{{ lti_dict_local_filename }}"
+lti_dict_remote_filepath: "{{ service_config_dir }}/{{ lti_dict_filename }}"
+
 # env vars defined in service_dotenv_path file
+# set default to "VPAL_UNDEF" so the template leaves it out of the final service_dotenv_path file
 service_environment:
   DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'HXAT_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
   DJANGO_SECRET_KEY: "{{ lookup('env', 'HXAT_DJANGO_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
@@ -88,8 +96,9 @@ service_environment:
   HXAT_DB_PORT: "{{ service_db_port }}"
   CONSUMER_KEY: "{{ lookup('env', 'CONSUMER_KEY') | default('default_consumer_key', true) }}"
   LTI_SECRET: "{{ lookup('env', 'LTI_SECRET') | default('default_lti_secret', true) }}"
-  LTI_SECRET_DICT: "{{ lookup('env', 'LTI_SECRET_DICT') | default('{}', true) }}"
-  ADMIN_ROLES: "{{ lookup('env', 'ADMIN_ROLES') | default(['Administrator'], true) }}"
+  LTI_SECRET_DICT_FILEPATH: "{{ lookup('env', 'LTI_SECRET_DICT_FILEPATH') | default(lti_dict_remote_filepath, true) }}"
+  ADMIN_ROLES: "{{ lookup('env', 'ADMIN_ROLES') | default('VPAL_UNDEF', true) }}"
+
   X_FRAME_ALLOWED_SITES: "{{ lookup('env', 'X_FRAME_ALLOWED_SITES') | default(['0.0.0.0:8000'], true) }}"
   ORGANIZATION: "HARVARDX"
 
@@ -106,6 +115,7 @@ service_environment:
 
   LOG_ROOT: "{{ service_data_dir }}"
 
+# only defines if in env
 
 # for Stouts.users
 users_enabled: yes
