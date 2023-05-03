@@ -29,19 +29,19 @@
           file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
         when: ec2_tag_cluster == 'prod'
 
-      - import_role:
-          name: external/weihrauch.cloudwatch-monitoring
-        vars:
-            cw_install_dir: '{{ service_cw_install_dir }}'
-            cw_options: "--mem-util --mem-used --mem-avail"
-            cw_cron_minute: "*/2"
-        when: ec2_tag_cluster == 'prod'
-
-      - name: change metric namespace
-        replace:
-            path: '{{ service_cw_install_dir }}/mon-put-instance-data.pl'
-            regexp: "(.*input_ref->{'Namespace'} =).*"
-            replace: '\1 "{{ cloudwatch_namespace }}";'
-            backup: yes
-        when: ec2_tag_cluster == 'prod'
+      #- import_role:
+      #    name: external/weihrauch.cloudwatch-monitoring
+      #  vars:
+      #      cw_install_dir: '{{ service_cw_install_dir }}'
+      #      cw_options: "--mem-util --mem-used --mem-avail"
+      #      cw_cron_minute: "*/2"
+      #  when: ec2_tag_cluster == 'prod'
+      #
+      #- name: change metric namespace
+      #  replace:
+      #      path: '{{ service_cw_install_dir }}/mon-put-instance-data.pl'
+      #      regexp: "(.*input_ref->{'Namespace'} =).*"
+      #      replace: '\1 "{{ cloudwatch_namespace }}";'
+      #      backup: yes
+      #  when: ec2_tag_cluster == 'prod'
 

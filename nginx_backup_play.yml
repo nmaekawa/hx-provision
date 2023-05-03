@@ -19,9 +19,11 @@
 
   tasks:
     - ec2_metadata_facts:
+      when: ec2_tag_cluster == 'prod'
 
     - debug:
         msg: "project_name={{ project_name }}; service_role={{ service_role }}; cluster_env={{ cluster_env }}; namespace={{ cloudwatch_namespace }}; instance_id={{ ansible_ec2_instance_id}}"
+      when: ec2_tag_cluster == 'prod'
 
     - import_tasks: roles/external/nmaekawa.cloudwatch/tasks/install_backup_cronjob.yml
       vars:
