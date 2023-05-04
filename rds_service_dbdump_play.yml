@@ -1,0 +1,88 @@
+
+  #
+  #
+  # ALWAYS ADD -e project_name=<project_name> to ansible-playbook extra args
+  # e.g. -e project_name=catchpy to config backups for catchpy db
+  #
+
+- hosts: "{{ target_hosts | default('all', true) }}"
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/common_vars.yml
+    - vars/postgres_vars.yml
+
+  handlers:
+      - include: handlers/main.yml
+
+  tasks:
+    - name: install packages jq, aws
+      apt:
+        name: ['jq', 'awscli']
+        state: present
+
+    - name: install pg client
+      include_tasks: roles/external/nmaekawa.postgres/tasks/pg_install_client.yml
+
+
+
+- hosts: "{{ target_hosts | default('all', true) }}"
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/common_vars.yml
+    - vars/{{ project_name }}_vars.yml
+  vars:
+    db_backup_local_retention_in_days: "{{ lookup('env', 'DB_BAK_RETENTION_IN_DAYS') | default('7', true) }}"
+    db_log_retention_in_days: "{{ lookup('env', 'DB_LOG_RETENTION_IN_DAYS') | default('90', true) }}"
+
+  tasks:
+    - ec2_metadata_facts:
+      when: ec2_tag_cluster == 'prod'
+
+    - name: create dirs
+      file:
+        path: "{{ item }}"
+        owner: "{{ service_user }}"
+        group: "{{ service_group }}"
+        mode: 0755
+        state: directory
+      with_items: ["{{ service_backup_dir }}/db", "{{ service_bin_dir }}"]
+
+    - name: drop script to perform data backups
+      template:
+        src: roles/webapp_install/templates/cronjob_db_backup.sh.j2
+        dest: "{{ service_bin_dir }}/pg_datadump_{{ service_name }}.sh"
+        owner: "{{ service_user }}"
+        group: "{{ service_group }}"
+        mode: 0754
+      when: ec2_tag_cluster == "prod"
+
+    - name: cronjob for data backup
+      cron:
+        name: "daily postgres data dump for {{ service_name }}"
+        user: "{{ service_user }}"
+        hour: "{{ lookup('env', 'DBBAK_DATA_CRON_HOUR') | default('6', true) }}"  # this is UTC, so ~2am EDT or ~1am EST
+        minute: "{{ lookup('env', 'DBBAK_DATA_CRON_MIN') | default('0', true) }}"
+        state: present
+        job: >
+          {{ service_bin_dir }}/pg_datadump_{{ service_name }}.sh --db "{{ service_name }}"
+          --outdir "{{ service_backup_dir }}/db"
+          --days {{ service_db_backup_local_retention_in_days }} 2>&1 | logger -t "[db backup]"
+      when: ec2_tag_cluster == "prod"
+
+    - name: install s3 cronjob for db dumps
+      cron:
+        name: "s3 sync for db dumps: {{ service_name }}"
+        user: "{{ service_user }}"
+        hour: "{{ lookup('env', 'DBBAK_SYNC_CRON_HOUR') | default('6', true) }}"  # this is UTC, so ~2am EDT or ~1am EST
+        minute: "{{ lookup('env', 'DBBAK_SYNC_CRON_MIN') | default('45', true) }}"  # check when dumps fininh to schedule after that
+        state: present
+        job: >
+          /usr/bin/aws s3 sync
+          {{ service_backup_dir }}/db
+          s3://{{ s3_backup_bucket_name }}/{{ ec2_tag_cluster }}/{{ project_name }}/pgdump_taken_from_{{ ansible_ec2_instance_id }}
+      when: ec2_tag_cluster == "prod"
+
