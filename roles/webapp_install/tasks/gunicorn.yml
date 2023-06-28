@@ -13,7 +13,7 @@
         become: yes
         become_user: "{{ service_user }}"
         template:
-            src: gunicorn_start.j2
+            src: ../templates/gunicorn_start.j2
             dest: "{{ service_venv_dir }}/bin/gunicorn_start"
             owner: "{{ service_user }}"
             group: "{{ service_group }}"

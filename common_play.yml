@@ -54,10 +54,11 @@
 
       - include_role:
           name: external/nmaekawa.apt
-        # install acl pkg for become_user; see:
-        # https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary
+        # - install acl pkg for become_user; see:
+        #   https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary
+        # - install jq pkg to identify extra ebs mountpoint
         vars:
-          apt_other_packages: ["acl"]
+          apt_other_packages: ["acl", "jq"]
 
       # unattended-updates is installed by default by nmaekawa.apt but not properly
       # configured... see:
