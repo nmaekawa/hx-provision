@@ -3,6 +3,7 @@
 
 VAGRANTFILE_API_VERSION = "2"
 DEFAULT_VB = "geerlingguy/ubuntu2004"
+UBUNTU2204 = "bento/ubuntu-22.04"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -31,7 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # catchpy postgres
   config.vm.define "dbserver" do |dbserver|
-    dbserver.vm.box = DEFAULT_VB
+    dbserver.vm.box = UBUNTU2204
     dbserver.vm.hostname = "dbserver"
     dbserver.dns.patterns = [/^dbserver.vm$/]
     dbserver.vm.network "private_network", ip: "10.8.50.31"
@@ -42,7 +43,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     dbserver.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+              "--natdnshostresolver1", "on",
+              "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -67,8 +70,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxat  webserver
   config.vm.define "hxat" do |hxat|
-    #hxat.vm.box = DEFAULT_VB
-    hxat.vm.box = "geerlingguy/ubuntu2004"
+    hxat.vm.box = UBUNTU2204
     hxat.vm.hostname = "hxat"
     hxat.dns.patterns = [/^hxat.vm$/]
     hxat.vm.network "private_network", ip: "10.8.50.51"
@@ -79,7 +81,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     hxat.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+              "--natdnshostresolver1", "on",
+              "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -158,7 +162,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxydra  webserver
   config.vm.define "hxydra" do |hxydra|
-    hxydra.vm.box = "geerlingguy/ubuntu2004"
+    hxydra.vm.box = "generic/ubuntu2204"
     hxydra.vm.hostname = "hxydra"
     hxydra.dns.patterns = [/^hxydra.vm$/]
     hxydra.vm.network "private_network", ip: "10.11.10.10"
@@ -206,6 +210,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "4096"
         v.customize [
             "modifyvm", :id, "--natdnshostresolver1", "on",
+        ]
+    end
+  end
+
+  # lti13 inspector
+  config.vm.define "inspector" do |inspector|
+    inspector.vm.box = UBUNTU2204
+    inspector.vm.hostname = "inspector"
+    inspector.dns.patterns = [/^inspector.vm$/]
+    inspector.vm.network "private_network", ip: "10.77.30.10"
+
+    inspector.ssh.forward_agent = true
+    inspector.ssh.insert_key = false
+
+    inspector.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id,
+              "--natdnshostresolver1", "on",
+              "--natdnshostresolver2", "on",
         ]
     end
   end
