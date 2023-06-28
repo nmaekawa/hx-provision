@@ -1,0 +1,114 @@
+---
+
+# INSPECTOR VARS
+# ----------------------------------------------------------------------------------
+
+# service vars
+service_name: "inspector"
+service_user: "nmaekawa"
+service_group: "nmaekawa"
+
+# dbserver config from environment
+service_db_name: "{{ lookup('env', 'INSPECTOR_DB_NAME') | default(service_name , true) }}"
+service_db_user: "{{ lookup('env', 'INSPECTOR_DB_USER') | default(service_name, true) }}"
+service_db_password: "{{ lookup('env', 'INSPECTOR_DB_PASSWORD') | default(service_name, true) }}"
+# hardcoded vagrant inspector postgres inventory hostname...
+service_db_host: "{{ lookup('env', 'INSPECTOR_DB_HOST') | default('dbserver.vm', true) }}"
+service_db_port: "{{ lookup('env', 'INSPECTOR_DB_PORT') | default('5432', true) }}"
+service_db_backup_local_retention_in_days: 15
+
+# check in cloudformation for the device name
+ebs_mountpoint: /opt/hx
+
+rootdir: "{{ ebs_mountpoint }}"
+service_rootdir: "{{ rootdir }}/{{ service_name }}"
+service_venv_dir: "{{ service_rootdir }}/venv"
+# uncomment, otherwise default is debug: # 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'CRITICAL'
+# service_log_level: "DEBUG"
+
+service_install_dir: "{{ service_rootdir }}/{{ service_name }}"
+service_static_dir: "{{ service_rootdir }}/www"
+service_django_static_dir: "{{ service_static_dir }}/static"
+service_config_dir: "{{ service_rootdir }}/conf"
+service_bin_dir: "{{ service_rootdir }}/bin"
+service_data_dir: "{{ service_rootdir }}/data"
+service_backup_dir: "{{ service_data_dir }}/backup"
+
+service_gunicorn_port: "{{ lookup('env', 'INSPECTOR_GUNICORN_PORT') | default('8236', true) }}"
+service_gunicorn_host: "{{ lookup('env', 'INSPECTOR_GUNICORN_HOST') | default('127.0.0.1', true) }}"
+gunicorn_timeout_seconds: 60  # workers timeout for nginx cfg
+
+service_git_repo: "https://github.com/nmaekawa/{{ service_name }}.git"
+var_service_git_revision: "{{ service_name | upper }}_GIT_REVISION"
+service_git_revision: "{{ lookup('env', var_service_git_revision) | default('develop', true) }}"
+
+# easier to create dirs with this dict
+service_dirs_to_create:
+    - "{{ service_rootdir }}"
+    - "{{ service_config_dir }}"
+    - "{{ service_data_dir }}"
+    - "{{ service_backup_dir }}"
+    - "{{ service_bin_dir }}"
+    - "{{ service_static_dir }}"
+    - "{{ service_django_static_dir }}"
+
+# specific to webapp_install role
+service_dotenv_path: "{{ service_config_dir }}/{{ service_name }}.env"
+# django admin user to be created
+service_admin_user: "{{ lookup('env', 'INSPECTOR_ADMIN_USER') | default('user', true) }}"
+service_admin_email: "{{ lookup('env', 'INSPECTOR_ADMIN_EMAIL') | default('user@user.com', true) }}"
+service_admin_password: "{{ lookup('env', 'INSPECTOR_ADMIN_PASSWORD') | default('password', true) }}"
+service_default_django_settings: '{{ service_name }}.settings.dev'
+# env vars defined in service_dotenv_path file
+service_environment:
+  DJANGO_SETTINGS_MODULE: "{{ lookup('env', 'INSPECTOR_DJANGO_SETTINGS') | default(service_default_django_settings, true) }}"
+  INSPECTOR_DJANGO_SECRET_KEY: "{{ lookup('env', 'INSPECTOR_DJANGO_SECRET_KEY') | default('nao pode mais meu coracao viver assim', true) }}"
+  INSPECTOR_STATIC_ROOT: "{{ service_django_static_dir }}"
+  INSPECTOR_DB_NAME: "{{ service_db_name }}"
+  INSPECTOR_DB_USER: "{{ service_db_user }}"
+  INSPECTOR_DB_PASSWORD: "{{ service_db_password }}"
+  INSPECTOR_DB_HOST: "{{ service_db_host }}"
+  INSPECTOR_DB_PORT: "{{ service_db_port }}"
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+
+
+# PROXY VARS
+# ----------------------------------------------------------------------------------
+
+static_dir: '{{ service_static_dir }}'
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+# need this var for allowed_hosts in django
+hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
+
+# beware that order of location matter in nginx matching rules!
+# for now, webdav servers should always have location '/'
+# for now, do not set webdav and static location in same nginx server
+# beware that nginx role concats location.root + location.prefix to create
+#   the directory where static files should exist
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/proxy_server.j2
+    cfg_filename: '{{ service_name }}_proxy'
+    hx_subdomain: '{{ hx_subdomain }}'
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - name: '{{ service_name }}_proxy'
+        prefix: '/'
+        root: '{{ static_dir }}'
+        gunicorn_timeout_seconds: '{{ gunicorn_timeout_seconds }}'
+        service_gunicorn_host: '{{ service_gunicorn_host }}'
+        service_gunicorn_port: '{{ service_gunicorn_port }}'
+
+# REDIS VARS
+# ----------------------------------------------------------------------------------
+redis_timeout: 0  # no timeout set for client
+
+
+
