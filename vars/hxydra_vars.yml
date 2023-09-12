@@ -13,7 +13,7 @@ service_db_name: "{{ lookup('env', 'HXYDRA_DB_NAME') | default(service_name , tr
 service_db_user: "{{ lookup('env', 'HXYDRA_DB_USER') | default(service_name, true) }}"
 service_db_password: "{{ lookup('env', 'HXYDRA_DB_PASSWORD') | default(service_name, true) }}"
 # hardcoded vagrant hxydra postgres inventory hostname...
-service_db_host: "{{ lookup('env', 'HXYDRA_DB_HOST') | default('dbserver.vm', true) }}"
+service_db_host: "{{ lookup('env', 'HXYDRA_DB_HOST') | default('10.8.50.31', true) }}"
 service_db_port: "{{ lookup('env', 'HXYDRA_DB_PORT') | default('5432', true) }}"
 service_db_backup_local_retention_in_days: 7
 
@@ -98,20 +98,60 @@ vue_app_kondo_domain: "{% if hx_subdomain is defined and hx_subdomain != '' %}\
 kondo_users:
   - netid: 'nam363'
     is_admin: '--is_admin'
+    groups:
+      - 'kondo-admin'
   - netid: 'lfd776'
     is_admin: '--is_admin'
+    groups:
+      - 'kondo-admin'
   - netid: 'jda752'
     is_admin: '--is_admin'
+    groups:
+      - 'kondo-admin'
   - netid: 'vks629'
     is_admin: '--not_admin'
+    groups:
+      - 'kondo-operation'
+      - 'kondo-create-project'
+      - 'kondo-delete-project'
+      - 'kondo-update-project'
   - netid: 'jos3449'
     is_admin: '--not_admin'
+    groups:
+      - 'kondo-operation'
+      - 'kondo-create-project'
+      - 'kondo-delete-project'
+      - 'kondo-update-project'
   - netid: 'plg012'
     is_admin: '--not_admin'
+    groups:
+      - 'kondo-finance'
+      - 'kondo-update-project'
   - netid: 'els214'
     is_admin: '--not_admin'
+    groups:
+      - 'kondo-finance'
+      - 'kondo-update-project'
   - netid: 'mil5381'
     is_admin: '--not_admin'
+    groups:
+      - 'kondo-finance'
+      - 'kondo-update-project'
+  - netid: 'ljm349'
+    is_admin: '--not_admin'
+    groups:
+      - 'kondo-production'
+      - 'kondo-update-project'
+  - netid: 'mag7078'
+    is_admin: '--not_admin'
+    groups:
+      - 'kondo-production'
+      - 'kondo-update-project'
+  - netid: 'nic220'
+    is_admin: '--not_admin'
+    groups:
+      - 'kondo-production'
+      - 'kondo-update-project'
 
 # for Stouts.users
 users_enabled: yes

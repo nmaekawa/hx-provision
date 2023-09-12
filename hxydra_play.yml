@@ -124,13 +124,23 @@
     - name: create django admin user
       include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
 
-    - name: add django admin user to kondo authz groups
+    - name: ensure kondo auth groups exist
+      become_user: '{{ service_user }}'
+      environment:
+          HXYDRA_DOTENV_PATH: '{{ service_dotenv_path}}'
+      shell: >
+            . {{ service_venv_dir}}/bin/activate &&
+            python ./manage.py setup_permissions
+      args:
+          chdir: '{{ service_install_dir }}'
+
+    - name: add django admin user to kondo-admin group
       become_user: '{{ service_user }}'
       environment:
           HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
       shell: >
           . {{ service_venv_dir }}/bin/activate &&
-          python ./manage.py add_user_to_groups {{ service_admin_user }}
+          python ./manage.py add_user_to_groups {{ service_admin_user }} 'kondo-admin'
       args:
           chdir: '{{ service_install_dir }}'
 
@@ -147,16 +157,18 @@
       loop_control:
         loop_var: ku
 
-    - name: add kondo users to group kondo-editor
+    - name: add kondo users to group kondo-auth-groups
       become_user: '{{ service_user }}'
       environment:
           HXYDRA_DOTENV_PATH: '{{ service_dotenv_path }}'
       shell: >
           . {{ service_venv_dir }}/bin/activate &&
-          python ./manage.py add_user_to_groups {{ kondo_users | map(attribute='netid') | join(' ') }}
+          python ./manage.py add_user_to_groups {{ ku.netid }} {{ ku.groups | join(',') }}
       args:
           chdir: '{{ service_install_dir }}'
-
+      loop: '{{ kondo_users }}'
+      loop_control:
+        loop_var: ku
 
     - name: add seed db
       become_user: '{{ service_user }}'
