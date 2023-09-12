@@ -48,11 +48,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               "--natdnshostresolver2", "on",
         ]
     end
+    # allow guests to reach each other by hostname
+    dbserver.vm.provision "shell",
+    inline: <<-SHELL
+      apt update
+      apt install -y avahi-daemon libnss-mdns
+    SHELL
   end
 
   # catchpy webserver
   config.vm.define "catchpy" do |catchpy|
-    catchpy.vm.box = "geerlingguy/ubuntu2004"
+    catchpy.vm.box = UBUNTU2204
     catchpy.vm.hostname = "catchpy"
     catchpy.dns.patterns = [/^catchpy.vm$/]
     catchpy.vm.network "private_network", ip: "10.8.50.41"
@@ -63,7 +69,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     catchpy.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -176,6 +184,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             "modifyvm", :id, "--natdnshostresolver1", "on",
         ]
     end
+    # allow guests to reach each other by hostname
+    hxydra.vm.provision "shell",
+    inline: <<-SHELL
+      apt update
+      apt install -y avahi-daemon libnss-mdns
+    SHELL
   end
 
   # issue tracker roundup: https://www.roundup-tracker.org/index.html
@@ -233,6 +247,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ]
     end
   end
+
+  # allow guests to reach each other by hostname
+  config.vm.provision "allow_guest_host_resolution",
+    type: "shell",
+    inline: <<-SHELL
+      apt update
+      apt install -y avahi-daemon libnss-mdns
+    SHELL
 
 end
 

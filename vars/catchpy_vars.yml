@@ -13,7 +13,7 @@ service_db_name: "{{ lookup('env', 'CATCHPY_DB_NAME') | default(service_name , t
 service_db_user: "{{ lookup('env', 'CATCHPY_DB_USER') | default(service_name, true) }}"
 service_db_password: "{{ lookup('env', 'CATCHPY_DB_PASSWORD') | default(service_name, true) }}"
 # hardcoded vagrant catchpy postgres inventory hostname...
-service_db_host: "{{ lookup('env', 'CATCHPY_DB_HOST') | default('dbserver.vm', true) }}"
+service_db_host: "{{ lookup('env', 'CATCHPY_DB_HOST') | default('10.8.50.31', true) }}"
 service_db_port: "{{ lookup('env', 'CATCHPY_DB_PORT') | default('5432', true) }}"
 service_db_backup_local_retention_in_days: 15
 
