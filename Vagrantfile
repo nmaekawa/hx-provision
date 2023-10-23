@@ -4,35 +4,18 @@
 VAGRANTFILE_API_VERSION = "2"
 DEFAULT_VB = "geerlingguy/ubuntu2004"
 UBUNTU2204 = "bento/ubuntu-22.04"
+UBUNTU2204_DESKTOP = "fasmat/ubuntu2204-desktop"
+UBUNTU_JAMMY = "ubuntu/jammy64"
+UBUNTU_FOCAL = "ubuntu/focal64"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # vagrant dns; requires `vagrant plugin install vagrant-dns`
   config.dns.tld = "vm"
-  VagrantDNS::Config.logger = Logger.new("dns.log")
-  VagrantDNS::Config.auto_run = false
-
-  # mirador-lti node
-  config.vm.define "mirador" do |mirador|
-    mirador.vm.box = DEFAULT_VB
-    mirador.vm.hostname = "mirador"
-    mirador.dns.patterns = [/^mirador.vm$/]
-    mirador.vm.network "private_network", ip: "10.8.0.15"
-
-    mirador.ssh.forward_agent = true
-    mirador.ssh.insert_key = false
-
-    mirador.vm.provider "virtualbox" do |v|
-        v.memory = "1096"
-        v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
-        ]
-    end
-  end
 
   # catchpy postgres
   config.vm.define "dbserver" do |dbserver|
-    dbserver.vm.box = UBUNTU2204
+    dbserver.vm.box = UBUNTU_JAMMY
     dbserver.vm.hostname = "dbserver"
     dbserver.dns.patterns = [/^dbserver.vm$/]
     dbserver.vm.network "private_network", ip: "10.8.50.31"
@@ -48,17 +31,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               "--natdnshostresolver2", "on",
         ]
     end
-    # allow guests to reach each other by hostname
-    dbserver.vm.provision "shell",
-    inline: <<-SHELL
-      apt update
-      apt install -y avahi-daemon libnss-mdns
-    SHELL
   end
 
   # catchpy webserver
   config.vm.define "catchpy" do |catchpy|
-    catchpy.vm.box = UBUNTU2204
+    catchpy.vm.box = UBUNTU_JAMMY
     catchpy.vm.hostname = "catchpy"
     catchpy.dns.patterns = [/^catchpy.vm$/]
     catchpy.vm.network "private_network", ip: "10.8.50.41"
@@ -78,7 +55,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxat  webserver
   config.vm.define "hxat" do |hxat|
-    hxat.vm.box = UBUNTU2204
+    hxat.vm.box = UBUNTU_JAMMY
     hxat.vm.hostname = "hxat"
     hxat.dns.patterns = [/^hxat.vm$/]
     hxat.vm.network "private_network", ip: "10.8.50.51"
@@ -98,7 +75,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxarc node
   config.vm.define "hxarc" do |hxarc|
-    hxarc.vm.box = "geerlingguy/ubuntu2004"
+    #hxarc.vm.box = "geerlingguy/ubuntu2004"
+    hxarc.vm.box = UBUNTU_FOCAL
     hxarc.vm.hostname = "hxarc"
     hxarc.dns.patterns = [/^hxarc.vm$/]
     hxarc.vm.network "private_network", ip: "10.8.44.11"
@@ -116,7 +94,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # www2 node
   config.vm.define "www2" do |www2|
-    www2.vm.box = DEFAULT_VB
+    #www2.vm.box = DEFAULT_VB
+    www2.vm.box = UBUNTU_JAMMY
     www2.vm.hostname = "www2"
     www2.dns.patterns = [/^www2.vm$/]
     www2.vm.network "private_network", ip: "10.8.10.11"
@@ -134,7 +113,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # fnup node  (hbso files&uploads)
   config.vm.define "fnup" do |fnup|
-    fnup.vm.box = DEFAULT_VB
+    #fnup.vm.box = DEFAULT_VB
+    fnup.vm.box = UBUNTU_JAMMY
     fnup.vm.hostname = "fnup"
     fnup.dns.patterns = [/^fnup.vm$/]
     fnup.vm.network "private_network", ip: "10.8.10.21"
@@ -152,7 +132,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # eedev  webserver
   config.vm.define "eedev" do |eedev|
-    eedev.vm.box = DEFAULT_VB
+    eedev.vm.box = UBUNTU2204_DESKTOP
     eedev.vm.hostname = "eedev"
     eedev.dns.patterns = [/^eedev.vm$/]
     eedev.vm.network "private_network", ip: "10.10.10.10"
@@ -170,7 +150,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxydra  webserver
   config.vm.define "hxydra" do |hxydra|
-    hxydra.vm.box = "generic/ubuntu2204"
+    hxydra.vm.box = UBUNTU_JAMMY
     hxydra.vm.hostname = "hxydra"
     hxydra.dns.patterns = [/^hxydra.vm$/]
     hxydra.vm.network "private_network", ip: "10.11.10.10"
@@ -182,14 +162,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.memory = "4096"
         v.customize [
             "modifyvm", :id, "--natdnshostresolver1", "on",
+              "--natdnshostresolver2", "on",
         ]
     end
-    # allow guests to reach each other by hostname
-    hxydra.vm.provision "shell",
-    inline: <<-SHELL
-      apt update
-      apt install -y avahi-daemon libnss-mdns
-    SHELL
   end
 
   # issue tracker roundup: https://www.roundup-tracker.org/index.html
@@ -244,6 +219,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             "modifyvm", :id,
               "--natdnshostresolver1", "on",
               "--natdnshostresolver2", "on",
+        ]
+    end
+  end
+
+  # ubuntu sakai
+  config.vm.define "sakai" do |sakai|
+    sakai.vm.box = "UBUNTU_JAMMY"
+    sakai.vm.hostname = "sakai"
+    sakai.dns.patterns = [/^sakai.vm$/]
+    sakai.vm.network "private_network", ip: "10.77.30.40"
+
+    sakai.ssh.forward_agent = true
+    sakai.ssh.insert_key = false
+
+    sakai.vm.provider "virtualbox" do |v|
+        v.memory = "4096"
+        v.customize [
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end

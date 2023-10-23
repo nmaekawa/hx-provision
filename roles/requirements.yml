@@ -13,21 +13,22 @@ roles:
   #  version: "0.4.0"
   #  name: nmaekawa.apt
 
-  - src: git+https://github.com/geerlingguy/ansible-role-varnish.git
-    version: "3.3.0"
-    name: geerlingguy.varnish
+  #- src: git+https://github.com/geerlingguy/ansible-role-varnish.git
+  #  version: "3.3.0"
+  #  name: geerlingguy.varnish
 
     #- src: git+https://github.com/nmaekawa/ansible-role-virtualenv.git
     #version: "1.0.1"
     #name: nmaekawa.virtualenv
 
   - src: git+https://github.com/geerlingguy/ansible-role-redis.git
-    version: "d1652b4"  # 1.6.0
+    #version: "d1652b4"  # 1.6.0
+    version: "0f915fb"  # 1.8.0
     name: geerlingguy.redis
 
-  - src: git+https://github.com/Weihrauch/ansible-cloudwatch-monitoring.git
-    version: "5affd36"
-    name: weihrauch.cloudwatch-monitoring
+  #- src: git+https://github.com/Weihrauch/ansible-cloudwatch-monitoring.git
+  #  version: "5affd36"
+  #  name: weihrauch.cloudwatch-monitoring
 
     #- src: git+https://github.com/nmaekawa/ansible-role-cloudwatch.git
     #version: "4.0.0"
@@ -44,6 +45,11 @@ roles:
   - src: git+https://github.com/geerlingguy/ansible-role-nodejs.git
     version: "master"
     name: geerlingguy.nodejs
+
+  - src: git+https://github.com/geerlingguy/ansible-role-mysql.git
+    version: "master"
+    name: geerlingguy.mysql
+
 
 collections:
   - name: amazon.aws

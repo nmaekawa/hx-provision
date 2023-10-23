@@ -15,7 +15,7 @@
     - vars/postgres_vars.yml
 
   handlers:
-      - include: handlers/main.yml
+      - include_tasks: handlers/main.yml
 
   tasks:
 
@@ -25,6 +25,8 @@
 
     - include_role:
         name: external/nmaekawa.postgres
+      vars:
+        postgres_version: 12
 
     - name: make sure postgres is running
       service:
