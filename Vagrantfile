@@ -225,7 +225,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # ubuntu sakai
   config.vm.define "sakai" do |sakai|
-    sakai.vm.box = "UBUNTU_JAMMY"
+    sakai.vm.box = UBUNTU_JAMMY
     sakai.vm.hostname = "sakai"
     sakai.dns.patterns = [/^sakai.vm$/]
     sakai.vm.network "private_network", ip: "10.77.30.40"

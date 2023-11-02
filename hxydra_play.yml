@@ -194,18 +194,22 @@
         job: >
           {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
 
-    - name: cronjob to refresh report cache
-      cron:
-        name: 'refresh kondo report cache'
-        user: '{{ service_user }}'
-        hour: '5'
-        minute: '0'
-        state: present
-        job: >
-          {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py refresh_report_cache 2>&1 | logger -t '[refresh kondo cache]'
+- import_playbook: rds_service_dbdump_play.yml
+  vars:
+    project_name: hxydra
+
+#    - name: cronjob to refresh report cache
+#      cron:
+#        name: 'refresh kondo report cache'
+#        user: '{{ service_user }}'
+#        hour: '5'
+#        minute: '0'
+#        state: present
+#        job: >
+#          {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py refresh_report_cache 2>&1 | logger -t '[refresh kondo cache]'
 
 #
-#- import_playbook: nginx_backup_play.yml
+- import_playbook: nginx_backup_play.yml
 #
 #- import_playbook: route53_play.yml
 #
