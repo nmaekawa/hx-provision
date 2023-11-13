@@ -55,16 +55,16 @@ subproc_deps:
     subproc_wrapper_path: "{{ subproc_rootdir_base }}/hx_make_new_run/bin/wrapper.sh"
     subproc_script_path: "{{ subproc_rootdir_base }}/hx_make_new_run/venv/bin/hx_make_new_run"
 
-  - name: "olxcleaner"
-    git_repo: "https://github.com/jolyonb/olxcleaner.git"
-    git_revision: "master"
-    subproc_dirs_to_create:
-      - "{{ subproc_rootdir_base }}/olxcleaner"
-      - "{{ subproc_rootdir_base }}/olxcleaner/venv"
-      - "{{ subproc_rootdir_base }}/olxcleaner/bin"
-    subproc_wrapper_template: "roles/subproc_install/templates/wrapper_olxcleaner.sh.j2"
-    subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
-    subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
+  #- name: "olxcleaner"
+  #  git_repo: "https://github.com/jolyonb/olxcleaner.git"
+  #  git_revision: "master"
+  #  subproc_dirs_to_create:
+  #    - "{{ subproc_rootdir_base }}/olxcleaner"
+  #    - "{{ subproc_rootdir_base }}/olxcleaner/venv"
+  #    - "{{ subproc_rootdir_base }}/olxcleaner/bin"
+  #  subproc_wrapper_template: "roles/subproc_install/templates/wrapper_olxcleaner.sh.j2"
+  #  subproc_wrapper_path: "{{ subproc_rootdir_base }}/olxcleaner/bin/wrapper.sh"
+  #  subproc_script_path: "{{ subproc_rootdir_base }}/olxcleaner/venv/bin/edx-reporter"
 
 
 # beware that subproc_config has to be in the same order as subproc_deps
@@ -98,15 +98,15 @@ subproc_config:
       output_basename: "result"
       output_ext: "tar.gz"
       exts_in_upload: [".tar.gz"]
-    olxcleaner:
-      form_classname: "hxarc.apps.upload.forms.UploadFileForm"
-      form_template_path: "upload/upload_form.html"
-      wrapper_path: "{{ subproc_deps[3].subproc_wrapper_path }}"
-      display_name: "outline"
-      display_label: "course export tarball"
-      output_basename: "result"
-      output_ext: "tar.gz"
-      exts_in_upload: [".tar.gz"]
+    #olxcleaner:
+    #  form_classname: "hxarc.apps.upload.forms.UploadFileForm"
+    #  form_template_path: "upload/upload_form.html"
+    #  wrapper_path: "{{ subproc_deps[3].subproc_wrapper_path }}"
+    #  display_name: "outline"
+    #  display_label: "course export tarball"
+    #  output_basename: "result"
+    #  output_ext: "tar.gz"
+    #  exts_in_upload: [".tar.gz"]
 
 # hack to evaluate bash env var as json and sort out single/double quotes
 subproc_config_env: "HXARC_SUBPROCS='{{ subproc_config | to_json }}'"

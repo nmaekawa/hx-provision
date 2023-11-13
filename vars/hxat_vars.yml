@@ -115,6 +115,10 @@ service_environment:
 
   LOG_ROOT: "{{ service_data_dir }}"
 
+  VPALJWT_LOG_JWT_ERROR: "{{ lookup('env', 'HXAT_BYPASS_API_AUTH') | default('true', true) }}"
+  VPALJWT_LOG_JWT: "{{ lookup('env', 'HXAT_BYPASS_API_AUTH') | default('true', true) }}"
+  HXAT_BYPASS_API_AUTH: "{{ lookup('env', 'HXAT_BYPASS_API_AUTH') | default('false', true) }}"
+
 # only defines if in env
 
 # for Stouts.users

@@ -1,0 +1,3 @@
+awscli
+ansible
+boto3[crt]

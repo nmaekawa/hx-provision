@@ -2,7 +2,6 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = "2"
-DEFAULT_VB = "geerlingguy/ubuntu2004"
 UBUNTU2204 = "bento/ubuntu-22.04"
 UBUNTU2204_DESKTOP = "fasmat/ubuntu2204-desktop"
 UBUNTU_JAMMY = "ubuntu/jammy64"
@@ -75,8 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # hxarc node
   config.vm.define "hxarc" do |hxarc|
-    #hxarc.vm.box = "geerlingguy/ubuntu2004"
-    hxarc.vm.box = UBUNTU_FOCAL
+    hxarc.vm.box = UBUNTU_JAMMY
     hxarc.vm.hostname = "hxarc"
     hxarc.dns.patterns = [/^hxarc.vm$/]
     hxarc.vm.network "private_network", ip: "10.8.44.11"
@@ -94,7 +92,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # www2 node
   config.vm.define "www2" do |www2|
-    #www2.vm.box = DEFAULT_VB
     www2.vm.box = UBUNTU_JAMMY
     www2.vm.hostname = "www2"
     www2.dns.patterns = [/^www2.vm$/]
@@ -113,7 +110,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # fnup node  (hbso files&uploads)
   config.vm.define "fnup" do |fnup|
-    #fnup.vm.box = DEFAULT_VB
     fnup.vm.box = UBUNTU_JAMMY
     fnup.vm.hostname = "fnup"
     fnup.dns.patterns = [/^fnup.vm$/]
