@@ -10,20 +10,15 @@
   remote_user: "{{ my_remote_user }}"
   become: yes
   become_user: root
-  gather_facts: False
+  vars:
+    local_user:
+      name: '{{ service_name }}'
+      authorized: []
   vars_files:
       - vars/common_vars.yml
+      - vars/{{ ec2_tag_service }}_vars.yml
 
   tasks:
-      # https://stackoverflow.com/a/54143390
-      #- name: link to python3
-      #  raw: |
-      #    if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
-      #      ln --symbolic /usr/bin/python3 /usr/bin/python
-      #    fi
-      #  when: ansible_version.full < "2.8.0"
-
-
       - name: check timesync
         shell: |
             timedatectl | grep 'System clock synchronized' | awk '{print $4}'
@@ -48,7 +43,6 @@
           enabled: yes
         when: timesync.stdout != 'yes' #and ec2_tag_cluster != 'vagrant'
 
-
       - include_role:
           name: external/jmcvetta.passwordless_sudo
 
@@ -58,7 +52,7 @@
         #   https://stackoverflow.com/questions/46352173/ansible-failed-to-set-permissions-on-the-temporary
         # - install jq pkg to identify extra ebs mountpoint
         vars:
-          apt_other_packages: ["acl", "jq"]
+          apt_other_packages: '{{ ["acl", "jq"] + apt_service_packages }}'
 
       # unattended-updates is installed by default by nmaekawa.apt but not properly
       # configured... see:
@@ -81,4 +75,9 @@
       - include_role:
           name: external/Stouts.users
         vars:
-          users_users: '{{ users_developers }}'
+          users_users: '{{ users_developers + [local_user] }}'
+
+      - include_role:
+          name: external/nmaekawa.extra-ebs
+        when: use_aws
+

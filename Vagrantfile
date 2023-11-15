@@ -126,24 +126,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # eedev  webserver
-  config.vm.define "eedev" do |eedev|
-    eedev.vm.box = UBUNTU2204_DESKTOP
-    eedev.vm.hostname = "eedev"
-    eedev.dns.patterns = [/^eedev.vm$/]
-    eedev.vm.network "private_network", ip: "10.10.10.10"
-
-    eedev.ssh.forward_agent = true
-    eedev.ssh.insert_key = false
-
-    eedev.vm.provider "virtualbox" do |v|
-        v.memory = "4096"
-        v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
-        ]
-    end
-  end
-
   # hxydra  webserver
   config.vm.define "hxydra" do |hxydra|
     hxydra.vm.box = UBUNTU_JAMMY

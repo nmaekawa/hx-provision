@@ -1,46 +1,6 @@
 ---
-#
-# assumes common_play.yml already applied to all involved inventory
-# assumes postgres hxat database and acct already created
-# assumes postgres hxat in rds, so need to pg_dump from hxat
-#
-# required for prod when using rds:
-# ALWAYS ADD -e project_name=<project_name> to ansible-playbook extra args
-# e.g. -e project_name=hxat
-#
 
 - import_playbook: common_play.yml
-
-- hosts: '{{ target_hosts | default("tag_service_hxat", true) }}'
-  remote_user: "{{ my_remote_user }}"
-  become: yes
-  become_user: root
-  vars:
-    local_user:
-      name: '{{ service_name }}'
-      authorized: []
-  vars_files:
-    - vars/common_vars.yml
-    - vars/hxat_vars.yml
-
-  tasks:
-    - include_role:
-        name: external/nmaekawa.apt
-      vars:
-        apt_other_packages: "{{ apt_required_packages_hxat }}"
-
-    - include_role:
-        name: external/Stouts.users
-      vars:
-        users_users: '{{ [local_user] }}'
-
-    - include_role:
-        name: external/nmaekawa.extra-ebs
-      when: use_aws
-
-    - name: install redis
-      include_role:
-        name: external/geerlingguy.redis
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxat", true) }}'
@@ -53,6 +13,10 @@
     - include_tasks: handlers/main.yml
 
   tasks:
+    - name: install redis
+      include_role:
+        name: external/geerlingguy.redis
+
     - name: install webapp
       include_role:
         name: webapp_install

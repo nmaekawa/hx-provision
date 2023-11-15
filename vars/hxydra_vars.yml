@@ -161,7 +161,7 @@ users_to_install:
     - '{{ service_user }}'
 
 # for nmaekawa.apt
-apt_required_packages_hxydra:
+apt_service_packages:
     - 'unzip'
     - 'python3-pip'
     - 'python3-dev'

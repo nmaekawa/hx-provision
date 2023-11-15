@@ -177,7 +177,7 @@ gunicorn_timeout_seconds: 1200
 
 # for nmaekawa.apt
 # ---------------------------------------------------------------------------
-apt_required_packages_hxarc:
+apt_service_packages:
     - 'python3-pip'
     - 'python3-dev'
     - 'python3-setuptools'
@@ -192,9 +192,6 @@ apt_required_packages_hxarc:
 # ---------------------------------------------------------------------------
 users_enabled: yes
 
-project_users:
-    - name: '{{ service_user }}'
-      authorized: []
 
 # cloudwatch stuff
 cloudwatch_namespace_prefix: 'HX/CustomMetrics'

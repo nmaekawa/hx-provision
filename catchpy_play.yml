@@ -1,33 +1,37 @@
 ---
 
-- import_playbook: catchpy_dbserver_play.yml
-- import_playbook: postgres_acct_play.yml  # creates postgres acct and db for catchpy
-- import_playbook: catchpy_webserver_play.yml
+- import_playbook: common_play.yml
 
-- import_playbook: cloudwatch_scripts_play.yml
-  when: ec2_tag_cluster == 'prod'
 
-  # play to set route53 dns for catchpy, if devo instance
-- hosts: tag_service_catchpy
+- hosts: '{{ target_hosts | default("tag_service_catchpy", true) }}'
   remote_user: "{{ my_remote_user }}"
   become: yes
-  become_user: '{{ lookup("env", "USER") }}'
-  vars:
-      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
-      cluster_name: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory }}'
   vars_files:
-      - vars/common_vars.yml
-      - vars/catchpy_vars.yml
+    - vars/common_vars.yml
+    - vars/catchpy_vars.yml
+  handlers:
+    - include_tasks: handlers/main.yml
 
   tasks:
-      - name: add a A Record in route53 for {{ service_name }}
-        route53:
-            state: present
-            zone: '{{ org_public_domain }}'
-            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
-            type: A
-            ttl: 300
-            value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
-        delegate_to: localhost
-        when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
+    - name: install webapp
+      include_role:
+        name: webapp_install
+
+    - name: run migration and collectstatic
+      include_tasks: 'roles/webapp_install/tasks/django_manage.yml'
+
+    - name: create django admin user
+      include_tasks: 'roles/webapp_install/tasks/django_admin_user.yml'
+
+    - name: config nginx
+      include_role:
+        name: nginx
+
+
+# install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
+- import_playbook: cloudwatch_scripts_play.yml
+
+- import_playbook: nginx_backup_play.yml
+
+
 

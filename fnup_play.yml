@@ -1,10 +1,5 @@
 ---
-#
-# MAKE SURE TO USE PYTHON3 IN TARGET SERVER
-# ansible-playbook -e ansible_python_interpreter=/usr/bin/python3
-#
-# assumes common_play.yml already applied to all involved inventory
-#
+
 - import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_fnup", true) }}'
@@ -20,9 +15,6 @@
     - include_tasks: handlers/main.yml
 
   tasks:
-    - include_role:
-        name: external/nmaekawa.apt
-
     - name: allow writes in html root
       file:
         path: "{{ static_dir }}"
@@ -80,12 +72,12 @@
         group: 'www-data'
       when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
 
-      # TODO: REMOVE ME! when testing is done
-    - name: unarchive local vpail sample tar.gz
-      unarchive:
-        src: '{{ local_vpail_path_tar_gz }}'
-        dest: '{{ static_dir }}/cdn'
-        owner: 'www-data'
-        group: 'www-data'
-      when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
+    # TODO: REMOVE ME! when testing is done
+    #- name: unarchive local vpail sample tar.gz
+    #  unarchive:
+    #    src: '{{ local_vpail_path_tar_gz }}'
+    #    dest: '{{ static_dir }}/cdn'
+    #    owner: 'www-data'
+    #    group: 'www-data'
+    #  when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
 

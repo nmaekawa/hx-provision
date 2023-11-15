@@ -12,7 +12,7 @@ users_to_install:
     - 'hxops'
 
 # for nmaekawa.apt
-apt_required_packages:
+apt_service_packages:
     - 'build-essential'
     - 'libffi-dev'
     - 'openssl'

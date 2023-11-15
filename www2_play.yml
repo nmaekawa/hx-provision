@@ -1,7 +1,4 @@
 ---
-#
-# assumes common_play.yml already applied to all involved inventory
-#
 - import_playbook: common_play.yml
 
 - hosts: '{{ target_hosts | default("tag_service_www2", true) }}'
@@ -16,9 +13,6 @@
     - include_tasks: handlers/main.yml
 
   tasks:
-    - include_role:
-        name: external/nmaekawa.apt
-
     - name: config nginx
       include_role:
         name: nginx
