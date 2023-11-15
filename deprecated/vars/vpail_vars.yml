@@ -1,0 +1,77 @@
+---
+
+# WEB VARS
+# ----------------------------------------------------------------------------------
+service_name: 'vpail'
+
+# for Stouts.users
+users_enabled: yes
+users_to_install:
+    - 'nmaekawa'
+    - 'lduarte'
+    - 'hxops'
+
+# for nmaekawa.apt
+apt_required_packages:
+    - 'build-essential'
+    - 'libffi-dev'
+    - 'openssl'
+    - 'libcurl4-openssl-dev'
+    - 'python3-pip'
+    - 'python3-dev'
+    - 'python3-setuptools'
+    - 'python3-passlib'
+    - 'awscli'
+    - 'jq'
+
+# bak cronjob
+cronjob_owner: 'www-data'
+
+
+# NGINX VARS
+# ----------------------------------------------------------------------------------
+
+static_dir_root: '/var/www'
+static_dir: '{{ static_dir_root }}/html'
+
+# special case for vagrant
+vagrant_webserver_dns: '{{ inventory_hostname }}'
+
+# for local services, in prod, we use the wildcard cert with this subdomain
+# e.g. live.hxarc.harvardx.harvard.edu
+hx_prod_subdomain: "live"
+cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
+
+# locations.path is going to be created by roles/nginx/tasks/config_server.yml
+nginx_servers:
+  - nginx_template_path: roles/nginx/templates/webserver.j2
+    cfg_filename: '{{ service_name }}_static'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
+    nginx_nonssl_port: 80
+    nginx_ssl_port: 443
+    locations:
+      - prefix: '/courses'
+        root: '{{ static_dir }}'
+        path: '{{ static_dir }}/courses'
+        foisted_http_header: '{{ lookup("env", "CF_HTTP_HEADER") | default("x_custom_header", true) }}'
+        foisted_http_header_value: '{{ lookup("env", "CF_HTTP_HEADER_VALUE") | default("VALUE", true) }}'
+        is_webdav: 'no'
+      - prefix: '/cdn'
+        root: '{{ static_dir }}'
+        path: '{{ static_dir }}/cdn'
+        foisted_http_header: '{{ lookup("env", "CF_HTTP_HEADER") | default("x_custom_header", true) }}'
+        foisted_http_header_value: '{{ lookup("env", "CF_HTTP_HEADER_VALUE") | default("VALUE", true) }}'
+        is_webdav: 'no'
+
+  - nginx_template_path: roles/nginx/templates/webserver.j2
+    cfg_filename: '{{ service_name }}_webdav'
+    hx_subdomain: "{{ (ec2_tag_cluster not in ['prod', 'vagrant']) | ternary(ec2_tag_cluster, '') }}"
+    nginx_nonssl_port: 5080
+    nginx_ssl_port: 5443
+    locations:
+      - prefix: '/'
+        root: '{{ static_dir }}'
+        is_webdav: 'yes'
+        auth_basic_user_filepath: '/etc/nginx/.{{ service_name }}_webdav_creds'
+        source_auth_basic_user_filepath: '{{ local_certs_dir }}/{{ service_cert_name }}/{{ service_name }}_webdav_creds'
+
