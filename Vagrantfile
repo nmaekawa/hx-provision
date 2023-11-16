@@ -85,7 +85,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     hxarc.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -103,7 +105,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     www2.vm.provider "virtualbox" do |v|
         v.memory = "1024"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -121,7 +125,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fnup.vm.provider "virtualbox" do |v|
         v.memory = "1024"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -139,8 +145,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     hxydra.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
-              "--natdnshostresolver2", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -158,7 +165,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     roundup.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -176,7 +185,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     goaccess.vm.provider "virtualbox" do |v|
         v.memory = "4096"
         v.customize [
-            "modifyvm", :id, "--natdnshostresolver1", "on",
+            "modifyvm", :id,
+            "--natdnshostresolver1", "on",
+            "--natdnshostresolver2", "on",
         ]
     end
   end
@@ -222,12 +233,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   # allow guests to reach each other by hostname
-  config.vm.provision "allow_guest_host_resolution",
-    type: "shell",
-    inline: <<-SHELL
-      apt update
-      apt install -y avahi-daemon libnss-mdns
-    SHELL
+  #config.vm.provision "allow_guest_host_resolution",
+  #  type: "shell",
+  #  inline: <<-SHELL
+  #    apt update
+  #    apt install -y avahi-daemon libnss-mdns
+  #  SHELL
 
 end
 

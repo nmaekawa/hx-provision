@@ -1,10 +1,12 @@
----
+-  --
+
+service_name: dbserver
 
 # check in cloudformation for the device name
 ebs_device: /dev/xvdf
 ebs_mountpoint: /opt/hx
 
-postgres_version: 11
+postgres_version: 13
 
 rootdir: "{{ ebs_mountpoint }}"
 db_rootdir: "{{ rootdir }}/postgresql"
