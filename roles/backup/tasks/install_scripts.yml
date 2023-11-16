@@ -1,0 +1,16 @@
+---
+
+    - name: install packages jq, aws
+      apt:
+        name: ['jq', 'awscli']
+        state: present
+
+    - name: gather ec2 facts, instance-id
+      amazon.aws.ec2_metadata_facts:
+
+    - name: copy s3 transfer script
+      template:
+        src: ../templates/cp_file_to_s3.sh
+        dest: "{{ script_install_dir }}"
+        owner: root
+        mode: "0775"

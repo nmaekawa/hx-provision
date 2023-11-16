@@ -1,0 +1,29 @@
+---
+
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+      project_name: '{{ hostvars[inventory_hostname].ec2_tag_project | mandatory}}'
+      cluster_env: '{{ (hostvars[inventory_hostname].ec2_tag_cluster == "prod")| ternary("prod", "devo") }}'
+      service_role: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory}}'
+
+  vars_files:
+      - vars/common_vars.yml
+
+  tasks:
+
+      # install cw scripts, cronjobs for disk metrics and syslog->s3
+      - import_role:
+          name: backup
+        vars:
+          # s3_backup_bucket_name: ''  # defined in vars/common_vars.yml
+          s3_backup_prefix: '{{ cluster_env }}/{{ project_name }}'
+          file_backup_prefix: '{{ service_role }}_{{ ansible_ec2_instance_id }}'
+          files_to_backup:
+            - /var/log/nginx/access.log.1
+            - /var/log/nginx/error.log.1
+            - /var/log/syslog.1
+        when: ec2_tag_cluster == 'prod'
+

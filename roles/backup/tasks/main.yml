@@ -1,0 +1,4 @@
+---
+
+    - include_tasks: install_scripts.yml
+    - include_tasks: set_cronjobs.yml

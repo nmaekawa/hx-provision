@@ -1,0 +1,4 @@
+---
+
+script_install_dir: '/usr/local/bin'
+cronjob_owner: 'root'

@@ -1,0 +1,16 @@
+---
+
+    - name: set cronjob for s3 backup
+      cron:
+        name: "s3 backup for {{ item }}"
+        user: "{{ cronjob_owner | mandatory}}"
+        special_time: daily
+        state: present
+        job: >
+            {{ script_install_dir }}/cp_file_to_s3.sh
+            --source "{{ item }}"
+            --s3-bucket "{{ s3_backup_bucket_name }}"
+            --s3-prefix "{{ s3_backup_prefix }}"
+            --prefix "{{ file_backup_prefix }}"
+            2>&1 | logger -t "[s3 backup]"
+      with_items: "{{ files_to_backup }}"
