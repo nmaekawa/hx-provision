@@ -1,0 +1,23 @@
+---
+#
+# pulls info from servers about openssl version
+#
+
+- hosts: '{{ target_hosts | default("all", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  gather_facts: False
+  vars_files:
+      - vars/common_vars.yml
+
+  tasks:
+    - name: check openssl version
+      shell: |
+        openssl version -a
+      register: openssl_version
+
+    - name: print output
+      debug:
+        var: openssl_version
+
