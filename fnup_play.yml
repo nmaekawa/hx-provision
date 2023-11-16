@@ -72,6 +72,8 @@
         group: 'www-data'
       when: ec2_tag_cluster != 'prod' and ( local_fnup_path_tar_gz is defined )
 
+- import_playbook: backup_play.yml
+
     # TODO: REMOVE ME! when testing is done
     #- name: unarchive local vpail sample tar.gz
     #  unarchive:

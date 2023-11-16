@@ -54,7 +54,6 @@
         source_s3_sync_dir: '{{ static_dir }}'
       when: use_aws and ec2_tag_cluster == 'prod'
 
-
     - name: unarchive local www2 backup tar.gz
       unarchive:
         src: '{{ local_www2_path_tar_gz }}'
@@ -62,4 +61,6 @@
         owner: 'www-data'
         group: 'www-data'
       when: ec2_tag_cluster != 'prod' and ( local_www2_path_tar_gz is defined )
+
+- import_playbook: backup_play.yml
 

@@ -27,11 +27,7 @@
       include_role:
         name: nginx
 
-
-# install log/metrics scripts, syslog to s3, put-metrics to cloudwatch
-- import_playbook: cloudwatch_scripts_play.yml
-
-- import_playbook: nginx_backup_play.yml
+- import_playbook: backup_play.yml
 
 
 
