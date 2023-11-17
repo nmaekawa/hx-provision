@@ -1,0 +1,32 @@
+---
+
+- import_playbook: common_play.yml
+
+- hosts: '{{ target_hosts | default("tag_service_roundup", true) }}'
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars:
+    local_user:
+      name: "roundup"
+      authorized: []
+  vars_files:
+    - vars/common_vars.yml
+      #- vars/roundup_vars.yml
+
+  tasks:
+    - include_role:
+        name: external/nmaekawa.apt
+      vars:
+        apt_other_packages:
+          - unzip
+          - python3-pip
+          - python3-dev
+          - python3-setuptools
+
+    - include_role:
+        name: external/Stouts.users
+      vars:
+        users_users: '{{ [local_user] }}'
+
+

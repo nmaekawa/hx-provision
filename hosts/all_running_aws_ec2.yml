@@ -1,0 +1,27 @@
+---
+#
+# $> ANSIBLE_INVENTORY=<this_file> ansible-inventory --list
+#
+plugin: aws_ec2
+aws_profile: hx
+
+regions:
+  - us-west-2
+
+filters:
+ instance-state-name: running
+ key-name: catchpy-key
+
+hostnames:
+  - private-ip-address
+
+compose:
+  ec2_tag_project: tags.project
+  ec2_tag_service: tags.service
+  ec2_tag_cluster: tags.cluster
+  ec2_tag_stack: tags.stack
+
+keyed_groups:
+  - prefix: tag
+    key: tags
+

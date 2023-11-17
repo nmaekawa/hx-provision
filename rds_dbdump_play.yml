@@ -1,6 +1,13 @@
 
   #
   # when using rds, we have to move the db dumps to another instance
+  # this playbook is to be applied to this another instance.
+  #
+  # as of nov23, catchpy and rhetoric.catchpy are using a bak instance to do the db
+  # backups; this is due to raise in traffic during pandemic and we are trying not to
+  # overload catchpy-db traffic during db backups. By now, the load stabilized and we
+  # can revert to use one catchpy/db for all courses (merging both catchpy's is not
+  # implemented yet)
   #
   # ALWAYS ADD -e project_name=<project_name> to ansible-playbook extra args
   # e.g. -e project_name=catchpy to config backups for catchpy db

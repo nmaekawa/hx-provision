@@ -1,0 +1,24 @@
+
+#- import_playbook: common_play.yml
+
+- hosts: "{{ target_hosts | default('all', true) }}"
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/common_vars.yml
+
+  tasks:
+    #- name: install mysql
+    #  ansible.builtin.include_role:
+    #    name: external/nmaekawa.sakai
+    #    tasks_from: mysql
+
+    #- name: install tomcat
+    #  ansible.builtin.include_role:
+    #    name: external/nmaekawa.sakai
+    #    tasks_from: tomcat
+
+    - name: install sakai from source
+      ansible.builtin.include_role:
+        name: external/nmaekawa.sakai

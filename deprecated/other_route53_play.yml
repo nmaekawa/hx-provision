@@ -1,0 +1,24 @@
+---
+- hosts: tag_service_hxydra
+  remote_user: "{{ my_remote_user }}"
+  become: yes
+  become_user: '{{ lookup("env", "USER") }}'
+  vars:
+      service_name: '{{ hostvars[inventory_hostname].ec2_tag_service | mandatory }}'
+      cluster_name: '{{ hostvars[inventory_hostname].ec2_tag_cluster | mandatory }}'
+  vars_files:
+      - vars/common_vars.yml
+      - vars/hxydra_vars.yml
+
+  tasks:
+      - name: add a A Record in route53 for {{ service_name }}
+        route53:
+            state: present
+            zone: '{{ org_public_domain }}'
+            record: '{{ cluster_name }}.{{ service_cert_name }}.{{ org_public_domain }}'
+            type: A
+            ttl: 300
+            value: '{{ hostvars[inventory_hostname].ec2_ip_address }}'
+        delegate_to: localhost
+        when: "ec2_tag_cluster not in ['prod', 'demo', 'vagrant']"
+
