@@ -18,11 +18,11 @@ disclaimer
 requirements
 ============
 
-* vagrant_ 2.2.13 or later
+* vagrant_ 2.4.8 or later
   * install dns plugin vagrant-dns_: ``$> vagrant plugin install vagrant-dns``
 
 * virtualbox_ 6.1 or later
-* ansible_ 2.9.8 or later (see below)
+* ansible_ 2.15.6 or later (see below)
 
 
 setup
@@ -44,7 +44,7 @@ We usually set a virtualenv for ansible and other python packages.
     (venv) $> git clone https://github.com/nmaekawa/hximg-provision.git
 
     # install ansible-roles requirements
-    (venv) $> cd hximg-provision/roles
+    (venv) $> cd hx-provision/roles
     (venv) $> ansible-galaxy install -p ./external -r ./requirements.yml
 
     # set vagrant insecure key in your env
