@@ -45,6 +45,7 @@
 - import_playbook: rds_service_dbdump_play.yml
   vars:
     project_name: hxat
+  when: ec2_tag_cluster == 'prod'
 
 - import_playbook: backup_play.yml
 

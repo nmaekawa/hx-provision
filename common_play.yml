@@ -12,7 +12,7 @@
   become_user: root
   vars:
     local_user:
-      name: '{{ service_name }}'
+      name: '{{ ec2_tag_service }}'
       authorized: []
   vars_files:
       - vars/common_vars.yml
