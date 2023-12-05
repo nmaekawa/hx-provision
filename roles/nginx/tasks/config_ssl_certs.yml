@@ -38,7 +38,7 @@
 
     - name: copy ssl PRIVATE_key to service host
       copy:
-        src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}.key"
+        src: "{{ local_certs_dir }}/certs/{{ cert_partial_filename }}.key"
         dest: "{{ target_certs_dir }}/{{ cert_partial_filename }}.key"
         mode: 0600
       when: is_harvard_domain
@@ -54,7 +54,7 @@
 
     - name: copy ssl CERT dir to service host
       copy:
-        src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}_bundle.crt"
+        src: "{{ local_certs_dir }}/certs/{{ cert_partial_filename }}_bundle.crt"
         dest: "{{ target_certs_dir }}/{{ cert_partial_filename }}_bundle.crt"
         mode: 0644
       when: is_harvard_domain
@@ -62,7 +62,7 @@
     # TODO: this changes every renew? then overwrite
     - name: copy ssl INTERMEDIATE certs dir to service host
       copy:
-        src: "{{ local_certs_dir }}/{{ service_cert_name }}/{{ cert_partial_filename }}_interm.crt"
+        src: "{{ local_certs_dir }}/certs/{{ cert_partial_filename }}_interm.crt"
         dest: "{{ target_certs_dir }}/{{ cert_partial_filename }}_interm.crt"
         mode: 0640
       when: is_harvard_domain

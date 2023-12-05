@@ -73,5 +73,5 @@ nginx_servers:
         root: '{{ static_dir }}'
         is_webdav: 'yes'
         auth_basic_user_filepath: '/etc/nginx/.{{ service_name }}_webdav_creds'
-        source_auth_basic_user_filepath: '{{ local_certs_dir }}/{{ service_cert_name }}/{{ service_name }}_webdav_creds'
+        source_auth_basic_user_filepath: '{{ local_certs_dir }}/creds/{{ service_name }}_webdav_creds'
 
