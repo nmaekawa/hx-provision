@@ -6,7 +6,7 @@ service_name: dbserver
 ebs_device: /dev/xvdf
 ebs_mountpoint: /opt/hx
 
-postgres_version: 13
+postgres_version: 16
 
 rootdir: "{{ ebs_mountpoint }}"
 db_rootdir: "{{ rootdir }}/postgresql"

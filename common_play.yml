@@ -44,6 +44,10 @@
         when: timesync.stdout != 'yes' #and ec2_tag_cluster != 'vagrant'
 
       - include_role:
+          name: external/nmaekawa.extra-ebs
+        when: use_aws
+
+      - include_role:
           name: external/jmcvetta.passwordless_sudo
 
       - include_role:
@@ -77,7 +81,4 @@
         vars:
           users_users: '{{ users_developers + [local_user] }}'
 
-      - include_role:
-          name: external/nmaekawa.extra-ebs
-        when: use_aws
 
