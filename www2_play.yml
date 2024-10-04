@@ -17,6 +17,11 @@
       include_role:
         name: nginx
 
+    - name: install package aws via snap
+      community.general.snap:
+        name: aws-cli
+        classic: true
+
     - name: run initial s3 sync for www2 certs, pull from s3 bak
       shell: >
           /usr/bin/aws s3 sync
@@ -62,5 +67,5 @@
         group: 'www-data'
       when: ec2_tag_cluster != 'prod' and ( local_www2_path_tar_gz is defined )
 
-- import_playbook: backup_play.yml
+        #- import_playbook: backup_play.yml
 

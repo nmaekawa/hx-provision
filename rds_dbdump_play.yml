@@ -36,10 +36,15 @@
         name: external/nmaekawa.extra-ebs
       when: use_aws
 
-    - name: install packages jq, aws
+    - name: install package jq
       apt:
-        name: ['jq', 'awscli']
+        name: ['jq']
         state: present
+
+    - name: install package aws via snap
+      community.general.snap:
+        name: aws-cli
+        classic: true
 
     - name: install pg client
       include_tasks: roles/external/nmaekawa.postgres/tasks/pg_install_client.yml

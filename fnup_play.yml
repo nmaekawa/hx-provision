@@ -15,6 +15,11 @@
     - include_tasks: handlers/main.yml
 
   tasks:
+    - name: install package aws via snap
+      community.general.snap:
+        name: aws-cli
+        classic: true
+
     - name: allow writes in html root
       file:
         path: "{{ static_dir }}"
