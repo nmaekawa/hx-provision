@@ -57,6 +57,14 @@ server {
     access_log /var/log/nginx/access.log hx_combined_reqid;
 {% endif %}
 
+    if (-f $document_root/maintenance.html) {
+        return 503;
+    }
+    error_page 503 @maintenance;
+    location @maintenance {
+        rewrite ^(.*)$ /maintenance.html break;
+    }
+
     {% block error_page %}
     {% if redirect_error_to is defined and redirect_error_to != '' %}
     error_page 404 =301 {{ redirect_error_to }};
