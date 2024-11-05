@@ -33,6 +33,8 @@
       args:
         creates: "{{ static_dir }}/404.html"
 
+    - name: create crude 503 service unavailable
+      shell: echo "<html><body>503 service unavailable</body></html>" > "{{ static_dir }}/maintenance.html"
 
     - name: config server
       include_tasks: config_server.yml
