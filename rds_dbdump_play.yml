@@ -32,23 +32,22 @@
       vars:
         users_users: "{{ [db_backup_local_user] }}"
 
+    - name: install package aws-cli via snap
+      community.general.snap:
+        name: ['aws-cli']
+        classic: true
+
+    - name: install jq
+      ansible.builtin.apt:
+        name: ['jq']
+        state: present
+
     - include_role:
         name: external/nmaekawa.extra-ebs
       when: use_aws
 
-    - name: install package jq
-      apt:
-        name: ['jq']
-        state: present
-
-    - name: install package aws via snap
-      community.general.snap:
-        name: aws-cli
-        classic: true
-
     - name: install pg client
       include_tasks: roles/external/nmaekawa.postgres/tasks/pg_install_client.yml
-
 
 
 - hosts: "{{ target_hosts | default('all', true) }}"
@@ -103,7 +102,7 @@
         minute: "{{ lookup('env', 'DBBAK_SYNC_CRON_MIN') | default('45', true) }}"  # check when dumps fininh to schedule after that
         state: present
         job: >
-          /usr/bin/aws s3 sync
+          /snap/bin/aws s3 sync
           {{ db_backup_dir }}/{{ service_name }}
           s3://{{ s3_backup_bucket_name }}/{{ ec2_tag_cluster }}/{{ project_name }}/pgdump_taken_from_{{ ansible_ec2_instance_id }}
       when: ec2_tag_cluster == "prod"
