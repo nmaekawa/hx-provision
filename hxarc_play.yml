@@ -1,6 +1,6 @@
 ---
 
-- import_playbook: common_play.yml
+#- import_playbook: common_play.yml
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxarc", true) }}'
@@ -13,7 +13,7 @@
     - vars/common_vars.yml
     - vars/hxarc_vars.yml
   handlers:
-      - include: handlers/main.yml
+      - include_tasks: handlers/main.yml
 
   tasks:
     - name: SUBPROC DEPS | install subproc
@@ -73,7 +73,7 @@
     - vars/common_vars.yml
     - vars/hxarc_vars.yml
   handlers:
-      - include: handlers/main.yml
+      - include_tasks: handlers/main.yml
 
   tasks:
       - name: install redis

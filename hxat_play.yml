@@ -1,6 +1,6 @@
 ---
 
-- import_playbook: common_play.yml
+#- import_playbook: common_play.yml
 
 
 - hosts: '{{ target_hosts | default("tag_service_hxat", true) }}'
@@ -13,9 +13,9 @@
     - include_tasks: handlers/main.yml
 
   tasks:
-    - name: install redis
-      include_role:
-        name: external/geerlingguy.redis
+    #- name: install redis
+    #  include_role:
+    #    name: external/geerlingguy.redis
 
     - name: install webapp
       include_role:
@@ -42,12 +42,12 @@
           {{ service_name | upper }}_DOTENV_PATH={{ service_dotenv_path }} {{ service_venv_dir }}/bin/python3 {{ service_install_dir }}/manage.py clearsessions 2>&1 | logger -t '[clear django sessions]'
 
 
-- import_playbook: rds_service_dbdump_play.yml
-  vars:
-    project_name: hxat
-  when: ec2_tag_cluster == 'prod'
-
-- import_playbook: backup_play.yml
+#- import_playbook: rds_service_dbdump_play.yml
+#  vars:
+#    project_name: hxat
+#  when: ec2_tag_cluster == 'prod'
+#
+#- import_playbook: backup_play.yml
 
 
 

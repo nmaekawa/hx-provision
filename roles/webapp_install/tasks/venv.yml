@@ -15,6 +15,7 @@
             virtualenv: "{{ service_venv_dir }}"
             requirements: "{{ service_install_dir }}/requirements.txt"
             state: present
+        ignore_errors: true
 
       - name: venv | pip install service
         become_user: "{{ service_user }}"
