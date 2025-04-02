@@ -119,6 +119,8 @@ service_environment:
   VPALJWT_LOG_JWT: "{{ lookup('env', 'HXAT_BYPASS_API_AUTH') | default('true', true) }}"
   HXAT_BYPASS_API_AUTH: "{{ lookup('env', 'HXAT_BYPASS_API_AUTH') | default('false', true) }}"
 
+  HTTPS_ONLY: "{{ lookup('env', 'HTTPS_ONLY') | default('true', true) }}"
+  CSRF_TRUSTED_ORIGINS: "{{ lookup('env', 'CSRF_TRUSTED_ORIGINS') | default('https://*.edx.org https://*.edge.org https://*.harvardx.harvard.edu', true) }}"
 # only defines if in env
 
 # for Stouts.users
