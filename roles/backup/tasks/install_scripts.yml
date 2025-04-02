@@ -1,8 +1,13 @@
 ---
 
-    - name: install packages jq, aws
-      apt:
-        name: ['jq', 'awscli']
+    - name: install package aws-cli via snap
+      community.general.snap:
+        name: ['aws-cli']
+        classic: true
+
+    - name: install jq
+      ansible.builtin.apt:
+        name: ['jq']
         state: present
 
     - name: gather ec2 facts, instance-id
