@@ -109,7 +109,7 @@ vagrant_webserver_dns: '{{ inventory_hostname }}'
 # e.g. live.hxarc.harvardx.harvard.edu
 # but in this case, we have a second catchpy using the wildcard cert:
 # rhetoric.catchpy.harvardx.harvard.edu
-#hx_prod_subdomain: "rhetoric"
+#hx_subdomain: "rhetoric"
 #cert_partial_filename: "all_{{ service_cert_name }}_{{ org_public_domain | replace('.', '_') }}"
 # -----------MULTI-CATCHPY ---------------------------------------------------------
 
